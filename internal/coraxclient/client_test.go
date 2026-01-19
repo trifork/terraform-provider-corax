@@ -11,7 +11,7 @@ import (
 	"testing"
 )
 
-// Helper to create a test server and client
+// Helper to create a test server and client.
 func setupTestServer(t *testing.T, handler http.HandlerFunc) (*httptest.Server, *Client) {
 	t.Helper()
 	server := httptest.NewServer(handler)
@@ -22,7 +22,7 @@ func setupTestServer(t *testing.T, handler http.HandlerFunc) (*httptest.Server, 
 	return server, client
 }
 
-// TestNewClient tests client creation
+// TestNewClient tests client creation.
 func TestNewClient(t *testing.T) {
 	tests := []struct {
 		name      string
@@ -81,7 +81,7 @@ func TestNewClient(t *testing.T) {
 	}
 }
 
-// TestCreateAPIKey tests the CreateAPIKey method
+// TestCreateAPIKey tests the CreateAPIKey method.
 func TestCreateAPIKey(t *testing.T) {
 	t.Run("successful creation", func(t *testing.T) {
 		handler := func(w http.ResponseWriter, r *http.Request) {
@@ -111,7 +111,7 @@ func TestCreateAPIKey(t *testing.T) {
 			// Send response
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusOK)
-			json.NewEncoder(w).Encode(ApiKey{
+			_ = json.NewEncoder(w).Encode(ApiKey{
 				ID:        "key-123",
 				Name:      "test-key",
 				Key:       "secret-key-value",
@@ -145,7 +145,7 @@ func TestCreateAPIKey(t *testing.T) {
 		handler := func(w http.ResponseWriter, r *http.Request) {
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusUnprocessableEntity)
-			w.Write([]byte(`{"detail": "Validation error"}`))
+			_, _ = w.Write([]byte(`{"detail": "Validation error"}`))
 		}
 
 		server, client := setupTestServer(t, handler)
@@ -166,7 +166,7 @@ func TestCreateAPIKey(t *testing.T) {
 	})
 }
 
-// TestGetAPIKey tests the GetAPIKey method
+// TestGetAPIKey tests the GetAPIKey method.
 func TestGetAPIKey(t *testing.T) {
 	t.Run("successful get", func(t *testing.T) {
 		handler := func(w http.ResponseWriter, r *http.Request) {
@@ -179,7 +179,7 @@ func TestGetAPIKey(t *testing.T) {
 
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusOK)
-			json.NewEncoder(w).Encode(ApiKey{
+			_ = json.NewEncoder(w).Encode(ApiKey{
 				ID:        "key-123",
 				Name:      "test-key",
 				Key:       "",
@@ -206,7 +206,7 @@ func TestGetAPIKey(t *testing.T) {
 	t.Run("not found", func(t *testing.T) {
 		handler := func(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusNotFound)
-			w.Write([]byte(`{"detail": "Not found"}`))
+			_, _ = w.Write([]byte(`{"detail": "Not found"}`))
 		}
 
 		server, client := setupTestServer(t, handler)
@@ -233,7 +233,7 @@ func TestGetAPIKey(t *testing.T) {
 	})
 }
 
-// TestDeleteAPIKey tests the DeleteAPIKey method
+// TestDeleteAPIKey tests the DeleteAPIKey method.
 func TestDeleteAPIKey(t *testing.T) {
 	t.Run("successful delete", func(t *testing.T) {
 		handler := func(w http.ResponseWriter, r *http.Request) {
@@ -276,7 +276,7 @@ func TestDeleteAPIKey(t *testing.T) {
 	})
 }
 
-// TestCreateProject tests the CreateProject method
+// TestCreateProject tests the CreateProject method.
 func TestCreateProject(t *testing.T) {
 	t.Run("successful creation", func(t *testing.T) {
 		handler := func(w http.ResponseWriter, r *http.Request) {
@@ -298,7 +298,7 @@ func TestCreateProject(t *testing.T) {
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusOK)
 			// Include all required fields for the generated client
-			json.NewEncoder(w).Encode(map[string]interface{}{
+			_ = json.NewEncoder(w).Encode(map[string]interface{}{
 				"id":               "proj-123",
 				"name":             "test-project",
 				"is_public":        false,
@@ -328,7 +328,7 @@ func TestCreateProject(t *testing.T) {
 	})
 }
 
-// TestGetProject tests the GetProject method
+// TestGetProject tests the GetProject method.
 func TestGetProject(t *testing.T) {
 	t.Run("successful get", func(t *testing.T) {
 		handler := func(w http.ResponseWriter, r *http.Request) {
@@ -342,7 +342,7 @@ func TestGetProject(t *testing.T) {
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusOK)
 			// Include all required fields for the generated client
-			json.NewEncoder(w).Encode(map[string]interface{}{
+			_ = json.NewEncoder(w).Encode(map[string]interface{}{
 				"id":               "proj-123",
 				"name":             "test-project",
 				"is_public":        false,
@@ -388,7 +388,7 @@ func TestGetProject(t *testing.T) {
 	})
 }
 
-// TestUpdateProject tests the UpdateProject method
+// TestUpdateProject tests the UpdateProject method.
 func TestUpdateProject(t *testing.T) {
 	t.Run("successful update", func(t *testing.T) {
 		handler := func(w http.ResponseWriter, r *http.Request) {
@@ -407,7 +407,7 @@ func TestUpdateProject(t *testing.T) {
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusOK)
 			// Include all required fields for the generated client
-			json.NewEncoder(w).Encode(map[string]interface{}{
+			_ = json.NewEncoder(w).Encode(map[string]interface{}{
 				"id":               "proj-123",
 				"name":             reqBody.Name,
 				"is_public":        reqBody.IsPublic,
@@ -438,7 +438,7 @@ func TestUpdateProject(t *testing.T) {
 	})
 }
 
-// TestDeleteProject tests the DeleteProject method
+// TestDeleteProject tests the DeleteProject method.
 func TestDeleteProject(t *testing.T) {
 	t.Run("successful delete", func(t *testing.T) {
 		handler := func(w http.ResponseWriter, r *http.Request) {
@@ -463,7 +463,7 @@ func TestDeleteProject(t *testing.T) {
 	})
 }
 
-// TestCreateModelDeployment tests the CreateModelDeployment method
+// TestCreateModelDeployment tests the CreateModelDeployment method.
 func TestCreateModelDeployment(t *testing.T) {
 	t.Run("successful creation", func(t *testing.T) {
 		handler := func(w http.ResponseWriter, r *http.Request) {
@@ -476,7 +476,7 @@ func TestCreateModelDeployment(t *testing.T) {
 
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusOK)
-			json.NewEncoder(w).Encode(ModelDeployment{
+			_ = json.NewEncoder(w).Encode(ModelDeployment{
 				ID:             "deploy-123",
 				Name:           "test-deployment",
 				ProviderID:     "prov-123",
@@ -506,7 +506,7 @@ func TestCreateModelDeployment(t *testing.T) {
 	})
 }
 
-// TestGetModelDeployment tests the GetModelDeployment method
+// TestGetModelDeployment tests the GetModelDeployment method.
 func TestGetModelDeployment(t *testing.T) {
 	t.Run("successful get", func(t *testing.T) {
 		handler := func(w http.ResponseWriter, r *http.Request) {
@@ -519,7 +519,7 @@ func TestGetModelDeployment(t *testing.T) {
 
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusOK)
-			json.NewEncoder(w).Encode(ModelDeployment{
+			_ = json.NewEncoder(w).Encode(ModelDeployment{
 				ID:             "deploy-123",
 				Name:           "test-deployment",
 				ProviderID:     "prov-123",
@@ -562,7 +562,7 @@ func TestGetModelDeployment(t *testing.T) {
 	})
 }
 
-// TestCreateModelProvider tests the CreateModelProvider method
+// TestCreateModelProvider tests the CreateModelProvider method.
 func TestCreateModelProvider(t *testing.T) {
 	t.Run("successful creation", func(t *testing.T) {
 		handler := func(w http.ResponseWriter, r *http.Request) {
@@ -575,7 +575,7 @@ func TestCreateModelProvider(t *testing.T) {
 
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusOK)
-			json.NewEncoder(w).Encode(ModelProvider{
+			_ = json.NewEncoder(w).Encode(ModelProvider{
 				ID:            "prov-123",
 				Name:          "test-provider",
 				ProviderType:  "openai",
@@ -603,7 +603,7 @@ func TestCreateModelProvider(t *testing.T) {
 	})
 }
 
-// TestGetModelProvider tests the GetModelProvider method
+// TestGetModelProvider tests the GetModelProvider method.
 func TestGetModelProvider(t *testing.T) {
 	t.Run("successful get", func(t *testing.T) {
 		handler := func(w http.ResponseWriter, r *http.Request) {
@@ -616,7 +616,7 @@ func TestGetModelProvider(t *testing.T) {
 
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusOK)
-			json.NewEncoder(w).Encode(ModelProvider{
+			_ = json.NewEncoder(w).Encode(ModelProvider{
 				ID:            "prov-123",
 				Name:          "test-provider",
 				ProviderType:  "openai",
@@ -640,7 +640,7 @@ func TestGetModelProvider(t *testing.T) {
 	})
 }
 
-// TestAPIErrorIs tests the errors.Is functionality for APIError
+// TestAPIErrorIs tests the errors.Is functionality for APIError.
 func TestAPIErrorIs(t *testing.T) {
 	t.Run("is ErrNotFound", func(t *testing.T) {
 		err := &APIError{StatusCode: http.StatusNotFound, Message: "not found"}
@@ -657,7 +657,7 @@ func TestAPIErrorIs(t *testing.T) {
 	})
 }
 
-// TestGetCapability tests the GetCapability method
+// TestGetCapability tests the GetCapability method.
 func TestGetCapability(t *testing.T) {
 	t.Run("successful get", func(t *testing.T) {
 		handler := func(w http.ResponseWriter, r *http.Request) {
@@ -670,7 +670,7 @@ func TestGetCapability(t *testing.T) {
 
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusOK)
-			json.NewEncoder(w).Encode(map[string]interface{}{
+			_ = json.NewEncoder(w).Encode(map[string]interface{}{
 				"id":                 "cap-123",
 				"name":               "test-capability",
 				"type":               "chat",
@@ -720,7 +720,7 @@ func TestGetCapability(t *testing.T) {
 	})
 }
 
-// TestDeleteCapability tests the DeleteCapability method
+// TestDeleteCapability tests the DeleteCapability method.
 func TestDeleteCapability(t *testing.T) {
 	t.Run("successful delete", func(t *testing.T) {
 		handler := func(w http.ResponseWriter, r *http.Request) {
@@ -745,7 +745,7 @@ func TestDeleteCapability(t *testing.T) {
 	})
 }
 
-// TestListCapabilityTypes tests the ListCapabilityTypes method
+// TestListCapabilityTypes tests the ListCapabilityTypes method.
 func TestListCapabilityTypes(t *testing.T) {
 	t.Run("successful list", func(t *testing.T) {
 		handler := func(w http.ResponseWriter, r *http.Request) {
@@ -758,7 +758,7 @@ func TestListCapabilityTypes(t *testing.T) {
 
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusOK)
-			json.NewEncoder(w).Encode(CapabilityTypesRepresentation{
+			_ = json.NewEncoder(w).Encode(CapabilityTypesRepresentation{
 				Embedded: []CapabilityTypeRepresentation{
 					{ID: "chat", Name: "Chat"},
 					{ID: "completion", Name: "Completion"},
@@ -780,7 +780,7 @@ func TestListCapabilityTypes(t *testing.T) {
 	})
 }
 
-// TestGetCapabilityType tests the GetCapabilityType method
+// TestGetCapabilityType tests the GetCapabilityType method.
 func TestGetCapabilityType(t *testing.T) {
 	t.Run("successful get", func(t *testing.T) {
 		handler := func(w http.ResponseWriter, r *http.Request) {
@@ -793,7 +793,7 @@ func TestGetCapabilityType(t *testing.T) {
 
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusOK)
-			json.NewEncoder(w).Encode(CapabilityTypeRepresentation{
+			_ = json.NewEncoder(w).Encode(CapabilityTypeRepresentation{
 				ID:   "chat",
 				Name: "Chat",
 			})
