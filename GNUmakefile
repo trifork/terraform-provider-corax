@@ -19,6 +19,10 @@ test:
 	go test -v -cover -timeout=120s -parallel=10 ./...
 
 testacc:
-	TF_ACC=1 go test -v -cover -timeout 120m ./...
+	@if [ -f .env ]; then \
+		export $$(cat .env | xargs) && TF_ACC=1 go test -v -cover -timeout 120m ./...; \
+	else \
+		TF_ACC=1 go test -v -cover -timeout 120m ./...; \
+	fi
 
 .PHONY: fmt lint test testacc build install generate

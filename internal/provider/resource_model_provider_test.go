@@ -15,10 +15,15 @@ func TestAccModelProviderResource_basic(t *testing.T) {
 		t.Skip("Skipping acceptance test: CORAX_API_ENDPOINT or CORAX_API_KEY not set")
 	}
 
+	// Provider type must be valid in the target Corax API
+	providerType := os.Getenv("CORAX_TEST_MODEL_PROVIDER_TYPE")
+	if providerType == "" {
+		t.Skip("Skipping acceptance test: CORAX_TEST_MODEL_PROVIDER_TYPE must be set with a valid provider type (e.g., 'azure_openai', 'openai')")
+	}
+
 	resourceName := "corax_model_provider.test"
 	// providerName := "tf-acc-test-provider-" + acctest.RandStringFromCharSet(10, acctest.CharSetAlphaNum)
 	providerName := "tf-acc-test-provider-basic" // Using a fixed name for simplicity in this example
-	providerType := "azure_openai"               // Example type, ensure this is valid in your Corax API
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },

@@ -45,8 +45,12 @@ type ChatCapabilityResourceModel struct {
 	ProjectID    types.String `tfsdk:"project_id"` // Nullable
 	SystemPrompt types.String `tfsdk:"system_prompt"`
 	// CollectionIDs types.List   `tfsdk:"collection_ids"` // Omitted for now as per decision to skip collection-related features
-	Owner types.String `tfsdk:"owner"` // Computed
-	Type  types.String `tfsdk:"type"`  // Computed, should always be "chat"
+	Owner     types.String `tfsdk:"owner"`      // Computed
+	Type      types.String `tfsdk:"type"`       // Computed, should always be "chat"
+	CreatedAt types.String `tfsdk:"created_at"` // Computed
+	UpdatedAt types.String `tfsdk:"updated_at"` // Computed
+	CreatedBy types.String `tfsdk:"created_by"` // Computed
+	UpdatedBy types.String `tfsdk:"updated_by"` // Computed
 }
 
 func (r *ChatCapabilityResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -94,11 +98,28 @@ func (r *ChatCapabilityResource) Schema(ctx context.Context, req resource.Schema
 			// },
 			"config": schema.SingleNestedAttribute{
 				Optional:            true,
+				Computed:            true,
 				MarkdownDescription: "Configuration settings for the capability's behavior.",
 				Attributes:          capabilityConfigSchemaAttributes(), // Use shared schema attributes
 			},
 			"owner": schema.StringAttribute{Computed: true, MarkdownDescription: "Owner of the capability.", PlanModifiers: []planmodifier.String{stringplanmodifier.UseStateForUnknown()}},
 			"type":  schema.StringAttribute{Computed: true, MarkdownDescription: "Type of the capability (should be 'chat').", PlanModifiers: []planmodifier.String{stringplanmodifier.UseStateForUnknown()}},
+			"created_at": schema.StringAttribute{
+				Computed:            true,
+				MarkdownDescription: "The date and time the capability was created (RFC3339 format).",
+			},
+			"updated_at": schema.StringAttribute{
+				Computed:            true,
+				MarkdownDescription: "The date and time the capability was last updated (RFC3339 format).",
+			},
+			"created_by": schema.StringAttribute{
+				Computed:            true,
+				MarkdownDescription: "The identifier of who created the capability.",
+			},
+			"updated_by": schema.StringAttribute{
+				Computed:            true,
+				MarkdownDescription: "The identifier of who last updated the capability.",
+			},
 		},
 	}
 }
@@ -151,6 +172,10 @@ func mapAPICapabilityToChatModel(apiCap *coraxclient.CapabilityRepresentation, m
 	model.Config = capabilityConfigAPItoModel(ctx, apiCap.Config, diags)
 
 	model.Owner = types.StringValue(apiCap.Owner)
+	model.CreatedAt = types.StringValue(apiCap.CreatedAt)
+	model.UpdatedAt = types.StringValue(apiCap.UpdatedAt)
+	model.CreatedBy = types.StringValue(apiCap.CreatedBy)
+	model.UpdatedBy = types.StringValue(apiCap.UpdatedBy)
 }
 
 func (r *ChatCapabilityResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {

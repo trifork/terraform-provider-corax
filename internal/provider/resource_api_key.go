@@ -41,6 +41,9 @@ type APIKeyResourceModel struct {
 	IsActive   types.Bool   `tfsdk:"is_active"`
 	LastUsedAt types.String `tfsdk:"last_used_at"`
 	UsageCount types.Int64  `tfsdk:"usage_count"`
+	CreatedAt  types.String `tfsdk:"created_at"`
+	CreatedBy  types.String `tfsdk:"created_by"`
+	UpdatedAt  types.String `tfsdk:"updated_at"`
 }
 
 func (r *APIKeyResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -90,6 +93,18 @@ func (r *APIKeyResource) Schema(ctx context.Context, req resource.SchemaRequest,
 			"usage_count": schema.Int64Attribute{
 				Computed:            true,
 				MarkdownDescription: "The number of times the API key has been used.",
+			},
+			"created_at": schema.StringAttribute{
+				Computed:            true,
+				MarkdownDescription: "The date and time the API key was created (RFC3339 format).",
+			},
+			"created_by": schema.StringAttribute{
+				Computed:            true,
+				MarkdownDescription: "The identifier of who created the API key.",
+			},
+			"updated_at": schema.StringAttribute{
+				Computed:            true,
+				MarkdownDescription: "The date and time the API key was last updated (RFC3339 format).",
 			},
 		},
 	}
@@ -151,6 +166,13 @@ func (r *APIKeyResource) Create(ctx context.Context, req resource.CreateRequest,
 	} else {
 		data.ExpiresAt = types.StringNull() // Should not happen based on schema (required)
 	}
+	data.CreatedAt = types.StringValue(createdAPIKey.CreatedAt)
+	data.CreatedBy = types.StringValue(createdAPIKey.CreatedBy)
+	if createdAPIKey.UpdatedAt != nil && *createdAPIKey.UpdatedAt != "" {
+		data.UpdatedAt = types.StringValue(*createdAPIKey.UpdatedAt)
+	} else {
+		data.UpdatedAt = types.StringNull()
+	}
 
 	tflog.Info(ctx, fmt.Sprintf("API Key created successfully with ID: %s", createdAPIKey.ID))
 
@@ -196,6 +218,13 @@ func (r *APIKeyResource) Read(ctx context.Context, req resource.ReadRequest, res
 		data.LastUsedAt = types.StringNull()
 	}
 	data.UsageCount = types.Int64Value(int64(apiKey.UsageCount))
+	data.CreatedAt = types.StringValue(apiKey.CreatedAt)
+	data.CreatedBy = types.StringValue(apiKey.CreatedBy)
+	if apiKey.UpdatedAt != nil && *apiKey.UpdatedAt != "" {
+		data.UpdatedAt = types.StringValue(*apiKey.UpdatedAt)
+	} else {
+		data.UpdatedAt = types.StringNull()
+	}
 	// Note: The 'key' field is typically not returned by a GET request for security reasons.
 	// It should remain as it was set during creation (or import). data.Key is already populated from state.
 

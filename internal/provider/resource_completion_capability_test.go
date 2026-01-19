@@ -160,7 +160,7 @@ resource "corax_completion_capability" "test_schema" {
     })
   }
 
-  config {
+  config = {
     temperature = 0.5
   }
 }
