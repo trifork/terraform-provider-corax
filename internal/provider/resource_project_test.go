@@ -82,7 +82,7 @@ func TestAccProjectResource(t *testing.T) {
 				Config: testAccProjectResourceConfigNoDescription(projectNameUpdated),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr(resourceFullName, "name", projectNameUpdated),
-					resource.TestCheckResourceAttr(resourceFullName, "description", ""), // Expect empty or null
+					resource.TestCheckNoResourceAttr(resourceFullName, "description"), // Expect null when omitted
 					resource.TestCheckResourceAttr(resourceFullName, "is_public", "false"),
 				),
 			},

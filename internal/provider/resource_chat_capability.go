@@ -13,6 +13,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/objectplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
@@ -45,8 +46,12 @@ type ChatCapabilityResourceModel struct {
 	ProjectID    types.String `tfsdk:"project_id"` // Nullable
 	SystemPrompt types.String `tfsdk:"system_prompt"`
 	// CollectionIDs types.List   `tfsdk:"collection_ids"` // Omitted for now as per decision to skip collection-related features
-	Owner types.String `tfsdk:"owner"` // Computed
-	Type  types.String `tfsdk:"type"`  // Computed, should always be "chat"
+	Owner     types.String `tfsdk:"owner"`      // Computed
+	Type      types.String `tfsdk:"type"`       // Computed, should always be "chat"
+	CreatedAt types.String `tfsdk:"created_at"` // Computed
+	UpdatedAt types.String `tfsdk:"updated_at"` // Computed
+	CreatedBy types.String `tfsdk:"created_by"` // Computed
+	UpdatedBy types.String `tfsdk:"updated_by"` // Computed
 }
 
 func (r *ChatCapabilityResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -94,11 +99,33 @@ func (r *ChatCapabilityResource) Schema(ctx context.Context, req resource.Schema
 			// },
 			"config": schema.SingleNestedAttribute{
 				Optional:            true,
+				Computed:            true,
 				MarkdownDescription: "Configuration settings for the capability's behavior.",
 				Attributes:          capabilityConfigSchemaAttributes(), // Use shared schema attributes
+				PlanModifiers:       []planmodifier.Object{objectplanmodifier.UseStateForUnknown()},
 			},
 			"owner": schema.StringAttribute{Computed: true, MarkdownDescription: "Owner of the capability.", PlanModifiers: []planmodifier.String{stringplanmodifier.UseStateForUnknown()}},
 			"type":  schema.StringAttribute{Computed: true, MarkdownDescription: "Type of the capability (should be 'chat').", PlanModifiers: []planmodifier.String{stringplanmodifier.UseStateForUnknown()}},
+			"created_at": schema.StringAttribute{
+				Computed:            true,
+				MarkdownDescription: "The date and time the capability was created (RFC3339 format).",
+				PlanModifiers:       []planmodifier.String{stringplanmodifier.UseStateForUnknown()},
+			},
+			"updated_at": schema.StringAttribute{
+				Computed:            true,
+				MarkdownDescription: "The date and time the capability was last updated (RFC3339 format).",
+				PlanModifiers:       []planmodifier.String{stringplanmodifier.UseStateForUnknown()},
+			},
+			"created_by": schema.StringAttribute{
+				Computed:            true,
+				MarkdownDescription: "The identifier of who created the capability.",
+				PlanModifiers:       []planmodifier.String{stringplanmodifier.UseStateForUnknown()},
+			},
+			"updated_by": schema.StringAttribute{
+				Computed:            true,
+				MarkdownDescription: "The identifier of who last updated the capability.",
+				PlanModifiers:       []planmodifier.String{stringplanmodifier.UseStateForUnknown()},
+			},
 		},
 	}
 }
@@ -151,6 +178,10 @@ func mapAPICapabilityToChatModel(apiCap *coraxclient.CapabilityRepresentation, m
 	model.Config = capabilityConfigAPItoModel(ctx, apiCap.Config, diags)
 
 	model.Owner = types.StringValue(apiCap.Owner)
+	model.CreatedAt = types.StringValue(apiCap.CreatedAt)
+	model.UpdatedAt = types.StringValue(apiCap.UpdatedAt)
+	model.CreatedBy = types.StringValue(apiCap.CreatedBy)
+	model.UpdatedBy = types.StringValue(apiCap.UpdatedBy)
 }
 
 func (r *ChatCapabilityResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
@@ -318,6 +349,14 @@ func (r *ChatCapabilityResource) Update(ctx context.Context, req resource.Update
 	if resp.Diagnostics.HasError() {
 		return
 	}
+
+	// Preserve immutable computed fields from state to avoid "inconsistent result" errors
+	// caused by timestamp precision differences or server-side timing.
+	// The next Read operation will refresh these from the API.
+	plan.CreatedAt = state.CreatedAt
+	plan.CreatedBy = state.CreatedBy
+	plan.UpdatedAt = state.UpdatedAt
+	plan.UpdatedBy = state.UpdatedBy
 
 	tflog.Info(ctx, fmt.Sprintf("Chat Capability %s updated successfully", capabilityID))
 	resp.Diagnostics.Append(resp.State.Set(ctx, &plan)...)
