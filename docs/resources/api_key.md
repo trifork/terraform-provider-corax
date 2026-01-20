@@ -22,9 +22,12 @@ Manages a Corax API Key.
 
 ### Read-Only
 
+- `created_at` (String) The date and time the API key was created (RFC3339 format).
+- `created_by` (String) The identifier of who created the API key.
 - `id` (String) The unique identifier for the API key.
 - `is_active` (Boolean) Indicates whether the API key is active.
 - `key` (String, Sensitive) The API key secret. This is only available upon creation.
 - `last_used_at` (String) The date and time the API key was last used.
 - `prefix` (String) The prefix of the API key.
+- `updated_at` (String) The date and time the API key was last updated (RFC3339 format).
 - `usage_count` (Number) The number of times the API key has been used.
