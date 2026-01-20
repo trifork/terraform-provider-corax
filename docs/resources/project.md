@@ -26,4 +26,9 @@ Manages a Corax Project. Projects are used to organize collections and capabilit
 
 ### Read-Only
 
+- `capability_count` (Number) The number of capabilities in the project.
+- `collection_count` (Number) The number of collections in the project.
+- `created_at` (String) The date and time the project was created (RFC3339 format).
+- `created_by` (String) The ID of the user who created the project.
 - `id` (String) The unique identifier for the project (UUID).
+- `owner` (String) The owner of the project.

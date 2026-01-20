@@ -82,8 +82,8 @@ func TestAccAPIKeyResource(t *testing.T) {
 }
 
 func testAccAPIKeyResourceConfig(apiKeyName string) string {
-	// Calculate expires_at for 1 hour from now in RFC3339 format
-	expiresAt := time.Now().Add(1 * time.Hour).Format(time.RFC3339)
+	// Calculate expires_at for 1 hour from now in RFC3339 format, always in UTC
+	expiresAt := time.Now().Add(1 * time.Hour).UTC().Format(time.RFC3339)
 	return fmt.Sprintf(`
 provider "corax" {
   # api_endpoint and api_key should be configured via environment variables
