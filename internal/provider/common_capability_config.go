@@ -168,6 +168,7 @@ func capabilityConfigSchemaAttributes() map[string]schema.Attribute {
 		},
 		"data_retention": schema.SingleNestedAttribute{
 			Optional:            true,
+			Computed:            true,
 			MarkdownDescription: "Defines how long execution input and output data should be kept. Configure with 'type' and optionally 'hours'.",
 			Attributes: map[string]schema.Attribute{
 				"type": schema.StringAttribute{

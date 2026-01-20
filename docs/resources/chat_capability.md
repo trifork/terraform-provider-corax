@@ -29,9 +29,13 @@ Manages a Corax Chat Capability. Chat capabilities define configurations for con
 
 ### Read-Only
 
+- `created_at` (String) The date and time the capability was created (RFC3339 format).
+- `created_by` (String) The identifier of who created the capability.
 - `id` (String) The unique identifier for the chat capability (UUID).
 - `owner` (String) Owner of the capability.
 - `type` (String) Type of the capability (should be 'chat').
+- `updated_at` (String) The date and time the capability was last updated (RFC3339 format).
+- `updated_by` (String) The identifier of who last updated the capability.
 
 <a id="nestedatt--config"></a>
 ### Nested Schema for `config`

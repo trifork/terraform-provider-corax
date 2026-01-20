@@ -37,22 +37,32 @@ type ProjectResource struct {
 // ProjectResourceModel describes the resource data model.
 // Based on openapi.json components.schemas.Project.
 type ProjectResourceModel struct {
-	ID          types.String `tfsdk:"id"`
-	Name        types.String `tfsdk:"name"`
-	Description types.String `tfsdk:"description"`
-	IsPublic    types.Bool   `tfsdk:"is_public"`
+	ID              types.String `tfsdk:"id"`
+	Name            types.String `tfsdk:"name"`
+	Description     types.String `tfsdk:"description"`
+	IsPublic        types.Bool   `tfsdk:"is_public"`
+	CreatedBy       types.String `tfsdk:"created_by"`
+	CreatedAt       types.String `tfsdk:"created_at"`
+	Owner           types.String `tfsdk:"owner"`
+	CollectionCount types.Int64  `tfsdk:"collection_count"`
+	CapabilityCount types.Int64  `tfsdk:"capability_count"`
 }
 
 // Helper function to map API Project to Terraform model.
 func mapProjectToModel(project *coraxclient.Project, model *ProjectResourceModel) {
 	model.ID = types.StringValue(project.ID)
 	model.Name = types.StringValue(project.Name)
-	if project.Description != nil {
+	if project.Description != nil && *project.Description != "" {
 		model.Description = types.StringValue(*project.Description)
 	} else {
 		model.Description = types.StringNull()
 	}
 	model.IsPublic = types.BoolValue(project.IsPublic)
+	model.CreatedBy = types.StringValue(project.CreatedBy)
+	model.CreatedAt = types.StringValue(project.CreatedAt)
+	model.Owner = types.StringValue(project.Owner)
+	model.CollectionCount = types.Int64Value(int64(project.CollectionCount))
+	model.CapabilityCount = types.Int64Value(int64(project.CapabilityCount))
 }
 
 func (r *ProjectResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -86,6 +96,35 @@ func (r *ProjectResource) Schema(ctx context.Context, req resource.SchemaRequest
 					// Use the API's default if the user doesn't specify a value.
 					boolplanmodifier.UseStateForUnknown(),
 				},
+			},
+			"created_by": schema.StringAttribute{
+				Computed:            true,
+				MarkdownDescription: "The ID of the user who created the project.",
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
+			},
+			"created_at": schema.StringAttribute{
+				Computed:            true,
+				MarkdownDescription: "The date and time the project was created (RFC3339 format).",
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
+			},
+			"owner": schema.StringAttribute{
+				Computed:            true,
+				MarkdownDescription: "The owner of the project.",
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.UseStateForUnknown(),
+				},
+			},
+			"collection_count": schema.Int64Attribute{
+				Computed:            true,
+				MarkdownDescription: "The number of collections in the project.",
+			},
+			"capability_count": schema.Int64Attribute{
+				Computed:            true,
+				MarkdownDescription: "The number of capabilities in the project.",
 			},
 		},
 	}
