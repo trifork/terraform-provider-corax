@@ -13,6 +13,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/mapplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
@@ -80,6 +81,7 @@ func (r *ModelDeploymentResource) Schema(ctx context.Context, req resource.Schem
 				ElementType:         types.StringType, // Assuming string values for simplicity. API says object with additionalProperties.
 				Required:            true,
 				MarkdownDescription: "Configuration key-value pairs specific to the model deployment (e.g., model name, API version for Azure OpenAI).",
+				PlanModifiers:       []planmodifier.Map{mapplanmodifier.RequiresReplace()},
 			},
 			"is_active": schema.BoolAttribute{
 				Optional:            true,
@@ -231,6 +233,11 @@ func (r *ModelDeploymentResource) Create(ctx context.Context, req resource.Creat
 		return
 	}
 
+	// Save the original plan configuration to preserve it after API response mapping
+	// This prevents "inconsistent final plan" errors when configuration values
+	// reference resources that were unknown during planning but became known during apply
+	originalConfiguration := plan.Configuration
+
 	apiCreatePayload, err := modelDeploymentResourceModelToAPICreate(ctx, plan, &resp.Diagnostics)
 	if err != nil {
 		// Diagnostics already appended by helper
@@ -251,6 +258,10 @@ func (r *ModelDeploymentResource) Create(ctx context.Context, req resource.Creat
 	if resp.Diagnostics.HasError() {
 		return
 	}
+
+	// Restore the original plan configuration to avoid "inconsistent final plan" errors
+	// The API response may have different values if referenced resources were unknown during planning
+	plan.Configuration = originalConfiguration
 
 	tflog.Info(ctx, fmt.Sprintf("Model Deployment %s created successfully with ID %s", plan.Name.ValueString(), plan.ID.ValueString()))
 	resp.Diagnostics.Append(resp.State.Set(ctx, &plan)...)
