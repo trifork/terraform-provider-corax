@@ -3,11 +3,10 @@
 package coraxclient
 
 import (
-	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
-	"io"
+	"math"
 	"net/http"
 	"net/url"
 	"strings"
@@ -168,76 +167,6 @@ func formatTimePtr(t *time.Time) *string {
 	return &s
 }
 
-func (c *Client) newRequest(ctx context.Context, method, path string, body interface{}) (*http.Request, error) {
-	relURL, err := url.Parse(path)
-	if err != nil {
-		return nil, fmt.Errorf("failed to parse path: %w", err)
-	}
-
-	fullURL := c.BaseURL.ResolveReference(relURL)
-
-	var reqBody io.ReadWriter
-	if body != nil {
-		jsonData, err := json.Marshal(body)
-		if err != nil {
-			return nil, fmt.Errorf("failed to marshal request body: %w", err)
-		}
-		reqBody = bytes.NewBuffer(jsonData)
-	}
-
-	req, err := http.NewRequestWithContext(ctx, method, fullURL.String(), reqBody)
-	if err != nil {
-		return nil, fmt.Errorf("failed to create request: %w", err)
-	}
-
-	req.Header.Set(apiKeyHeader, c.APIKey)
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Accept", "application/json")
-	req.Header.Set("User-Agent", c.UserAgent)
-
-	return req, nil
-}
-
-func (c *Client) doRequest(req *http.Request, v interface{}) error {
-	resp, err := c.httpClient.Do(req)
-	if err != nil {
-		return fmt.Errorf("failed to execute request: %w", err)
-	}
-	defer resp.Body.Close()
-
-	respBodyBytes, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return fmt.Errorf("failed to read response body: %w", err)
-	}
-
-	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
-		apiErr := &APIError{
-			StatusCode: resp.StatusCode,
-			Body:       respBodyBytes,
-		}
-		// Try to unmarshal into a standard error structure if available
-		// For now, just use a generic message or the body itself if it's short.
-		if len(respBodyBytes) > 0 && len(respBodyBytes) < 512 { // Arbitrary limit for error message
-			apiErr.Message = string(respBodyBytes)
-		} else {
-			apiErr.Message = http.StatusText(resp.StatusCode)
-		}
-		if resp.StatusCode == http.StatusNotFound {
-			apiErr.Message = "resource not found"
-			return apiErr
-		}
-		return apiErr
-	}
-
-	if v != nil {
-		if err := json.Unmarshal(respBodyBytes, v); err != nil {
-			return fmt.Errorf("failed to unmarshal response body: %w, body: %s", err, string(respBodyBytes))
-		}
-	}
-
-	return nil
-}
-
 // CreateAPIKey creates a new API key.
 // Corresponds to POST /v1/api-keys.
 func (c *Client) CreateAPIKey(ctx context.Context, apiKeyData ApiKeyCreate) (*ApiKey, error) {
@@ -301,22 +230,66 @@ func convertApiKey(gen *api.ApiKey) *ApiKey {
 }
 
 // GetAPIKey retrieves a specific API key by its ID.
-// Corresponds to GET /v1/api-keys/{key_id}.
+// Since there's no GET /v1/api-keys/{key_id} endpoint, we use the list endpoint
+// with a filter to find the specific API key.
 func (c *Client) GetAPIKey(ctx context.Context, keyID string) (*ApiKey, error) {
 	if strings.TrimSpace(keyID) == "" {
 		return nil, fmt.Errorf("keyID cannot be empty")
 	}
-	path := fmt.Sprintf("/v1/api-keys/%s", keyID)
-	req, err := c.newRequest(ctx, http.MethodGet, path, nil)
+
+	// Use the list endpoint with a filter to find the specific key
+	filter := fmt.Sprintf("id::%s", keyID)
+	result, resp, err := c.generated.APIKeysAPI.GetApiKeysV1ApiKeysGet(c.withAuth(ctx)).
+		Filter(filter).
+		Size(100). // Get more results in case filter doesn't work perfectly
+		Execute()
+
 	if err != nil {
-		return nil, err
+		return nil, convertError(err, resp)
 	}
 
-	var apiKey ApiKey
-	if err := c.doRequest(req, &apiKey); err != nil {
-		return nil, err
+	embedded := result.GetEmbedded()
+	if len(embedded) == 0 {
+		return nil, ErrNotFound
 	}
-	return &apiKey, nil
+
+	// Find the key with the matching ID (in case filter returns multiple results)
+	var genKey *api.ApiKey
+	for i := range embedded {
+		if embedded[i].GetId() == keyID {
+			genKey = &embedded[i]
+			break
+		}
+	}
+	if genKey == nil {
+		return nil, ErrNotFound
+	}
+
+	// Convert from generated ApiKey to our wrapper ApiKey
+	apiKey := &ApiKey{
+		ID:         genKey.GetId(),
+		Name:       genKey.GetName(),
+		Prefix:     genKey.GetPrefix(),
+		IsActive:   genKey.GetIsActive(),
+		UsageCount: int(genKey.GetUsageCount()),
+		CreatedBy:  genKey.GetCreatedBy(),
+		CreatedAt:  genKey.GetCreatedAt().Format("2006-01-02T15:04:05Z07:00"),
+	}
+
+	if expiresAt, ok := genKey.GetExpiresAtOk(); ok && expiresAt != nil {
+		expStr := expiresAt.Format("2006-01-02T15:04:05Z07:00")
+		apiKey.ExpiresAt = &expStr
+	}
+	if lastUsedAt, ok := genKey.GetLastUsedAtOk(); ok && lastUsedAt != nil {
+		lastUsedStr := lastUsedAt.Format("2006-01-02T15:04:05Z07:00")
+		apiKey.LastUsedAt = &lastUsedStr
+	}
+	if updatedAt, ok := genKey.GetUpdatedAtOk(); ok && updatedAt != nil {
+		updatedStr := updatedAt.Format("2006-01-02T15:04:05Z07:00")
+		apiKey.UpdatedAt = &updatedStr
+	}
+
+	return apiKey, nil
 }
 
 // DeleteAPIKey deletes a specific API key by its ID.
@@ -474,7 +447,8 @@ func convertCapabilityConfig(gen *api.CapabilityConfig) *CapabilityConfig {
 	if gen.Temperature.IsSet() {
 		temp := gen.Temperature.Get()
 		if temp != nil {
-			f64 := float64(*temp)
+			// Round to 6 decimal places to avoid float32 to float64 precision issues
+			f64 := math.Round(float64(*temp)*1000000) / 1000000
 			result.Temperature = &f64
 		}
 	}
@@ -658,9 +632,9 @@ func convertChatCapabilityUpdateToGen(u *ChatCapabilityUpdate) *api.ChatCapabili
 }
 
 // convertCompletionCapabilityUpdateToGen converts our CompletionCapabilityUpdate to the generated type.
-func convertCompletionCapabilityUpdateToGen(u *CompletionCapabilityUpdate) *api.CompletionCapabilityUpdate {
+func convertCompletionCapabilityUpdateToGen(u *CompletionCapabilityUpdate) (*api.CompletionCapabilityUpdate, error) {
 	if u == nil {
-		return nil
+		return nil, nil
 	}
 
 	// Name and Type are required in the generated type
@@ -714,11 +688,40 @@ func convertCompletionCapabilityUpdateToGen(u *CompletionCapabilityUpdate) *api.
 		result.SetOutputType(*u.OutputType)
 	}
 
-	// Note: SchemaDef conversion is not implemented as the generated type uses a complex
-	// polymorphic structure (BasicProperty, EnumProperty, etc.) while our hand-written
-	// type uses map[string]interface{}. This can be added if schema capabilities are needed.
+	if u.SchemaDef != nil {
+		schemaDef, err := convertSchemaDefToGen(u.SchemaDef)
+		if err != nil {
+			return nil, err
+		}
+		if schemaDef != nil {
+			result.SetSchemaDef(schemaDef)
+		}
+	}
 
-	return result
+	return result, nil
+}
+
+func convertSchemaDefToGen(schemaDef map[string]interface{}) (map[string]api.CompletionCapabilityCreateSchemaDefValue, error) {
+	if schemaDef == nil {
+		return nil, nil
+	}
+
+	result := make(map[string]api.CompletionCapabilityCreateSchemaDefValue, len(schemaDef))
+	for key, value := range schemaDef {
+		raw, err := json.Marshal(value)
+		if err != nil {
+			return nil, fmt.Errorf("schema_def[%s]: marshal: %w", key, err)
+		}
+
+		var converted api.CompletionCapabilityCreateSchemaDefValue
+		if err := json.Unmarshal(raw, &converted); err != nil {
+			return nil, fmt.Errorf("schema_def[%s]: unmarshal: %w", key, err)
+		}
+
+		result[key] = converted
+	}
+
+	return result, nil
 }
 
 // convertChatCapabilityCreateToGen converts our ChatCapabilityCreate to the generated type.
@@ -752,9 +755,9 @@ func convertChatCapabilityCreateToGen(c *ChatCapabilityCreate) *api.ChatCapabili
 }
 
 // convertCompletionCapabilityCreateToGen converts our CompletionCapabilityCreate to the generated type.
-func convertCompletionCapabilityCreateToGen(c *CompletionCapabilityCreate) *api.CompletionCapabilityCreate {
+func convertCompletionCapabilityCreateToGen(c *CompletionCapabilityCreate) (*api.CompletionCapabilityCreate, error) {
 	if c == nil {
-		return nil
+		return nil, nil
 	}
 
 	result := api.NewCompletionCapabilityCreate(c.Name, c.Type, c.SystemPrompt, c.CompletionPrompt, c.OutputType)
@@ -786,9 +789,17 @@ func convertCompletionCapabilityCreateToGen(c *CompletionCapabilityCreate) *api.
 		result.Variables = c.Variables
 	}
 
-	// Note: SchemaDef conversion is not implemented (see CompletionCapabilityUpdate comment)
+	if c.SchemaDef != nil {
+		schemaDef, err := convertSchemaDefToGen(c.SchemaDef)
+		if err != nil {
+			return nil, err
+		}
+		if schemaDef != nil {
+			result.SetSchemaDef(schemaDef)
+		}
+	}
 
-	return result
+	return result, nil
 }
 
 // convertChatCapabilityToRepresentation converts a generated ChatCapability to CapabilityRepresentation.
@@ -947,9 +958,17 @@ func (c *Client) CreateCapability(ctx context.Context, capabilityData interface{
 	case *ChatCapabilityCreate:
 		cap1.ChatCapabilityCreate = convertChatCapabilityCreateToGen(v)
 	case CompletionCapabilityCreate:
-		cap1.CompletionCapabilityCreate = convertCompletionCapabilityCreateToGen(&v)
+		converted, err := convertCompletionCapabilityCreateToGen(&v)
+		if err != nil {
+			return nil, err
+		}
+		cap1.CompletionCapabilityCreate = converted
 	case *CompletionCapabilityCreate:
-		cap1.CompletionCapabilityCreate = convertCompletionCapabilityCreateToGen(v)
+		converted, err := convertCompletionCapabilityCreateToGen(v)
+		if err != nil {
+			return nil, err
+		}
+		cap1.CompletionCapabilityCreate = converted
 	default:
 		return nil, fmt.Errorf("CreateCapability: unsupported capability type %T", capabilityData)
 	}
@@ -1001,9 +1020,17 @@ func (c *Client) UpdateCapability(ctx context.Context, capabilityID string, capa
 	case *ChatCapabilityUpdate:
 		cap2.ChatCapabilityUpdate = convertChatCapabilityUpdateToGen(v)
 	case CompletionCapabilityUpdate:
-		cap2.CompletionCapabilityUpdate = convertCompletionCapabilityUpdateToGen(&v)
+		converted, err := convertCompletionCapabilityUpdateToGen(&v)
+		if err != nil {
+			return nil, err
+		}
+		cap2.CompletionCapabilityUpdate = converted
 	case *CompletionCapabilityUpdate:
-		cap2.CompletionCapabilityUpdate = convertCompletionCapabilityUpdateToGen(v)
+		converted, err := convertCompletionCapabilityUpdateToGen(v)
+		if err != nil {
+			return nil, err
+		}
+		cap2.CompletionCapabilityUpdate = converted
 	default:
 		return nil, fmt.Errorf("UpdateCapability: unsupported capability type %T", capabilityData)
 	}

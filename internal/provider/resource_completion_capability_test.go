@@ -3,11 +3,13 @@
 package provider
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/terraform"
 )
 
 func TestAccCompletionCapabilityResource_basic(t *testing.T) {
@@ -31,9 +33,11 @@ func TestAccCompletionCapabilityResource_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(resourceName, "name", capabilityName),
 					resource.TestCheckResourceAttr(resourceName, "system_prompt", systemPrompt),
 					resource.TestCheckResourceAttr(resourceName, "completion_prompt", completionPrompt),
-					resource.TestCheckResourceAttr(resourceName, "output_type", "text"), // Default if not specified, or should be required? Schema says required.
+					resource.TestCheckResourceAttr(resourceName, "output_type", "text"),
 					resource.TestCheckResourceAttr(resourceName, "type", "completion"),
 					resource.TestCheckResourceAttrSet(resourceName, "id"),
+					resource.TestCheckResourceAttrSet(resourceName, "created_at"),
+					resource.TestCheckResourceAttrSet(resourceName, "updated_at"),
 				),
 			},
 			// ImportState testing
@@ -65,44 +69,73 @@ func TestAccCompletionCapabilityResource_withSchemaOutput(t *testing.T) {
 	systemPrompt := "Extract structured data."
 	completionPrompt := "User: John Doe, Age: 30, City: New York."
 
-	// Note: The schema_def uses jsonencode for simplicity in HCL.
-	// The provider's DynamicType handling for schema_def needs to correctly parse this.
-	// Our current schemaDefMapToAPI is basic and might need users to provide JSON strings.
-
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
+			// Create with schema output type
 			{
 				Config: testAccCompletionCapabilityResourceSchemaOutputConfig(capabilityName, systemPrompt, completionPrompt),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr(resourceName, "name", capabilityName),
 					resource.TestCheckResourceAttr(resourceName, "output_type", "schema"),
-					resource.TestCheckResourceAttr(resourceName, "variables.#", "0"), // No variables in this example
-					// Check that schema_def is set and contains the expected JSON string.
-					// The new schemaDefAPIToMap converts the whole map into a single JSON string stored in types.Dynamic.
-					resource.TestCheckResourceAttr(resourceName, "schema_def", `{`+
-						`"age":{"description":"The age of the user","type":"integer"},`+
-						`"city":{"description":"The city where the user lives","type":"string"},`+
-						`"details":{"description":"Further details","properties":{"hobby":{"description":"User's hobby","type":"string"},"occupation":{"description":"User's occupation","type":"string"}},"type":"object"},`+
-						`"is_student":{"description":"Is the user a student","type":"boolean"},`+
-						`"name":{"description":"The name of the user","type":"string"}`+
-						`}`), // Note: Order of keys in JSON might vary, this could be fragile. A custom check function might be better.
+					resource.TestCheckResourceAttr(resourceName, "variables.#", "3"), // ["User", "Age", "City"]
+					// Use custom check function to validate schema_def contains expected keys
+					// This is more robust than exact JSON string matching which is fragile to key ordering
+					checkSchemaDefContainsKeys(resourceName, []string{"name", "age", "city", "is_student", "details"}),
 				),
 			},
 			// Update: Change output_type to text and remove schema_def
+			// Note: Uses dedicated config that targets the same resource "test_schema"
 			{
-				Config: testAccCompletionCapabilityResourceBasicConfig(capabilityName, systemPrompt, completionPrompt), // Re-use basic config
+				Config: testAccCompletionCapabilityResourceSchemaToTextConfig(capabilityName, systemPrompt, completionPrompt),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr(resourceName, "name", capabilityName),
 					resource.TestCheckResourceAttr(resourceName, "output_type", "text"),
-					// When output_type is "text", schema_def should be null.
-					resource.TestCheckResourceAttr(resourceName, "schema_def", ""), // types.DynamicNull() often results in an empty string representation for TestCheckResourceAttr
-					// A more robust check might be resource.TestCheckResourceAttrIsNull if supported and reliable for DynamicType
+					// When output_type is "text", schema_def should be null
+					resource.TestCheckNoResourceAttr(resourceName, "schema_def"),
 				),
 			},
 		},
 	})
+}
+
+// checkSchemaDefContainsKeys returns a TestCheckFunc that validates schema_def
+// contains expected keys as valid JSON. This is more robust than exact string matching
+// because JSON key order can vary.
+func checkSchemaDefContainsKeys(resourceName string, expectedKeys []string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rs, ok := s.RootModule().Resources[resourceName]
+		if !ok {
+			return fmt.Errorf("resource not found: %s", resourceName)
+		}
+
+		schemaDef := rs.Primary.Attributes["schema_def"]
+		if schemaDef == "" {
+			return fmt.Errorf("schema_def is empty")
+		}
+
+		var got map[string]interface{}
+		if err := json.Unmarshal([]byte(schemaDef), &got); err != nil {
+			return fmt.Errorf("schema_def is not valid JSON: %v (value: %s)", err, schemaDef)
+		}
+
+		for _, key := range expectedKeys {
+			if _, ok := got[key]; !ok {
+				return fmt.Errorf("missing expected key %q in schema_def, got keys: %v", key, getMapKeys(got))
+			}
+		}
+		return nil
+	}
+}
+
+// getMapKeys returns the keys of a map as a slice for error reporting.
+func getMapKeys(m map[string]interface{}) []string {
+	keys := make([]string, 0, len(m))
+	for k := range m {
+		keys = append(keys, k)
+	}
+	return keys
 }
 
 func testAccCompletionCapabilityResourceBasicConfig(name, sysPrompt, compPrompt string) string {
@@ -118,10 +151,24 @@ resource "corax_completion_capability" "test_basic" {
 `, name, sysPrompt, compPrompt)
 }
 
+// testAccCompletionCapabilityResourceSchemaToTextConfig creates a config for the "test_schema" resource
+// with output_type = "text". This is used to test transitioning from schema to text output.
+func testAccCompletionCapabilityResourceSchemaToTextConfig(name, sysPrompt, compPrompt string) string {
+	return fmt.Sprintf(`
+provider "corax" {}
+
+resource "corax_completion_capability" "test_schema" {
+  name               = "%s"
+  system_prompt      = "%s"
+  completion_prompt  = "%s"
+  output_type        = "text"
+}
+`, name, sysPrompt, compPrompt)
+}
+
 func testAccCompletionCapabilityResourceSchemaOutputConfig(name, sysPrompt, compPrompt string) string {
 	// Using jsonencode for schema_def values for easier HCL representation.
 	// The provider needs to handle these stringified JSON values if DynamicType is used this way.
-	// A more robust solution would be a well-defined schema for schema_def itself.
 	return fmt.Sprintf(`
 provider "corax" {}
 
@@ -131,7 +178,7 @@ resource "corax_completion_capability" "test_schema" {
   completion_prompt  = "%s"
   output_type        = "schema"
   
-  variables = ["User", "Age", "City"] # Example variables
+  variables = ["User", "Age", "City"]
 
   schema_def = {
     name = jsonencode({

@@ -193,44 +193,44 @@ func (r *APIKeyResource) Read(ctx context.Context, req resource.ReadRequest, res
 	apiKeyID := data.ID.ValueString()
 	tflog.Debug(ctx, fmt.Sprintf("Reading API Key with ID: %s", apiKeyID))
 
+	// Try to fetch the API key from the API
 	apiKey, err := r.client.GetAPIKey(ctx, apiKeyID)
 	if err != nil {
 		if errors.Is(err, coraxclient.ErrNotFound) {
-			tflog.Warn(ctx, fmt.Sprintf("API Key with ID %s not found, removing from state", apiKeyID))
+			tflog.Warn(ctx, fmt.Sprintf("API Key %s not found, removing from state", apiKeyID))
 			resp.State.RemoveResource(ctx)
 			return
 		}
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read API key %s, got error: %s", apiKeyID, err))
+		// If there's an error but we have prior state, preserve it (API may be temporarily unavailable)
+		if !data.ID.IsNull() && !data.Name.IsNull() {
+			tflog.Warn(ctx, fmt.Sprintf("Failed to fetch API Key %s, preserving existing state: %s", apiKeyID, err))
+			resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
+			return
+		}
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read API key %s: %s", apiKeyID, err))
 		return
 	}
 
+	// Update state with fetched data
+	data.ID = types.StringValue(apiKey.ID)
 	data.Name = types.StringValue(apiKey.Name)
-	if apiKey.ExpiresAt != nil {
-		data.ExpiresAt = types.StringValue(*apiKey.ExpiresAt)
-	} else {
-		data.ExpiresAt = types.StringNull() // Should not happen
-	}
 	data.Prefix = types.StringValue(apiKey.Prefix)
 	data.IsActive = types.BoolValue(apiKey.IsActive)
-	if apiKey.LastUsedAt != nil && *apiKey.LastUsedAt != "" {
-		data.LastUsedAt = types.StringValue(*apiKey.LastUsedAt)
-	} else {
-		data.LastUsedAt = types.StringNull()
-	}
 	data.UsageCount = types.Int64Value(int64(apiKey.UsageCount))
 	data.CreatedAt = types.StringValue(apiKey.CreatedAt)
 	data.CreatedBy = types.StringValue(apiKey.CreatedBy)
+	if apiKey.ExpiresAt != nil && *apiKey.ExpiresAt != "" {
+		data.ExpiresAt = types.StringValue(*apiKey.ExpiresAt)
+	} else {
+		data.ExpiresAt = types.StringNull()
+	}
 	if apiKey.UpdatedAt != nil && *apiKey.UpdatedAt != "" {
 		data.UpdatedAt = types.StringValue(*apiKey.UpdatedAt)
 	} else {
 		data.UpdatedAt = types.StringNull()
 	}
-	// Note: The 'key' field is typically not returned by a GET request for security reasons.
-	// It should remain as it was set during creation (or import). data.Key is already populated from state.
 
-	tflog.Debug(ctx, fmt.Sprintf("Successfully read API Key with ID: %s", apiKeyID))
-
-	// Save updated data into Terraform state
+	tflog.Debug(ctx, fmt.Sprintf("Successfully read API Key %s", apiKeyID))
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 

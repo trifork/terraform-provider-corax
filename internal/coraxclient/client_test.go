@@ -173,21 +173,39 @@ func TestGetAPIKey(t *testing.T) {
 			if r.Method != http.MethodGet {
 				t.Errorf("Expected GET, got %s", r.Method)
 			}
-			if r.URL.Path != "/v1/api-keys/key-123" {
-				t.Errorf("Expected /v1/api-keys/key-123, got %s", r.URL.Path)
+			if r.URL.Path != "/v1/api-keys" {
+				t.Errorf("Expected /v1/api-keys, got %s", r.URL.Path)
+			}
+			// Check filter parameter
+			filter := r.URL.Query().Get("filter")
+			if filter != "id::key-123" {
+				t.Errorf("Expected filter 'id::key-123', got %s", filter)
 			}
 
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusOK)
-			_ = json.NewEncoder(w).Encode(ApiKey{
-				ID:        "key-123",
-				Name:      "test-key",
-				Key:       "",
-				Prefix:    "corax-sk-",
-				IsActive:  true,
-				CreatedBy: "user-1",
-				CreatedAt: "2024-01-01T00:00:00Z",
-			})
+			// Return a paged response with the API key in _embedded
+			response := map[string]interface{}{
+				"_embedded": []map[string]interface{}{
+					{
+						"id":          "key-123",
+						"name":        "test-key",
+						"key":         "",
+						"prefix":      "corax-sk-",
+						"is_active":   true,
+						"created_by":  "user-1",
+						"created_at":  "2024-01-01T00:00:00Z",
+						"usage_count": 0,
+					},
+				},
+				"page": map[string]interface{}{
+					"number":         1,
+					"size":           1,
+					"total_elements": 1,
+					"total_pages":    1,
+				},
+			}
+			_ = json.NewEncoder(w).Encode(response)
 		}
 
 		server, client := setupTestServer(t, handler)
@@ -205,8 +223,19 @@ func TestGetAPIKey(t *testing.T) {
 
 	t.Run("not found", func(t *testing.T) {
 		handler := func(w http.ResponseWriter, r *http.Request) {
-			w.WriteHeader(http.StatusNotFound)
-			_, _ = w.Write([]byte(`{"detail": "Not found"}`))
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusOK)
+			// Return empty _embedded array when not found
+			response := map[string]interface{}{
+				"_embedded": []map[string]interface{}{},
+				"page": map[string]interface{}{
+					"number":         1,
+					"size":           1,
+					"total_elements": 0,
+					"total_pages":    0,
+				},
+			}
+			_ = json.NewEncoder(w).Encode(response)
 		}
 
 		server, client := setupTestServer(t, handler)

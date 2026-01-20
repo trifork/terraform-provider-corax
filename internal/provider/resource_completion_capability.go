@@ -10,11 +10,13 @@ import (
 	"fmt"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/objectplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
@@ -131,24 +133,29 @@ func (r *CompletionCapabilityResource) Schema(ctx context.Context, req resource.
 				Computed:            true,
 				MarkdownDescription: "Configuration settings for the capability's behavior.",
 				Attributes:          capabilityConfigSchemaAttributes(), // Defined in chat_capability_resource.go (or move to a common place)
+				PlanModifiers:       []planmodifier.Object{objectplanmodifier.UseStateForUnknown()},
 			},
 			"owner": schema.StringAttribute{Computed: true, MarkdownDescription: "Owner of the capability.", PlanModifiers: []planmodifier.String{stringplanmodifier.UseStateForUnknown()}},
 			"type":  schema.StringAttribute{Computed: true, MarkdownDescription: "Type of the capability (should be 'completion').", PlanModifiers: []planmodifier.String{stringplanmodifier.UseStateForUnknown()}},
 			"created_at": schema.StringAttribute{
 				Computed:            true,
 				MarkdownDescription: "The date and time the capability was created (RFC3339 format).",
+				PlanModifiers:       []planmodifier.String{stringplanmodifier.UseStateForUnknown()},
 			},
 			"updated_at": schema.StringAttribute{
 				Computed:            true,
 				MarkdownDescription: "The date and time the capability was last updated (RFC3339 format).",
+				PlanModifiers:       []planmodifier.String{stringplanmodifier.UseStateForUnknown()},
 			},
 			"created_by": schema.StringAttribute{
 				Computed:            true,
 				MarkdownDescription: "The identifier of who created the capability.",
+				PlanModifiers:       []planmodifier.String{stringplanmodifier.UseStateForUnknown()},
 			},
 			"updated_by": schema.StringAttribute{
 				Computed:            true,
 				MarkdownDescription: "The identifier of who last updated the capability.",
+				PlanModifiers:       []planmodifier.String{stringplanmodifier.UseStateForUnknown()},
 			},
 		},
 	}
@@ -177,78 +184,43 @@ func (m normalizeSchemaDefDynamicModifier) PlanModifyDynamic(ctx context.Context
 	}
 
 	underlyingVal := req.PlanValue.UnderlyingValue()
-	var data map[string]interface{}
 
+	// Only normalize if the input is already a JSON string
+	// For HCL objects/maps, we leave them as-is and handle conversion in Create/Update
 	switch val := underlyingVal.(type) {
 	case types.String:
 		if val.IsNull() || val.IsUnknown() {
 			return
 		}
 		jsonStr := val.ValueString()
-		if jsonStr == "" { // An empty string is not valid JSON for a map.
-			// Consider if an empty string should be an error or treated as null.
-			// For now, returning, assuming schema validation will catch if it's problematic.
+		if jsonStr == "" {
 			return
 		}
+		var data map[string]interface{}
 		err := json.Unmarshal([]byte(jsonStr), &data)
 		if err != nil {
 			// Not valid JSON, so we don't normalize. Let schema validation catch it.
-			// Or add a warning: resp.Diagnostics.AddAttributeWarning(req.Path, "Non-JSON String for schema_def", "...")
 			return
 		}
-	case types.Object:
-		if val.IsNull() || val.IsUnknown() {
+		// If data is nil, no normalization needed
+		if data == nil {
 			return
 		}
-
-		jsonBytes, err := json.Marshal(val)
+		// Marshal it back to get the canonical (sorted keys) version.
+		normalizedBytes, err := json.Marshal(data)
 		if err != nil {
-			resp.Diagnostics.AddAttributeError(req.Path, "SchemaDef HCL Object Marshal Error", fmt.Sprintf("Failed to marshal HCL object for schema_def to JSON: %s", err.Error()))
+			resp.Diagnostics.AddAttributeError(req.Path, "Failed to Normalize schema_def", fmt.Sprintf("Error re-marshalling schema_def to JSON: %s", err))
 			return
 		}
-
-		err = json.Unmarshal(jsonBytes, &data)
-		if err != nil {
-			resp.Diagnostics.AddAttributeError(req.Path, "SchemaDef HCL Object Unmarshal Error", fmt.Sprintf("Failed to marshal HCL object for schema_def to JSON: %s", err.Error()))
-		}
-	case types.Map:
-		if val.IsNull() || val.IsUnknown() {
-			return
-		}
-		// For types.Map, it's often easier to marshal to JSON and then unmarshal to map[string]interface{}
-		// or directly convert if elements are compatible.
-		// Here, we'll use the marshal/unmarshal approach for simplicity and consistency with how it might be handled elsewhere.
-		jsonBytes, err := json.Marshal(val)
-		if err != nil {
-			resp.Diagnostics.AddAttributeError(req.Path, "SchemaDef HCL Map Marshal Error", fmt.Sprintf("Failed to marshal HCL map for schema_def to JSON: %s", err.Error()))
-			return
-		}
-		err = json.Unmarshal(jsonBytes, &data)
-		if err != nil {
-			resp.Diagnostics.AddAttributeError(req.Path, "SchemaDef HCL Map Unmarshal Error", fmt.Sprintf("Failed to unmarshal intermediate JSON for schema_def HCL map: %s", err.Error()))
-			return
-		}
+		normalizedStringValue := types.StringValue(string(normalizedBytes))
+		resp.PlanValue = types.DynamicValue(normalizedStringValue)
+	case types.Object, types.Map:
+		// For HCL objects/maps, we don't modify the plan value
+		// The conversion to JSON happens in Create/Update when sending to API
+		return
 	default:
-		// Not a type we're handling for normalization (e.g., already a different dynamic type, or some other TF type)
 		return
 	}
-
-	// If data is nil (e.g. from an empty JSON string or empty HCL map that resulted in nil map),
-	// we might want to set the plan to types.DynamicNull() or types.StringNull() depending on desired behavior.
-	// For now, if data is nil, Marshal will produce "null" string.
-	if data == nil {
-		return
-	}
-
-	// Marshal it back to get the canonical (sorted keys) version.
-	normalizedBytes, err := json.Marshal(data)
-	if err != nil {
-		resp.Diagnostics.AddAttributeError(req.Path, "Failed to Normalize schema_def", fmt.Sprintf("Error re-marshalling schema_def to JSON: %s", err))
-		return
-	}
-
-	normalizedStringValue := types.StringValue(string(normalizedBytes))
-	resp.PlanValue = types.DynamicValue(normalizedStringValue)
 }
 
 // Ensure the implementation satisfies the interface.
@@ -266,37 +238,96 @@ func normalizeSchemaDef() planmodifier.Dynamic {
 // --- Helper functions for mapping (specific to Completion Capability) ---
 
 func schemaDefMapToAPI(ctx context.Context, schemaDef types.Dynamic, diags *diag.Diagnostics) map[string]interface{} {
+	tflog.Debug(ctx, fmt.Sprintf("schemaDefMapToAPI: called with schemaDef IsNull=%v IsUnknown=%v", schemaDef.IsNull(), schemaDef.IsUnknown()))
+
 	if schemaDef.IsNull() || schemaDef.IsUnknown() {
+		tflog.Debug(ctx, "schemaDefMapToAPI: returning nil because schemaDef is null or unknown")
 		return nil
 	}
 
 	underlyingVal := schemaDef.UnderlyingValue()
 	var goMap map[string]interface{}
 
+	tflog.Debug(ctx, fmt.Sprintf("schemaDefMapToAPI: underlying type is %T, value=%v", underlyingVal, underlyingVal))
+
 	switch val := underlyingVal.(type) {
 	case types.String:
+		tflog.Debug(ctx, fmt.Sprintf("schemaDefMapToAPI: matched types.String, IsNull=%v IsUnknown=%v", val.IsNull(), val.IsUnknown()))
 		if val.IsNull() || val.IsUnknown() {
+			tflog.Debug(ctx, "schemaDefMapToAPI: types.String is null/unknown, returning nil")
 			return nil // Or an empty map, depending on desired behavior for empty/null JSON string
 		}
+		tflog.Debug(ctx, fmt.Sprintf("schemaDefMapToAPI: types.String value=%s", val.ValueString()))
 		err := json.Unmarshal([]byte(val.ValueString()), &goMap)
 		if err != nil {
 			diags.AddError("SchemaDef JSON String Error", fmt.Sprintf("schema_def was provided as a string, but it's not valid JSON for a map: %s. Content: %s", err.Error(), val.ValueString()))
 			return nil
 		}
+		tflog.Debug(ctx, fmt.Sprintf("schemaDefMapToAPI: types.String returning goMap with %d entries", len(goMap)))
 		return goMap
 	case types.Object:
-		// Use the As method of types.Object to convert to map[string]interface{}
-		// Ensure the target type for As is compatible with how objects are structured.
-		// map[string]interface{} is a common target.
-		convDiags := val.As(ctx, &goMap, basetypes.ObjectAsOptions{UnhandledNullAsEmpty: true, UnhandledUnknownAsEmpty: true})
-		diags.Append(convDiags...)
-		if convDiags.HasError() {
+		// For HCL objects where each attribute value may be a JSON string (from jsonencode),
+		// we need to iterate over attributes and parse each JSON string value.
+		tflog.Debug(ctx, fmt.Sprintf("schemaDefMapToAPI: matched types.Object, IsNull=%v IsUnknown=%v", val.IsNull(), val.IsUnknown()))
+		if val.IsNull() || val.IsUnknown() {
+			tflog.Debug(ctx, "schemaDefMapToAPI: types.Object is null/unknown, returning nil")
 			return nil
 		}
+		goMap = make(map[string]interface{})
+		attrs := val.Attributes()
+		tflog.Debug(ctx, fmt.Sprintf("schemaDefMapToAPI: types.Object has %d attributes", len(attrs)))
+		for key, attrVal := range attrs {
+			tflog.Debug(ctx, fmt.Sprintf("schemaDefMapToAPI: processing attr[%s] type=%T", key, attrVal))
+
+			// If the attribute is a Dynamic value, unwrap it to get the underlying value.
+			// This can happen when Terraform Framework wraps the HCL values in Dynamic types.
+			actualVal := attrVal
+			if dv, ok := attrVal.(types.Dynamic); ok {
+				tflog.Debug(ctx, fmt.Sprintf("schemaDefMapToAPI: attr[%s] is Dynamic, unwrapping to %T", key, dv.UnderlyingValue()))
+				actualVal = dv.UnderlyingValue()
+				if actualVal == nil {
+					tflog.Debug(ctx, fmt.Sprintf("schemaDefMapToAPI: attr[%s] Dynamic unwrapped to nil, skipping", key))
+					continue
+				}
+			}
+
+			// Now check if the (possibly unwrapped) value is a string-like type
+			if sv, ok := actualVal.(basetypes.StringValuable); ok {
+				strVal, d := sv.ToStringValue(ctx)
+				if d.HasError() {
+					tflog.Debug(ctx, fmt.Sprintf("schemaDefMapToAPI: error converting attr[%s] to string: %v", key, d))
+					diags.Append(d...)
+					return nil
+				}
+				if strVal.IsNull() || strVal.IsUnknown() {
+					tflog.Debug(ctx, fmt.Sprintf("schemaDefMapToAPI: attr[%s] is null/unknown, skipping", key))
+					continue
+				}
+				tflog.Debug(ctx, fmt.Sprintf("schemaDefMapToAPI: attr[%s] string value=%s", key, strVal.ValueString()))
+				var parsed interface{}
+				err := json.Unmarshal([]byte(strVal.ValueString()), &parsed)
+				if err != nil {
+					diags.AddError("SchemaDef Object Attribute Error",
+						fmt.Sprintf("Failed to parse JSON in schema_def attribute '%s': %s. Value: %s",
+							key, err.Error(), strVal.ValueString()))
+					return nil
+				}
+				goMap[key] = parsed
+			} else {
+				tflog.Debug(ctx, fmt.Sprintf("schemaDefMapToAPI: attr[%s] is NOT StringValuable, type=%T", key, actualVal))
+				diags.AddError("SchemaDef Object Attribute Type Error",
+					fmt.Sprintf("Expected string value for schema_def attribute '%s', got %T. "+
+						"Each attribute in schema_def should be a JSON string (use jsonencode).", key, actualVal))
+				return nil
+			}
+		}
+		tflog.Debug(ctx, fmt.Sprintf("schemaDefMapToAPI: returning goMap with %d entries", len(goMap)))
 		return goMap
 	case types.Map:
 		// For types.Map, marshal to JSON and then unmarshal to map[string]interface{}
+		tflog.Debug(ctx, fmt.Sprintf("schemaDefMapToAPI: matched types.Map, IsNull=%v IsUnknown=%v", val.IsNull(), val.IsUnknown()))
 		if val.IsNull() || val.IsUnknown() {
+			tflog.Debug(ctx, "schemaDefMapToAPI: types.Map is null/unknown, returning nil")
 			return nil
 		}
 		jsonBytes, err := json.Marshal(val)
@@ -304,14 +335,17 @@ func schemaDefMapToAPI(ctx context.Context, schemaDef types.Dynamic, diags *diag
 			diags.AddError("SchemaDef Map Marshal Error", fmt.Sprintf("Failed to marshal HCL map for schema_def to JSON: %s", err.Error()))
 			return nil
 		}
+		tflog.Debug(ctx, fmt.Sprintf("schemaDefMapToAPI: types.Map marshalled to: %s", string(jsonBytes)))
 		err = json.Unmarshal(jsonBytes, &goMap)
 		if err != nil {
 			diags.AddError("SchemaDef Map Unmarshal Error", fmt.Sprintf("Failed to unmarshal intermediate JSON for schema_def map: %s", err.Error()))
 			return nil
 		}
+		tflog.Debug(ctx, fmt.Sprintf("schemaDefMapToAPI: types.Map returning goMap with %d entries", len(goMap)))
 		return goMap
 	default:
 		// If it's not a string, object, or map that we can convert, it's an unsupported type for schema_def.
+		tflog.Debug(ctx, fmt.Sprintf("schemaDefMapToAPI: matched default case, unsupported type %T", underlyingVal))
 		diags.AddError("SchemaDef Type Error",
 			fmt.Sprintf("schema_def has an unsupported underlying type: %T. "+
 				"It should be an HCL map/object or a valid JSON string representing such a structure.", underlyingVal))
@@ -323,17 +357,30 @@ func schemaDefAPIToMap(apiSchemaDef map[string]interface{}, diags *diag.Diagnost
 	if apiSchemaDef == nil {
 		return types.DynamicNull()
 	}
-
-	jsonBytes, err := json.Marshal(apiSchemaDef)
-	if err != nil {
-		diags.AddError("SchemaDef API Conversion Error", fmt.Sprintf("Failed to marshal schema_def from API to JSON: %s", err))
+	if len(apiSchemaDef) == 0 {
 		return types.DynamicNull()
 	}
 
-	strVal := types.StringValue(string(jsonBytes))
-	// types.DynamicValue(attr.Value) constructor returns types.Dynamic, not (types.Dynamic, diag.Diagnostics)
-	dynVal := types.DynamicValue(strVal)
-	return dynVal
+	attrTypes := make(map[string]attr.Type, len(apiSchemaDef))
+	attrValues := make(map[string]attr.Value, len(apiSchemaDef))
+
+	for key, value := range apiSchemaDef {
+		jsonBytes, err := json.Marshal(value)
+		if err != nil {
+			diags.AddError("SchemaDef API Conversion Error", fmt.Sprintf("Failed to marshal schema_def[%s] from API to JSON: %s", key, err))
+			return types.DynamicNull()
+		}
+		attrTypes[key] = types.StringType
+		attrValues[key] = types.StringValue(string(jsonBytes))
+	}
+
+	objVal, objDiags := types.ObjectValue(attrTypes, attrValues)
+	diags.Append(objDiags...)
+	if diags.HasError() {
+		return types.DynamicNull()
+	}
+
+	return types.DynamicValue(objVal)
 }
 
 func mapAPICompletionCapabilityToModel(apiCap *coraxclient.CapabilityRepresentation, model *CompletionCapabilityResourceModel, diags *diag.Diagnostics, ctx context.Context) {
@@ -387,21 +434,25 @@ func mapAPICompletionCapabilityToModel(apiCap *coraxclient.CapabilityRepresentat
 		}
 
 		// schema_def is sourced from apiCap.Output["result"]
-		// It's optional overall, but required if output_type is "schema".
-		// schemaDefAPIToMap handles nil input map by returning types.DynamicNull().
-		if schemaDefVal, ok := apiCap.Output["result"].(map[string]interface{}); ok {
-			model.SchemaDef = schemaDefAPIToMap(schemaDefVal, diags)
-		} else {
-			// If "result" is not found, or not a map[string]interface{}, treat SchemaDef as null.
-			// This is correct if output_type is "text" (schema_def would be absent/null)
-			// or if "result" is present but malformed.
-			if _, found := apiCap.Output["result"]; found && !ok {
-				diags.AddAttributeWarning(
-					path.Root("schema_def"), // Or a more specific path
-					"Invalid Type for Schema Definition",
-					fmt.Sprintf("Expected 'result' in API output to be a map, but got %T. Treating schema_def as null.", apiCap.Output["result"]),
-				)
+		// Only populate schema_def if output_type is "schema" - for "text" type, we ignore the API value
+		// because users don't set it in HCL and we don't want drift.
+		outputType := model.OutputType.ValueString()
+		if outputType == "schema" {
+			if schemaDefVal, ok := apiCap.Output["result"].(map[string]interface{}); ok {
+				model.SchemaDef = schemaDefAPIToMap(schemaDefVal, diags)
+			} else {
+				// If "result" is not found, or not a map[string]interface{}, treat SchemaDef as null.
+				if _, found := apiCap.Output["result"]; found && !ok {
+					diags.AddAttributeWarning(
+						path.Root("schema_def"),
+						"Invalid Type for Schema Definition",
+						fmt.Sprintf("Expected 'result' in API output to be a map, but got %T. Treating schema_def as null.", apiCap.Output["result"]),
+					)
+				}
+				model.SchemaDef = types.DynamicNull()
 			}
+		} else {
+			// For "text" output type, schema_def should be null
 			model.SchemaDef = types.DynamicNull()
 		}
 	} else {
@@ -415,51 +466,59 @@ func mapAPICompletionCapabilityToModel(apiCap *coraxclient.CapabilityRepresentat
 	if apiCap.Input != nil {
 		if varsData, found := apiCap.Input["variables"]; found && varsData != nil {
 			if vars, ok := varsData.([]interface{}); ok {
-				strVars := make([]string, len(vars))
-				allStrings := true
-				for i, v := range vars {
-					if strV, isString := v.(string); isString {
-						strVars[i] = strV
-					} else {
-						allStrings = false
-						diags.AddAttributeWarning(
-							path.Root("variables"), // Or a more specific path
-							"Invalid Variable Type in API Response",
-							fmt.Sprintf("Variable at index %d is not a string (actual type: %T). Treating variables as null.", i, v),
-						)
-						break
-					}
-				}
-				if allStrings {
-					setValue, conversionDiags := types.SetValueFrom(ctx, types.StringType, strVars)
-					diags.Append(conversionDiags...)
-					if !conversionDiags.HasError() {
-						model.Variables = setValue // Handles empty set correctly (non-null, empty set)
-					} else {
-						model.Variables = types.SetNull(types.StringType) // Error in types.SetValueFrom
-					}
+				// If empty array, treat as null to avoid drift when user doesn't set variables
+				if len(vars) == 0 {
+					model.Variables = types.SetNull(types.StringType)
 				} else {
-					model.Variables = types.SetNull(types.StringType) // Non-string element found
+					strVars := make([]string, len(vars))
+					allStrings := true
+					for i, v := range vars {
+						if strV, isString := v.(string); isString {
+							strVars[i] = strV
+						} else {
+							allStrings = false
+							diags.AddAttributeWarning(
+								path.Root("variables"),
+								"Invalid Variable Type in API Response",
+								fmt.Sprintf("Variable at index %d is not a string (actual type: %T). Treating variables as null.", i, v),
+							)
+							break
+						}
+					}
+					if allStrings {
+						setValue, conversionDiags := types.SetValueFrom(ctx, types.StringType, strVars)
+						diags.Append(conversionDiags...)
+						if !conversionDiags.HasError() {
+							model.Variables = setValue
+						} else {
+							model.Variables = types.SetNull(types.StringType)
+						}
+					} else {
+						model.Variables = types.SetNull(types.StringType)
+					}
 				}
 			} else if varsMap, ok := varsData.(map[string]interface{}); ok { // Handle map from GET
-				strVarKeys := make([]string, 0, len(varsMap))
-				for k := range varsMap {
-					strVarKeys = append(strVarKeys, k)
-				}
-				// No need to sort keys for a set, but doesn't harm if API returns a list of keys that were sorted
-				// sort.Strings(strVarKeys) // Order doesn't matter for a Set
-
-				setValue, conversionDiags := types.SetValueFrom(ctx, types.StringType, strVarKeys)
-				diags.Append(conversionDiags...)
-				if !conversionDiags.HasError() {
-					model.Variables = setValue
-				} else {
+				// If empty map, treat as null to avoid drift when user doesn't set variables
+				if len(varsMap) == 0 {
 					model.Variables = types.SetNull(types.StringType)
-					diags.AddAttributeError(
-						path.Root("variables"),
-						"Variable Conversion Error (Map to Set)",
-						fmt.Sprintf("Failed to convert variable keys from API map to set: %v", conversionDiags),
-					)
+				} else {
+					strVarKeys := make([]string, 0, len(varsMap))
+					for k := range varsMap {
+						strVarKeys = append(strVarKeys, k)
+					}
+
+					setValue, conversionDiags := types.SetValueFrom(ctx, types.StringType, strVarKeys)
+					diags.Append(conversionDiags...)
+					if !conversionDiags.HasError() {
+						model.Variables = setValue
+					} else {
+						model.Variables = types.SetNull(types.StringType)
+						diags.AddAttributeError(
+							path.Root("variables"),
+							"Variable Conversion Error (Map to Set)",
+							fmt.Sprintf("Failed to convert variable keys from API map to set: %v", conversionDiags),
+						)
+					}
 				}
 			} else { // apiCap.Input["variables"] is present but not []interface{} and not map[string]interface{}
 				diags.AddAttributeWarning(
@@ -470,10 +529,14 @@ func mapAPICompletionCapabilityToModel(apiCap *coraxclient.CapabilityRepresentat
 				model.Variables = types.SetNull(types.StringType)
 			}
 		} else { // "variables" key not found in apiCap.Input or its value is JSON null
-			model.Variables = types.SetNull(types.StringType)
+			if model.Variables.IsNull() || model.Variables.IsUnknown() {
+				model.Variables = types.SetNull(types.StringType)
+			}
 		}
 	} else { // apiCap.Input map itself is nil
-		model.Variables = types.SetNull(types.StringType)
+		if model.Variables.IsNull() || model.Variables.IsUnknown() {
+			model.Variables = types.SetNull(types.StringType)
+		}
 		tflog.Debug(ctx, fmt.Sprintf("apiCap.Input is nil for capability %s. Variables will be null.", apiCap.ID))
 	}
 
@@ -545,6 +608,11 @@ func (r *CompletionCapabilityResource) Create(ctx context.Context, req resource.
 		}
 		apiPayload.SchemaDef = schemaDefMapToAPI(ctx, plan.SchemaDef, &resp.Diagnostics)
 		if resp.Diagnostics.HasError() {
+			return
+		}
+		tflog.Debug(ctx, fmt.Sprintf("Create: schema_def converted to: %+v", apiPayload.SchemaDef))
+		if apiPayload.SchemaDef == nil || len(apiPayload.SchemaDef) == 0 {
+			resp.Diagnostics.AddError("SchemaDef Conversion Error", "schema_def was provided but conversion resulted in nil or empty map")
 			return
 		}
 	} else if outputType == "text" {
@@ -727,6 +795,14 @@ func (r *CompletionCapabilityResource) Update(ctx context.Context, req resource.
 	if resp.Diagnostics.HasError() {
 		return
 	}
+
+	// Preserve immutable computed fields from state to avoid "inconsistent result" errors
+	// caused by timestamp precision differences or server-side timing.
+	// The next Read operation will refresh these from the API.
+	plan.CreatedAt = state.CreatedAt
+	plan.CreatedBy = state.CreatedBy
+	plan.UpdatedAt = state.UpdatedAt
+	plan.UpdatedBy = state.UpdatedBy
 
 	tflog.Info(ctx, fmt.Sprintf("Completion Capability %s updated successfully", capabilityID))
 	resp.Diagnostics.Append(resp.State.Set(ctx, &plan)...)

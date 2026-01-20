@@ -52,7 +52,7 @@ type ProjectResourceModel struct {
 func mapProjectToModel(project *coraxclient.Project, model *ProjectResourceModel) {
 	model.ID = types.StringValue(project.ID)
 	model.Name = types.StringValue(project.Name)
-	if project.Description != nil {
+	if project.Description != nil && *project.Description != "" {
 		model.Description = types.StringValue(*project.Description)
 	} else {
 		model.Description = types.StringNull()
