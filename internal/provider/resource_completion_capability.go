@@ -163,7 +163,7 @@ func (r *CompletionCapabilityResource) Schema(ctx context.Context, req resource.
 // --- Helper functions for mapping (specific to Completion Capability) ---
 
 // schemaDefToAPI converts a types.String (JSON string) to a map[string]interface{} for the API.
-func schemaDefToAPI(ctx context.Context, schemaDef types.String, diags *diag.Diagnostics) map[string]interface{} {
+func schemaDefToAPI(_ context.Context, schemaDef types.String, diags *diag.Diagnostics) map[string]interface{} {
 	if schemaDef.IsNull() || schemaDef.IsUnknown() {
 		return nil
 	}

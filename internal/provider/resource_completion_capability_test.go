@@ -15,7 +15,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 )
 
-// TestSchemaDefToAPI tests the schemaDefToAPI helper function
 func TestSchemaDefToAPI(t *testing.T) {
 	ctx := context.Background()
 
@@ -82,7 +81,6 @@ func TestSchemaDefToAPI(t *testing.T) {
 	}
 }
 
-// TestSchemaDefAPIToString tests the schemaDefAPIToString helper function
 func TestSchemaDefAPIToString(t *testing.T) {
 	tests := []struct {
 		name       string
