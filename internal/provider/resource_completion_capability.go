@@ -336,6 +336,21 @@ func mapAPICompletionCapabilityToModel(apiCap *coraxclient.CapabilityRepresentat
 						)
 					}
 				}
+			} else if vars, ok := varsData.([]string); ok { // Defensive: handle []string from typed API responses
+				// The primary fix in convertCompletionCapabilityToRepresentation ensures []interface{} is
+				// always produced. This branch guards against future regressions or alternative code paths
+				// that might bypass that conversion.
+				if len(vars) == 0 {
+					model.Variables = types.SetNull(types.StringType)
+				} else {
+					setValue, conversionDiags := types.SetValueFrom(ctx, types.StringType, vars)
+					diags.Append(conversionDiags...)
+					if !conversionDiags.HasError() {
+						model.Variables = setValue
+					} else {
+						model.Variables = types.SetNull(types.StringType)
+					}
+				}
 			} else { // apiCap.Input["variables"] is present but not []interface{} and not map[string]interface{}
 				diags.AddAttributeWarning(
 					path.Root("variables"),

@@ -9,6 +9,8 @@ import (
 	"os"
 	"testing"
 
+	"terraform-provider-corax/internal/coraxclient"
+
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
@@ -144,6 +146,68 @@ func TestSchemaDefAPIToString(t *testing.T) {
 				}
 			}
 		})
+	}
+}
+
+// TestMapAPICompletionCapabilityToModel_VariablesAsStringSlice tests that
+// mapAPICompletionCapabilityToModel handles []string variables defensively,
+// even though the primary fix ensures []interface{} is always produced.
+func TestMapAPICompletionCapabilityToModel_VariablesAsStringSlice(t *testing.T) {
+	ctx := context.Background()
+	isPublic := true
+	apiCap := &coraxclient.CapabilityRepresentation{
+		ID:         "cap-1",
+		Name:       "Test",
+		Type:       "completion",
+		SemanticID: "test-cap",
+		Owner:      "owner-1",
+		CreatedBy:  "user-1",
+		UpdatedBy:  "user-1",
+		CreatedAt:  "2024-01-01T00:00:00Z",
+		UpdatedAt:  "2024-01-01T00:00:00Z",
+		IsPublic:   &isPublic,
+		Input: map[string]interface{}{
+			// Simulate the bug scenario: variables as []string instead of []interface{}
+			"variables": []string{"context", "name"},
+		},
+		Output: map[string]interface{}{
+			"type": "text",
+		},
+		Configuration: map[string]interface{}{
+			"system_prompt":     "system",
+			"completion_prompt": "completion",
+		},
+	}
+
+	model := &CompletionCapabilityResourceModel{
+		Variables: types.SetNull(types.StringType),
+	}
+	var diags diag.Diagnostics
+
+	mapAPICompletionCapabilityToModel(apiCap, model, &diags, ctx)
+
+	// Should not produce any warnings or errors
+	if diags.HasError() {
+		t.Fatalf("unexpected errors: %v", diags)
+	}
+	for _, d := range diags {
+		if d.Severity() == diag.SeverityWarning {
+			t.Errorf("unexpected warning: %s - %s", d.Summary(), d.Detail())
+		}
+	}
+
+	// Variables should be properly set, not null
+	if model.Variables.IsNull() {
+		t.Fatal("expected Variables to be set, but got null")
+	}
+
+	var varValues []string
+	convertDiags := model.Variables.ElementsAs(ctx, &varValues, false)
+	if convertDiags.HasError() {
+		t.Fatalf("failed to extract variable values: %v", convertDiags)
+	}
+	if len(varValues) != 2 {
+		t.Fatalf("expected 2 variables, got %d", len(varValues))
 	}
 }
 

@@ -9,6 +9,9 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"time"
+
+	api "terraform-provider-corax/internal/generated"
 )
 
 // Helper to create a test server and client.
@@ -807,6 +810,127 @@ func TestListCapabilityTypes(t *testing.T) {
 			t.Errorf("Expected 2 capability types, got %d", len(result.Embedded))
 		}
 	})
+}
+
+// TestConvertCompletionCapabilityToRepresentation_Variables tests that variables
+// are stored as []interface{} (not []string) so mapAPICompletionCapabilityToModel
+// can type-assert them correctly.
+func TestConvertCompletionCapabilityToRepresentation_Variables(t *testing.T) {
+	now := time.Now()
+	gen := api.NewCompletionCapability("Test", "cap-1", "user-1", "user-1", now, now, "owner-1", "system", "completion", "text")
+	gen.Variables = []string{"context", "name"}
+
+	result, err := convertCompletionCapabilityToRepresentation(gen)
+
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if result == nil {
+		t.Fatal("expected non-nil result")
+	}
+
+	varsRaw, found := result.Input["variables"]
+	if !found {
+		t.Fatal("expected Input[\"variables\"] to be present")
+	}
+
+	vars, ok := varsRaw.([]interface{})
+	if !ok {
+		t.Fatalf("expected Input[\"variables\"] to be []interface{}, got %T", varsRaw)
+	}
+	if len(vars) != 2 {
+		t.Fatalf("expected 2 variables, got %d", len(vars))
+	}
+	if vars[0] != "context" {
+		t.Errorf("expected vars[0]=\"context\", got %v", vars[0])
+	}
+	if vars[1] != "name" {
+		t.Errorf("expected vars[1]=\"name\", got %v", vars[1])
+	}
+}
+
+// TestConvertCompletionCapabilityToRepresentation_NilVariables tests that nil
+// variables do not produce an Input["variables"] entry.
+func TestConvertCompletionCapabilityToRepresentation_NilVariables(t *testing.T) {
+	now := time.Now()
+	gen := api.NewCompletionCapability("Test", "cap-1", "user-1", "user-1", now, now, "owner-1", "system", "completion", "text")
+	gen.Variables = nil
+
+	result, err := convertCompletionCapabilityToRepresentation(gen)
+
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if _, found := result.Input["variables"]; found {
+		t.Error("expected Input[\"variables\"] to be absent when gen.Variables is nil")
+	}
+}
+
+// TestConvertCompletionCapabilityToRepresentation_SchemaDef tests that schema_def
+// is correctly converted and stored in Output["result"] as map[string]interface{}.
+func TestConvertCompletionCapabilityToRepresentation_SchemaDef(t *testing.T) {
+	now := time.Now()
+	gen := api.NewCompletionCapability("Test", "cap-1", "user-1", "user-1", now, now, "owner-1", "system", "completion", "schema")
+	gen.SchemaDef = map[string]api.CompletionCapabilitySchemaDefValue{
+		"result": {
+			BasicProperty: &api.BasicProperty{
+				Type:        "string",
+				Description: "Test result",
+			},
+		},
+	}
+
+	result, err := convertCompletionCapabilityToRepresentation(gen)
+
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if result == nil {
+		t.Fatal("expected non-nil result")
+	}
+
+	schemaRaw, found := result.Output["result"]
+	if !found {
+		t.Fatal("expected Output[\"result\"] to be present when SchemaDef is set")
+	}
+
+	schemaMap, ok := schemaRaw.(map[string]interface{})
+	if !ok {
+		t.Fatalf("expected Output[\"result\"] to be map[string]interface{}, got %T", schemaRaw)
+	}
+
+	// Should have "result" key with type and description
+	resultEntry, ok := schemaMap["result"]
+	if !ok {
+		t.Fatal("expected schema map to have key \"result\"")
+	}
+	resultMap, ok := resultEntry.(map[string]interface{})
+	if !ok {
+		t.Fatalf("expected schema[\"result\"] to be map[string]interface{}, got %T", resultEntry)
+	}
+	if resultMap["type"] != "string" {
+		t.Errorf("expected type=\"string\", got %v", resultMap["type"])
+	}
+	if resultMap["description"] != "Test result" {
+		t.Errorf("expected description=\"Test result\", got %v", resultMap["description"])
+	}
+}
+
+// TestConvertCompletionCapabilityToRepresentation_NilSchemaDef tests that nil
+// SchemaDef does not produce an Output["result"] entry.
+func TestConvertCompletionCapabilityToRepresentation_NilSchemaDef(t *testing.T) {
+	now := time.Now()
+	gen := api.NewCompletionCapability("Test", "cap-1", "user-1", "user-1", now, now, "owner-1", "system", "completion", "text")
+	gen.SchemaDef = nil
+
+	result, err := convertCompletionCapabilityToRepresentation(gen)
+
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if _, found := result.Output["result"]; found {
+		t.Error("expected Output[\"result\"] to be absent when gen.SchemaDef is nil")
+	}
 }
 
 // TestGetCapabilityType tests the GetCapabilityType method.

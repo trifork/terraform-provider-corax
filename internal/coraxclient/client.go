@@ -724,6 +724,33 @@ func convertSchemaDefToGen(schemaDef map[string]interface{}) (map[string]api.Com
 	return result, nil
 }
 
+// convertSchemaDefFromGen converts a generated schema_def map back to a generic
+// map[string]interface{} suitable for the CapabilityRepresentation. This is the
+// reverse of convertSchemaDefToGen: it uses JSON round-tripping to convert the
+// typed CompletionCapabilitySchemaDefValue union into generic maps.
+func convertSchemaDefFromGen(schemaDef map[string]api.CompletionCapabilitySchemaDefValue) (map[string]interface{}, error) {
+	if schemaDef == nil {
+		return nil, nil
+	}
+
+	result := make(map[string]interface{}, len(schemaDef))
+	for key, value := range schemaDef {
+		raw, err := json.Marshal(value)
+		if err != nil {
+			return nil, fmt.Errorf("schema_def[%s]: marshal: %w", key, err)
+		}
+
+		var converted interface{}
+		if err := json.Unmarshal(raw, &converted); err != nil {
+			return nil, fmt.Errorf("schema_def[%s]: unmarshal: %w", key, err)
+		}
+
+		result[key] = converted
+	}
+
+	return result, nil
+}
+
 // convertChatCapabilityCreateToGen converts our ChatCapabilityCreate to the generated type.
 func convertChatCapabilityCreateToGen(c *ChatCapabilityCreate) *api.ChatCapabilityCreate {
 	if c == nil {
@@ -859,9 +886,9 @@ func convertChatCapabilityToRepresentation(gen *api.ChatCapability) *CapabilityR
 }
 
 // convertCompletionCapabilityToRepresentation converts a generated CompletionCapability to CapabilityRepresentation.
-func convertCompletionCapabilityToRepresentation(gen *api.CompletionCapability) *CapabilityRepresentation {
+func convertCompletionCapabilityToRepresentation(gen *api.CompletionCapability) (*CapabilityRepresentation, error) {
 	if gen == nil {
-		return nil
+		return nil, nil
 	}
 
 	capType := "completion"
@@ -913,11 +940,23 @@ func convertCompletionCapabilityToRepresentation(gen *api.CompletionCapability) 
 	result.Configuration["completion_prompt"] = gen.CompletionPrompt
 	result.Output["type"] = gen.OutputType
 	if gen.Variables != nil {
-		result.Input["variables"] = gen.Variables
+		vars := make([]interface{}, len(gen.Variables))
+		for i, v := range gen.Variables {
+			vars[i] = v
+		}
+		result.Input["variables"] = vars
 	}
-	// Note: schema_def would need conversion from the generated type
+	if gen.SchemaDef != nil {
+		schemaDefMap, err := convertSchemaDefFromGen(gen.SchemaDef)
+		if err != nil {
+			return nil, fmt.Errorf("converting schema_def: %w", err)
+		}
+		if schemaDefMap != nil {
+			result.Output["result"] = schemaDefMap
+		}
+	}
 
-	return result
+	return result, nil
 }
 
 // convertCreateCapabilityResponse converts the generated create response to CapabilityRepresentation.
@@ -931,7 +970,7 @@ func convertCreateCapabilityResponse(resp *api.ResponseCreateCapabilityV1Capabil
 	}
 
 	if resp.CompletionCapability != nil {
-		return convertCompletionCapabilityToRepresentation(resp.CompletionCapability), nil
+		return convertCompletionCapabilityToRepresentation(resp.CompletionCapability)
 	}
 
 	// Note: ExtractionCapability and SpeechToTextCapability not supported yet
