@@ -3,10 +3,12 @@
 terraform {
   required_providers {
     corax = {
-      source = "registry.terraform.io/trifork/corax"
+      source = "trifork/corax"
     }
   }
 }
 
 provider "corax" {
+  api_endpoint = "https://api.corax.app"
+  api_key      = "<api-key>"
 }
