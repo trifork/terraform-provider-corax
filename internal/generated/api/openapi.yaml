@@ -1,9 +1,7 @@
-# Copyright (c) Trifork
-
 openapi: 3.1.0
 info:
   title: Corax API
-  version: v2.91.0
+  version: v2.118.0
 servers:
 - url: /
 paths:
@@ -1110,6 +1108,47 @@ paths:
       summary: Get Execution Result
       tags:
       - Capabilities
+  /v1/capabilities/{capability_id}/executions/{execution_id}/callback:
+    get:
+      description: Get callback delivery status for a capability execution
+      operationId: get_execution_callback_v1_capabilities__capability_id__executions__execution_id__callback_get
+      parameters:
+      - explode: false
+        in: path
+        name: execution_id
+        required: true
+        schema:
+          format: uuid
+          title: Execution Id
+          type: string
+        style: simple
+      - description: The ID or semantic ID of the capability
+        explode: false
+        in: path
+        name: capability_id
+        required: true
+        schema:
+          $ref: "#/components/schemas/Capability_Id_1"
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ExecutionCallback"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      - APIKeyHeader: []
+      summary: Get Execution Callback
+      tags:
+      - Capabilities
   /v1/capabilities/{capability_id}/executions/{execution_id}/stream:
     get:
       description: Stream incremental updates for a capability execution
@@ -1908,6 +1947,142 @@ paths:
       summary: Update Model Provider
       tags:
       - Model Providers
+  /v1/model-providers/{provider_id}/health:
+    get:
+      description: Get the cached health status for a model provider.
+      operationId: get_provider_health_v1_model_providers__provider_id__health_get
+      parameters:
+      - explode: false
+        in: path
+        name: provider_id
+        required: true
+        schema:
+          format: uuid
+          title: Provider Id
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProviderHealthResponse"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      - APIKeyHeader: []
+      summary: Get Provider Health
+      tags:
+      - Model Providers
+  /v1/model-providers/{provider_id}/health-check:
+    post:
+      description: Trigger an immediate health check for a model provider.
+      operationId: trigger_provider_health_check_v1_model_providers__provider_id__health_check_post
+      parameters:
+      - explode: false
+        in: path
+        name: provider_id
+        required: true
+        schema:
+          format: uuid
+          title: Provider Id
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProviderHealthResponse"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      - APIKeyHeader: []
+      summary: Trigger Provider Health Check
+      tags:
+      - Model Providers
+  /v1/model-providers/with-deployments:
+    post:
+      description: |-
+        Create a model provider with multiple deployments in a single transaction.
+
+        This endpoint creates a provider and all specified deployments atomically.
+        If any deployment fails to create, the entire operation is rolled back.
+      operationId: create_model_provider_with_deployments_v1_model_providers_with_deployments_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Data"
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ModelProvider"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      - APIKeyHeader: []
+      summary: Create Model Provider With Deployments
+      tags:
+      - Model Providers
+  /v1/model-discovery/validate:
+    post:
+      description: |-
+        Validate provider credentials and fetch available models.
+
+        This endpoint validates the provided credentials by attempting to
+        list models from the provider. If successful, returns the list of
+        available models with metadata.
+
+        For providers that don't support model listing (bedrock, gemini, etc.),
+        returns supports_model_listing=False and an empty models list.
+      operationId: validate_provider_v1_model_discovery_validate_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Request"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProviderValidationResponse"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      - APIKeyHeader: []
+      summary: Validate Provider
+      tags:
+      - Model Discovery
   /v1/capability-types:
     get:
       description: List all capability types with HATEOAS links.
@@ -1958,7 +2133,7 @@ paths:
       tags:
       - Capability Types
     put:
-      description: Update the default model deployment for a capability type.
+      description: Update the default model deployment or pool for a capability type.
       operationId: update_capability_type_v1_capability_types__capability_type__put
       parameters:
       - explode: false
@@ -3834,6 +4009,78 @@ paths:
       summary: Get Features
 components:
   schemas:
+    AnthropicConfiguration:
+      description: Configuration for Anthropic provider.
+      properties:
+        api_key:
+          title: Api Key
+          type: string
+      required:
+      - api_key
+      title: AnthropicConfiguration
+    AnthropicProviderValidationRequest:
+      example:
+        provider_type: anthropic
+        configuration: ""
+      properties:
+        configuration:
+          allOf:
+          - $ref: "#/components/schemas/AnthropicConfiguration"
+          description: Provider configuration including credentials
+        provider_type:
+          description: Provider type
+          enum:
+          - anthropic
+          title: Provider Type
+          type: string
+      required:
+      - configuration
+      - provider_type
+      title: AnthropicProviderValidationRequest
+    AnthropicProviderWithDeploymentsCreate:
+      example:
+        provider_type: anthropic
+        deployments:
+        - supported_tasks:
+          - supported_tasks
+          - supported_tasks
+          model_id: model_id
+          display_name: display_name
+        - supported_tasks:
+          - supported_tasks
+          - supported_tasks
+          model_id: model_id
+          display_name: display_name
+        configuration: ""
+        name: name
+      properties:
+        configuration:
+          allOf:
+          - $ref: "#/components/schemas/AnthropicConfiguration"
+          description: Provider configuration
+        name:
+          description: Provider display name
+          maxLength: 50
+          minLength: 1
+          title: Name
+          type: string
+        provider_type:
+          description: Provider type
+          enum:
+          - anthropic
+          title: Provider Type
+          type: string
+        deployments:
+          description: Deployments to create
+          items:
+            $ref: "#/components/schemas/DeploymentCreate"
+          type: array
+      required:
+      - configuration
+      - deployments
+      - name
+      - provider_type
+      title: AnthropicProviderWithDeploymentsCreate
     ApiKey:
       example:
         last_used_at: 2000-01-23T04:56:07.000+00:00
@@ -3955,6 +4202,137 @@ components:
       - items
       - type
       title: ArrayProperty
+    AvailableModel:
+      description: A model available from a provider.
+      example:
+        capabilities:
+        - capabilities
+        - capabilities
+        context_length: 0
+        model_id: model_id
+        display_name: display_name
+      properties:
+        model_id:
+          description: Model identifier from provider
+          title: Model Id
+          type: string
+        display_name:
+          nullable: true
+          type: string
+        context_length:
+          nullable: true
+          type: integer
+        capabilities:
+          description: "Model capabilities: chat, completion, embedding, vision"
+          items:
+            type: string
+          type: array
+      required:
+      - model_id
+      title: AvailableModel
+    AzureConfiguration:
+      description: Configuration for Azure OpenAI provider.
+      properties:
+        api_key:
+          title: Api Key
+          type: string
+        api_endpoint:
+          title: Api Endpoint
+          type: string
+      required:
+      - api_endpoint
+      - api_key
+      title: AzureConfiguration
+    AzureProviderValidationRequest:
+      properties:
+        configuration:
+          allOf:
+          - $ref: "#/components/schemas/AzureConfiguration"
+          description: Provider configuration including credentials
+        provider_type:
+          description: Provider type
+          enum:
+          - azure
+          title: Provider Type
+          type: string
+      required:
+      - configuration
+      - provider_type
+      title: AzureProviderValidationRequest
+    AzureProviderWithDeploymentsCreate:
+      properties:
+        configuration:
+          allOf:
+          - $ref: "#/components/schemas/AzureConfiguration"
+          description: Provider configuration
+        name:
+          description: Provider display name
+          maxLength: 50
+          minLength: 1
+          title: Name
+          type: string
+        provider_type:
+          description: Provider type
+          enum:
+          - azure
+          title: Provider Type
+          type: string
+        deployments:
+          description: Deployments to create
+          items:
+            $ref: "#/components/schemas/DeploymentCreate"
+          type: array
+      required:
+      - configuration
+      - deployments
+      - name
+      - provider_type
+      title: AzureProviderWithDeploymentsCreate
+    AzureSpeechProviderValidationRequest:
+      properties:
+        configuration:
+          allOf:
+          - $ref: "#/components/schemas/AzureConfiguration"
+          description: Provider configuration including credentials
+        provider_type:
+          description: Provider type
+          enum:
+          - azure_speech
+          title: Provider Type
+          type: string
+      required:
+      - configuration
+      - provider_type
+      title: AzureSpeechProviderValidationRequest
+    AzureSpeechProviderWithDeploymentsCreate:
+      properties:
+        configuration:
+          allOf:
+          - $ref: "#/components/schemas/AzureConfiguration"
+          description: Provider configuration
+        name:
+          description: Provider display name
+          maxLength: 50
+          minLength: 1
+          title: Name
+          type: string
+        provider_type:
+          description: Provider type
+          enum:
+          - azure_speech
+          title: Provider Type
+          type: string
+        deployments:
+          description: Deployments to create
+          items:
+            $ref: "#/components/schemas/DeploymentCreate"
+          type: array
+      required:
+      - configuration
+      - deployments
+      - name
+      - provider_type
+      title: AzureSpeechProviderWithDeploymentsCreate
     BasicProperty:
       properties:
         type:
@@ -3972,6 +4350,68 @@ components:
       - description
       - type
       title: BasicProperty
+    BedrockConfiguration:
+      description: Configuration for AWS Bedrock provider.
+      properties:
+        aws_access_key_id:
+          title: Aws Access Key Id
+          type: string
+        aws_secret_access_key:
+          title: Aws Secret Access Key
+          type: string
+        aws_region_name:
+          title: Aws Region Name
+          type: string
+      required:
+      - aws_access_key_id
+      - aws_region_name
+      - aws_secret_access_key
+      title: BedrockConfiguration
+    BedrockProviderValidationRequest:
+      properties:
+        configuration:
+          allOf:
+          - $ref: "#/components/schemas/BedrockConfiguration"
+          description: Provider configuration including credentials
+        provider_type:
+          description: Provider type
+          enum:
+          - bedrock
+          title: Provider Type
+          type: string
+      required:
+      - configuration
+      - provider_type
+      title: BedrockProviderValidationRequest
+    BedrockProviderWithDeploymentsCreate:
+      properties:
+        configuration:
+          allOf:
+          - $ref: "#/components/schemas/BedrockConfiguration"
+          description: Provider configuration
+        name:
+          description: Provider display name
+          maxLength: 50
+          minLength: 1
+          title: Name
+          type: string
+        provider_type:
+          description: Provider type
+          enum:
+          - bedrock
+          title: Provider Type
+          type: string
+        deployments:
+          description: Deployments to create
+          items:
+            $ref: "#/components/schemas/DeploymentCreate"
+          type: array
+      required:
+      - configuration
+      - deployments
+      - name
+      - provider_type
+      title: BedrockProviderWithDeploymentsCreate
     BlobConfig:
       properties:
         max_file_size_mb:
@@ -4011,6 +4451,7 @@ components:
             href: href
             type: ""
         archived_at: 2000-01-23T04:56:07.000+00:00
+        model_pool_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
         created_at: 2000-01-23T04:56:07.000+00:00
         model_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
         type: completion
@@ -4045,6 +4486,10 @@ components:
           title: Type
           type: string
         model_id:
+          format: uuid
+          nullable: true
+          type: string
+        model_pool_id:
           format: uuid
           nullable: true
           type: string
@@ -4299,6 +4744,7 @@ components:
           name: name
           pattern: pattern
           description: description
+          step: 5
           label: label
           placeholder: placeholder
           type: text
@@ -4310,6 +4756,7 @@ components:
           name: name
           pattern: pattern
           description: description
+          step: 5
           label: label
           placeholder: placeholder
           type: text
@@ -4493,6 +4940,7 @@ components:
         archived_at: 2000-01-23T04:56:07.000+00:00
         configuration:
           key: ""
+        model_pool_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
         created_at: 2000-01-23T04:56:07.000+00:00
         model_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
         type: completion
@@ -4532,6 +4980,10 @@ components:
           title: Type
           type: string
         model_id:
+          format: uuid
+          nullable: true
+          type: string
+        model_pool_id:
           format: uuid
           nullable: true
           type: string
@@ -4632,26 +5084,9 @@ components:
             href: href
             type: ""
         _embedded:
-          key:
-            is_active: true
-            updated_at: 2000-01-23T04:56:07.000+00:00
-            _links:
-              key:
-                href: href
-                type: ""
-            configuration:
-              key: ""
-            supported_tasks:
-            - chat
-            - chat
-            name: name
-            updated_by: updated_by
-            description: description
-            provider_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
-            created_at: 2000-01-23T04:56:07.000+00:00
-            id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
-            created_by: created_by
+          key: ""
         name: name
+        model_pool_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
         id: id
       properties:
         _links:
@@ -4668,10 +5103,14 @@ components:
           format: uuid
           nullable: true
           type: string
-        _embedded:
-          additionalProperties:
-            $ref: "#/components/schemas/ModelDeployment"
+        model_pool_id:
+          format: uuid
           nullable: true
+          type: string
+        _embedded:
+          additionalProperties: true
+          nullable: true
+          type: object
       required:
       - id
       - name
@@ -4689,26 +5128,9 @@ components:
               href: href
               type: ""
           _embedded:
-            key:
-              is_active: true
-              updated_at: 2000-01-23T04:56:07.000+00:00
-              _links:
-                key:
-                  href: href
-                  type: ""
-              configuration:
-                key: ""
-              supported_tasks:
-              - chat
-              - chat
-              name: name
-              updated_by: updated_by
-              description: description
-              provider_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
-              created_at: 2000-01-23T04:56:07.000+00:00
-              id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
-              created_by: created_by
+            key: ""
           name: name
+          model_pool_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
           id: id
         - default_model_deployment_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
           _links:
@@ -4716,26 +5138,9 @@ components:
               href: href
               type: ""
           _embedded:
-            key:
-              is_active: true
-              updated_at: 2000-01-23T04:56:07.000+00:00
-              _links:
-                key:
-                  href: href
-                  type: ""
-              configuration:
-                key: ""
-              supported_tasks:
-              - chat
-              - chat
-              name: name
-              updated_by: updated_by
-              description: description
-              provider_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
-              created_at: 2000-01-23T04:56:07.000+00:00
-              id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
-              created_by: created_by
+            key: ""
           name: name
+          model_pool_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
           id: id
       properties:
         _links:
@@ -4835,6 +5240,10 @@ components:
           format: uuid
           nullable: true
           type: string
+        model_pool_id:
+          format: uuid
+          nullable: true
+          type: string
         config:
           allOf:
           - $ref: "#/components/schemas/CapabilityConfig"
@@ -4914,6 +5323,10 @@ components:
           format: uuid
           nullable: true
           type: string
+        model_pool_id:
+          format: uuid
+          nullable: true
+          type: string
         config:
           allOf:
           - $ref: "#/components/schemas/CapabilityConfig"
@@ -4956,6 +5369,10 @@ components:
           title: Type
           type: string
         model_id:
+          format: uuid
+          nullable: true
+          type: string
+        model_pool_id:
           format: uuid
           nullable: true
           type: string
@@ -5222,6 +5639,7 @@ components:
             href: href
             type: ""
         archived_at: 2000-01-23T04:56:07.000+00:00
+        model_pool_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
         created_at: 2000-01-23T04:56:07.000+00:00
         model_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
         system_prompt: system_prompt
@@ -5263,6 +5681,10 @@ components:
           title: Type
           type: string
         model_id:
+          format: uuid
+          nullable: true
+          type: string
+        model_pool_id:
           format: uuid
           nullable: true
           type: string
@@ -5359,6 +5781,10 @@ components:
           format: uuid
           nullable: true
           type: string
+        model_pool_id:
+          format: uuid
+          nullable: true
+          type: string
         config:
           allOf:
           - $ref: "#/components/schemas/CapabilityConfig"
@@ -5418,6 +5844,10 @@ components:
           format: uuid
           nullable: true
           type: string
+        model_pool_id:
+          format: uuid
+          nullable: true
+          type: string
         config:
           allOf:
           - $ref: "#/components/schemas/CapabilityConfig"
@@ -5469,6 +5899,7 @@ components:
           name: name
           pattern: pattern
           description: description
+          step: 5
           label: label
           placeholder: placeholder
           type: text
@@ -5480,6 +5911,7 @@ components:
           name: name
           pattern: pattern
           description: description
+          step: 5
           label: label
           placeholder: placeholder
           type: text
@@ -5505,6 +5937,7 @@ components:
         name: name
         pattern: pattern
         description: description
+        step: 5
         label: label
         placeholder: placeholder
         type: text
@@ -5541,6 +5974,8 @@ components:
           $ref: "#/components/schemas/Max"
         min:
           $ref: "#/components/schemas/Min"
+        step:
+          $ref: "#/components/schemas/Step"
       required:
       - label
       - name
@@ -5550,14 +5985,44 @@ components:
     DefaultModelDeploymentUpdate:
       example:
         default_model_deployment_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        model_pool_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
       properties:
         default_model_deployment_id:
           format: uuid
-          title: Default Model Deployment Id
+          nullable: true
           type: string
-      required:
-      - default_model_deployment_id
+        model_pool_id:
+          format: uuid
+          nullable: true
+          type: string
       title: DefaultModelDeploymentUpdate
+    DeploymentCreate:
+      description: A deployment to create as part of bulk provider creation.
+      example:
+        supported_tasks:
+        - supported_tasks
+        - supported_tasks
+        model_id: model_id
+        display_name: display_name
+      properties:
+        model_id:
+          description: Model identifier from provider
+          title: Model Id
+          type: string
+        display_name:
+          description: Custom display name for this deployment
+          title: Display Name
+          type: string
+        supported_tasks:
+          description: "Capability types: chat, completion, embedding"
+          items:
+            type: string
+          type: array
+      required:
+      - display_name
+      - model_id
+      - supported_tasks
+      title: DeploymentCreate
     Document:
       example:
         owner: owner
@@ -6213,7 +6678,7 @@ components:
         capability_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
         updated_by: updated_by
         id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
-        status: pending
+        status: ""
       properties:
         _embedded:
           additionalProperties: true
@@ -6224,14 +6689,9 @@ components:
             $ref: "#/components/schemas/HateoasLink"
           nullable: true
         status:
+          allOf:
+          - $ref: "#/components/schemas/ExecutionStatus"
           default: pending
-          enum:
-          - pending
-          - running
-          - success
-          - failure
-          title: Status
-          type: string
         result:
           title: Result
         input:
@@ -6273,8 +6733,80 @@ components:
       - updated_at
       - updated_by
       title: Execution
+    ExecutionCallback:
+      example:
+        callback_url: callback_url
+        execution_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        next_attempt_at: 2000-01-23T04:56:07.000+00:00
+        updated_at: 2000-01-23T04:56:07.000+00:00
+        _embedded:
+          key: ""
+        _links:
+          key:
+            href: href
+            type: ""
+        last_attempt_at: 2000-01-23T04:56:07.000+00:00
+        created_at: 2000-01-23T04:56:07.000+00:00
+        last_error: last_error
+        status: pending
+        attempts: 0
+      properties:
+        _embedded:
+          additionalProperties: true
+          nullable: true
+          type: object
+        _links:
+          additionalProperties:
+            $ref: "#/components/schemas/HateoasLink"
+          nullable: true
+        status:
+          enum:
+          - pending
+          - delivering
+          - delivered
+          - failed
+          title: Status
+          type: string
+        attempts:
+          title: Attempts
+          type: integer
+        callback_url:
+          title: Callback Url
+          type: string
+        last_attempt_at:
+          format: date-time
+          nullable: true
+          type: string
+        next_attempt_at:
+          format: date-time
+          nullable: true
+          type: string
+        last_error:
+          nullable: true
+          type: string
+        created_at:
+          format: date-time
+          nullable: true
+          type: string
+        updated_at:
+          format: date-time
+          nullable: true
+          type: string
+        execution_id:
+          format: uuid
+          title: Execution Id
+          type: string
+      required:
+      - attempts
+      - callback_url
+      - created_at
+      - execution_id
+      - status
+      - updated_at
+      title: ExecutionCallback
     ExecutionCreate:
       example:
+        callback_url: https://openapi-generator.tech
         payload: ""
         version: 0
       properties:
@@ -6283,6 +6815,11 @@ components:
         version:
           nullable: true
           type: integer
+        callback_url:
+          format: uri
+          minLength: 1
+          nullable: true
+          type: string
       title: ExecutionCreate
     ExecutionResult:
       example:
@@ -6316,6 +6853,14 @@ components:
       - id
       - updated_at
       title: ExecutionResult
+    ExecutionStatus:
+      enum:
+      - pending
+      - running
+      - success
+      - failure
+      title: ExecutionStatus
+      type: string
     ExecutionUsage:
       example:
         duration_seconds: 0
@@ -6381,6 +6926,10 @@ components:
           title: Type
           type: string
         model_id:
+          format: uuid
+          nullable: true
+          type: string
+        model_pool_id:
           format: uuid
           nullable: true
           type: string
@@ -6462,6 +7011,10 @@ components:
           format: uuid
           nullable: true
           type: string
+        model_pool_id:
+          format: uuid
+          nullable: true
+          type: string
         config:
           allOf:
           - $ref: "#/components/schemas/CapabilityConfig"
@@ -6503,6 +7056,10 @@ components:
           title: Type
           type: string
         model_id:
+          format: uuid
+          nullable: true
+          type: string
+        model_pool_id:
           format: uuid
           nullable: true
           type: string
@@ -6555,6 +7112,51 @@ components:
       - string_array
       title: FieldType
       type: string
+    GeminiProviderValidationRequest:
+      properties:
+        configuration:
+          allOf:
+          - $ref: "#/components/schemas/AzureConfiguration"
+          description: Provider configuration including credentials
+        provider_type:
+          description: Provider type
+          enum:
+          - gemini
+          title: Provider Type
+          type: string
+      required:
+      - configuration
+      - provider_type
+      title: GeminiProviderValidationRequest
+    GeminiProviderWithDeploymentsCreate:
+      properties:
+        configuration:
+          allOf:
+          - $ref: "#/components/schemas/AzureConfiguration"
+          description: Provider configuration
+        name:
+          description: Provider display name
+          maxLength: 50
+          minLength: 1
+          title: Name
+          type: string
+        provider_type:
+          description: Provider type
+          enum:
+          - gemini
+          title: Provider Type
+          type: string
+        deployments:
+          description: Deployments to create
+          items:
+            $ref: "#/components/schemas/DeploymentCreate"
+          type: array
+      required:
+      - configuration
+      - deployments
+      - name
+      - provider_type
+      title: GeminiProviderWithDeploymentsCreate
     HTTPMethod:
       description: |-
         HTTP methods and descriptions
@@ -6628,6 +7230,7 @@ components:
     MCPServerBase:
       example:
         name: name
+        is_public: false
         type: ""
         config:
           key: ""
@@ -6650,6 +7253,11 @@ components:
           additionalProperties: true
           nullable: true
           type: object
+        is_public:
+          default: false
+          description: Whether the server is publicly accessible
+          title: Is Public
+          type: boolean
       required:
       - name
       - url
@@ -6663,6 +7271,7 @@ components:
             href: href
             type: ""
         name: name
+        is_public: false
         id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
         type: ""
         config:
@@ -6691,6 +7300,11 @@ components:
           additionalProperties: true
           nullable: true
           type: object
+        is_public:
+          default: false
+          description: Whether the server is publicly accessible
+          title: Is Public
+          type: boolean
         id:
           format: uuid
           title: Id
@@ -6810,6 +7424,51 @@ components:
       - success
       - threshold
       title: MetricData
+    MistralProviderValidationRequest:
+      properties:
+        configuration:
+          allOf:
+          - $ref: "#/components/schemas/OpenAILikeConfiguration"
+          description: Provider configuration including credentials
+        provider_type:
+          description: Provider type
+          enum:
+          - mistral
+          title: Provider Type
+          type: string
+      required:
+      - configuration
+      - provider_type
+      title: MistralProviderValidationRequest
+    MistralProviderWithDeploymentsCreate:
+      properties:
+        configuration:
+          allOf:
+          - $ref: "#/components/schemas/OpenAILikeConfiguration"
+          description: Provider configuration
+        name:
+          description: Provider display name
+          maxLength: 50
+          minLength: 1
+          title: Name
+          type: string
+        provider_type:
+          description: Provider type
+          enum:
+          - mistral
+          title: Provider Type
+          type: string
+        deployments:
+          description: Deployments to create
+          items:
+            $ref: "#/components/schemas/DeploymentCreate"
+          type: array
+      required:
+      - configuration
+      - deployments
+      - name
+      - provider_type
+      title: MistralProviderWithDeploymentsCreate
     ModelDeployment:
       example:
         is_active: true
@@ -6877,7 +7536,6 @@ components:
           nullable: true
           type: string
       required:
-      - configuration
       - created_at
       - created_by
       - id
@@ -6921,7 +7579,6 @@ components:
           title: Provider Id
           type: string
       required:
-      - configuration
       - name
       - provider_id
       - supported_tasks
@@ -6962,7 +7619,6 @@ components:
           title: Provider Id
           type: string
       required:
-      - configuration
       - name
       - provider_id
       - supported_tasks
@@ -7049,13 +7705,64 @@ components:
       title: ModelProviderCreate
     ModelProviderType:
       example:
+        icon_url: icon_url
         _links:
           key:
             href: href
             type: ""
+        configuration:
+        - default: Default
+          min: 1
+          max: 6
+          name: name
+          pattern: pattern
+          description: description
+          step: 5
+          label: label
+          placeholder: placeholder
+          type: text
+          required: true
+          order: 0
+        - default: Default
+          min: 1
+          max: 6
+          name: name
+          pattern: pattern
+          description: description
+          step: 5
+          label: label
+          placeholder: placeholder
+          type: text
+          required: true
+          order: 0
         name: name
         description: description
         label: label
+        model_deployment_configuration:
+        - default: Default
+          min: 1
+          max: 6
+          name: name
+          pattern: pattern
+          description: description
+          step: 5
+          label: label
+          placeholder: placeholder
+          type: text
+          required: true
+          order: 0
+        - default: Default
+          min: 1
+          max: 6
+          name: name
+          pattern: pattern
+          description: description
+          step: 5
+          label: label
+          placeholder: placeholder
+          type: text
+          required: true
+          order: 0
       properties:
         _links:
           additionalProperties:
@@ -7070,8 +7777,21 @@ components:
         description:
           nullable: true
           type: string
+        icon_url:
+          nullable: true
+          type: string
+        configuration:
+          items:
+            $ref: "#/components/schemas/ConfigurationField"
+          type: array
+        model_deployment_configuration:
+          items:
+            $ref: "#/components/schemas/ConfigurationField"
+          type: array
       required:
+      - configuration
       - label
+      - model_deployment_configuration
       - name
       title: ModelProviderType
     ModelProviderUpdate:
@@ -7141,6 +7861,215 @@ components:
       - properties
       - type
       title: ObjectProperty
+    OllamaConfiguration:
+      description: Configuration for Ollama provider.
+      properties:
+        api_endpoint:
+          default: http://localhost:11434
+          title: Api Endpoint
+          type: string
+      title: OllamaConfiguration
+    OllamaProviderValidationRequest:
+      properties:
+        configuration:
+          allOf:
+          - $ref: "#/components/schemas/OllamaConfiguration"
+          description: Provider configuration including credentials
+        provider_type:
+          description: Provider type
+          enum:
+          - ollama
+          title: Provider Type
+          type: string
+      required:
+      - configuration
+      - provider_type
+      title: OllamaProviderValidationRequest
+    OllamaProviderWithDeploymentsCreate:
+      properties:
+        configuration:
+          allOf:
+          - $ref: "#/components/schemas/OllamaConfiguration"
+          description: Provider configuration
+        name:
+          description: Provider display name
+          maxLength: 50
+          minLength: 1
+          title: Name
+          type: string
+        provider_type:
+          description: Provider type
+          enum:
+          - ollama
+          title: Provider Type
+          type: string
+        deployments:
+          description: Deployments to create
+          items:
+            $ref: "#/components/schemas/DeploymentCreate"
+          type: array
+      required:
+      - configuration
+      - deployments
+      - name
+      - provider_type
+      title: OllamaProviderWithDeploymentsCreate
+    OpenAIConfiguration:
+      description: Configuration for OpenAI provider.
+      properties:
+        api_key:
+          title: Api Key
+          type: string
+      required:
+      - api_key
+      title: OpenAIConfiguration
+    OpenAILikeConfiguration:
+      description: Configuration for OpenAI-compatible providers.
+      properties:
+        api_endpoint:
+          title: Api Endpoint
+          type: string
+        api_key:
+          nullable: true
+          type: string
+      required:
+      - api_endpoint
+      title: OpenAILikeConfiguration
+    OpenAILikeProviderValidationRequest:
+      properties:
+        configuration:
+          allOf:
+          - $ref: "#/components/schemas/OpenAILikeConfiguration"
+          description: Provider configuration including credentials
+        provider_type:
+          description: Provider type
+          enum:
+          - openai_like
+          title: Provider Type
+          type: string
+      required:
+      - configuration
+      - provider_type
+      title: OpenAILikeProviderValidationRequest
+    OpenAILikeProviderWithDeploymentsCreate:
+      properties:
+        configuration:
+          allOf:
+          - $ref: "#/components/schemas/OpenAILikeConfiguration"
+          description: Provider configuration
+        name:
+          description: Provider display name
+          maxLength: 50
+          minLength: 1
+          title: Name
+          type: string
+        provider_type:
+          description: Provider type
+          enum:
+          - openai_like
+          title: Provider Type
+          type: string
+        deployments:
+          description: Deployments to create
+          items:
+            $ref: "#/components/schemas/DeploymentCreate"
+          type: array
+      required:
+      - configuration
+      - deployments
+      - name
+      - provider_type
+      title: OpenAILikeProviderWithDeploymentsCreate
+    OpenAIProviderValidationRequest:
+      properties:
+        configuration:
+          allOf:
+          - $ref: "#/components/schemas/OpenAIConfiguration"
+          description: Provider configuration including credentials
+        provider_type:
+          description: Provider type
+          enum:
+          - openai
+          title: Provider Type
+          type: string
+      required:
+      - configuration
+      - provider_type
+      title: OpenAIProviderValidationRequest
+    OpenAIProviderWithDeploymentsCreate:
+      properties:
+        configuration:
+          allOf:
+          - $ref: "#/components/schemas/OpenAIConfiguration"
+          description: Provider configuration
+        name:
+          description: Provider display name
+          maxLength: 50
+          minLength: 1
+          title: Name
+          type: string
+        provider_type:
+          description: Provider type
+          enum:
+          - openai
+          title: Provider Type
+          type: string
+        deployments:
+          description: Deployments to create
+          items:
+            $ref: "#/components/schemas/DeploymentCreate"
+          type: array
+      required:
+      - configuration
+      - deployments
+      - name
+      - provider_type
+      title: OpenAIProviderWithDeploymentsCreate
+    OpenRouterProviderValidationRequest:
+      properties:
+        configuration:
+          allOf:
+          - $ref: "#/components/schemas/OpenAIConfiguration"
+          description: Provider configuration including credentials
+        provider_type:
+          description: Provider type
+          enum:
+          - openrouter
+          title: Provider Type
+          type: string
+      required:
+      - configuration
+      - provider_type
+      title: OpenRouterProviderValidationRequest
+    OpenRouterProviderWithDeploymentsCreate:
+      properties:
+        configuration:
+          allOf:
+          - $ref: "#/components/schemas/OpenAIConfiguration"
+          description: Provider configuration
+        name:
+          description: Provider display name
+          maxLength: 50
+          minLength: 1
+          title: Name
+          type: string
+        provider_type:
+          description: Provider type
+          enum:
+          - openrouter
+          title: Provider Type
+          type: string
+        deployments:
+          description: Deployments to create
+          items:
+            $ref: "#/components/schemas/DeploymentCreate"
+          type: array
+      required:
+      - configuration
+      - deployments
+      - name
+      - provider_type
+      title: OpenRouterProviderWithDeploymentsCreate
     Page:
       description: Page schema for any paged API.
       example:
@@ -7285,6 +8214,7 @@ components:
             name: name
             pattern: pattern
             description: description
+            step: 5
             label: label
             placeholder: placeholder
             type: text
@@ -7296,6 +8226,7 @@ components:
             name: name
             pattern: pattern
             description: description
+            step: 5
             label: label
             placeholder: placeholder
             type: text
@@ -7319,6 +8250,7 @@ components:
             name: name
             pattern: pattern
             description: description
+            step: 5
             label: label
             placeholder: placeholder
             type: text
@@ -7330,6 +8262,7 @@ components:
             name: name
             pattern: pattern
             description: description
+            step: 5
             label: label
             placeholder: placeholder
             type: text
@@ -7483,6 +8416,7 @@ components:
               href: href
               type: ""
           archived_at: 2000-01-23T04:56:07.000+00:00
+          model_pool_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
           created_at: 2000-01-23T04:56:07.000+00:00
           model_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
           type: completion
@@ -7502,6 +8436,7 @@ components:
               href: href
               type: ""
           archived_at: 2000-01-23T04:56:07.000+00:00
+          model_pool_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
           created_at: 2000-01-23T04:56:07.000+00:00
           model_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
           type: completion
@@ -8040,7 +8975,7 @@ components:
           capability_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
           updated_by: updated_by
           id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
-          status: pending
+          status: ""
         - _links:
             key:
               href: href
@@ -8058,7 +8993,7 @@ components:
           capability_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
           updated_by: updated_by
           id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
-          status: pending
+          status: ""
         _links:
           key:
             href: href
@@ -8092,6 +9027,7 @@ components:
               href: href
               type: ""
           name: name
+          is_public: false
           id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
           type: ""
           config:
@@ -8104,6 +9040,7 @@ components:
               href: href
               type: ""
           name: name
+          is_public: false
           id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
           type: ""
           config:
@@ -8200,20 +9137,122 @@ components:
     PagedResponseModel_ModelProviderType_:
       example:
         _embedded:
-        - _links:
+        - icon_url: icon_url
+          _links:
             key:
               href: href
               type: ""
+          configuration:
+          - default: Default
+            min: 1
+            max: 6
+            name: name
+            pattern: pattern
+            description: description
+            step: 5
+            label: label
+            placeholder: placeholder
+            type: text
+            required: true
+            order: 0
+          - default: Default
+            min: 1
+            max: 6
+            name: name
+            pattern: pattern
+            description: description
+            step: 5
+            label: label
+            placeholder: placeholder
+            type: text
+            required: true
+            order: 0
           name: name
           description: description
           label: label
-        - _links:
+          model_deployment_configuration:
+          - default: Default
+            min: 1
+            max: 6
+            name: name
+            pattern: pattern
+            description: description
+            step: 5
+            label: label
+            placeholder: placeholder
+            type: text
+            required: true
+            order: 0
+          - default: Default
+            min: 1
+            max: 6
+            name: name
+            pattern: pattern
+            description: description
+            step: 5
+            label: label
+            placeholder: placeholder
+            type: text
+            required: true
+            order: 0
+        - icon_url: icon_url
+          _links:
             key:
               href: href
               type: ""
+          configuration:
+          - default: Default
+            min: 1
+            max: 6
+            name: name
+            pattern: pattern
+            description: description
+            step: 5
+            label: label
+            placeholder: placeholder
+            type: text
+            required: true
+            order: 0
+          - default: Default
+            min: 1
+            max: 6
+            name: name
+            pattern: pattern
+            description: description
+            step: 5
+            label: label
+            placeholder: placeholder
+            type: text
+            required: true
+            order: 0
           name: name
           description: description
           label: label
+          model_deployment_configuration:
+          - default: Default
+            min: 1
+            max: 6
+            name: name
+            pattern: pattern
+            description: description
+            step: 5
+            label: label
+            placeholder: placeholder
+            type: text
+            required: true
+            order: 0
+          - default: Default
+            min: 1
+            max: 6
+            name: name
+            pattern: pattern
+            description: description
+            step: 5
+            label: label
+            placeholder: placeholder
+            type: text
+            required: true
+            order: 0
         _links:
           key:
             href: href
@@ -8456,6 +9495,70 @@ components:
       required:
       - name
       title: ProjectUpdate
+    ProviderHealthResponse:
+      description: Health check response for a model provider.
+      example:
+        error_message: error_message
+        checked_at: 2000-01-23T04:56:07.000+00:00
+        status: healthy
+      properties:
+        status:
+          enum:
+          - healthy
+          - unhealthy
+          - unknown
+          title: Status
+          type: string
+        checked_at:
+          format: date-time
+          nullable: true
+          type: string
+        error_message:
+          nullable: true
+          type: string
+      required:
+      - status
+      title: ProviderHealthResponse
+    ProviderValidationResponse:
+      description: Response from provider validation.
+      example:
+        valid: true
+        error_message: error_message
+        models:
+        - capabilities:
+          - capabilities
+          - capabilities
+          context_length: 0
+          model_id: model_id
+          display_name: display_name
+        - capabilities:
+          - capabilities
+          - capabilities
+          context_length: 0
+          model_id: model_id
+          display_name: display_name
+        supports_model_listing: true
+      properties:
+        valid:
+          description: Whether credentials are valid
+          title: Valid
+          type: boolean
+        error_message:
+          nullable: true
+          type: string
+        models:
+          description: Available models
+          items:
+            $ref: "#/components/schemas/AvailableModel"
+          type: array
+        supports_model_listing:
+          default: true
+          description: Whether this provider supports listing models
+          title: Supports Model Listing
+          type: boolean
+      required:
+      - valid
+      title: ProviderValidationResponse
     SpeechToTextCapability:
       properties:
         _links:
@@ -8476,6 +9579,10 @@ components:
           title: Type
           type: string
         model_id:
+          format: uuid
+          nullable: true
+          type: string
+        model_pool_id:
           format: uuid
           nullable: true
           type: string
@@ -8557,6 +9664,10 @@ components:
           format: uuid
           nullable: true
           type: string
+        model_pool_id:
+          format: uuid
+          nullable: true
+          type: string
         config:
           allOf:
           - $ref: "#/components/schemas/CapabilityConfig"
@@ -8598,6 +9709,10 @@ components:
           title: Type
           type: string
         model_id:
+          format: uuid
+          nullable: true
+          type: string
+        model_pool_id:
           format: uuid
           nullable: true
           type: string
@@ -8795,6 +9910,32 @@ components:
       - type: string
       description: The ID or semantic ID of the capability
       title: Capability Id
+    Data:
+      anyOf:
+      - $ref: "#/components/schemas/AnthropicProviderWithDeploymentsCreate"
+      - $ref: "#/components/schemas/AzureProviderWithDeploymentsCreate"
+      - $ref: "#/components/schemas/AzureSpeechProviderWithDeploymentsCreate"
+      - $ref: "#/components/schemas/BedrockProviderWithDeploymentsCreate"
+      - $ref: "#/components/schemas/GeminiProviderWithDeploymentsCreate"
+      - $ref: "#/components/schemas/MistralProviderWithDeploymentsCreate"
+      - $ref: "#/components/schemas/OllamaProviderWithDeploymentsCreate"
+      - $ref: "#/components/schemas/OpenAIProviderWithDeploymentsCreate"
+      - $ref: "#/components/schemas/OpenAILikeProviderWithDeploymentsCreate"
+      - $ref: "#/components/schemas/OpenRouterProviderWithDeploymentsCreate"
+      title: Data
+    Request:
+      anyOf:
+      - $ref: "#/components/schemas/AnthropicProviderValidationRequest"
+      - $ref: "#/components/schemas/AzureProviderValidationRequest"
+      - $ref: "#/components/schemas/AzureSpeechProviderValidationRequest"
+      - $ref: "#/components/schemas/BedrockProviderValidationRequest"
+      - $ref: "#/components/schemas/GeminiProviderValidationRequest"
+      - $ref: "#/components/schemas/MistralProviderValidationRequest"
+      - $ref: "#/components/schemas/OllamaProviderValidationRequest"
+      - $ref: "#/components/schemas/OpenAIProviderValidationRequest"
+      - $ref: "#/components/schemas/OpenAILikeProviderValidationRequest"
+      - $ref: "#/components/schemas/OpenRouterProviderValidationRequest"
+      title: Request
     Items:
       discriminator:
         mapping:
@@ -8893,6 +10034,12 @@ components:
       - type: number
       nullable: true
       title: Min
+    Step:
+      anyOf:
+      - type: integer
+      - type: number
+      nullable: true
+      title: Step
     Content:
       anyOf:
       - type: string
