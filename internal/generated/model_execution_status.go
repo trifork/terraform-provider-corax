@@ -20,10 +20,10 @@ type ExecutionStatus string
 
 // List of ExecutionStatus
 const (
-	PENDING ExecutionStatus = "pending"
-	RUNNING ExecutionStatus = "running"
-	SUCCESS ExecutionStatus = "success"
-	FAILURE ExecutionStatus = "failure"
+	EXECUTION_STATUS_PENDING ExecutionStatus = "pending"
+	EXECUTION_STATUS_RUNNING ExecutionStatus = "running"
+	EXECUTION_STATUS_SUCCESS ExecutionStatus = "success"
+	EXECUTION_STATUS_FAILURE ExecutionStatus = "failure"
 )
 
 // All allowed values of ExecutionStatus enum

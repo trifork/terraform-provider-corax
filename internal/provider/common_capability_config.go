@@ -15,7 +15,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
-	"terraform-provider-corax/internal/coraxclient"
+	"math"
+
+	api "terraform-provider-corax/internal/generated"
 )
 
 // --- Reusable Model Structs for Capability Config ---
@@ -200,7 +202,7 @@ func capabilityConfigSchemaAttributes() map[string]schema.Attribute {
 
 // --- Reusable Mapping Functions ---
 
-func capabilityConfigModelToAPI(ctx context.Context, modelConfig types.Object, diags *diag.Diagnostics) *coraxclient.CapabilityConfig {
+func capabilityConfigModelToAPI(ctx context.Context, modelConfig types.Object, diags *diag.Diagnostics) *api.CapabilityConfig {
 	if modelConfig.IsNull() || modelConfig.IsUnknown() {
 		return nil
 	}
@@ -212,12 +214,12 @@ func capabilityConfigModelToAPI(ctx context.Context, modelConfig types.Object, d
 		return nil
 	}
 
-	apiConfig := &coraxclient.CapabilityConfig{}
+	apiConfig := api.NewCapabilityConfig()
 	hasChanges := false // Track if any field in config is actually set to avoid sending empty config object
 
 	if !cfgModel.Temperature.IsNull() && !cfgModel.Temperature.IsUnknown() {
-		val := cfgModel.Temperature.ValueFloat64()
-		apiConfig.Temperature = &val
+		val := float32(cfgModel.Temperature.ValueFloat64())
+		apiConfig.Temperature.Set(&val)
 		hasChanges = true
 	}
 	if !cfgModel.ContentTracing.IsNull() && !cfgModel.ContentTracing.IsUnknown() {
@@ -234,27 +236,29 @@ func capabilityConfigModelToAPI(ctx context.Context, modelConfig types.Object, d
 			return nil
 		}
 
-		apiBlobCfg := &coraxclient.BlobConfig{}
+		apiBlobCfg := api.NewBlobConfig()
 		blobChanges := false
 		if !blobCfgModel.MaxFileSizeMB.IsNull() && !blobCfgModel.MaxFileSizeMB.IsUnknown() {
-			val := int(blobCfgModel.MaxFileSizeMB.ValueInt64())
-			apiBlobCfg.MaxFileSizeMB = &val
+			val := int32(blobCfgModel.MaxFileSizeMB.ValueInt64())
+			apiBlobCfg.MaxFileSizeMb = &val
 			blobChanges = true
 		}
 		if !blobCfgModel.MaxBlobs.IsNull() && !blobCfgModel.MaxBlobs.IsUnknown() {
-			val := int(blobCfgModel.MaxBlobs.ValueInt64())
+			val := int32(blobCfgModel.MaxBlobs.ValueInt64())
 			apiBlobCfg.MaxBlobs = &val
 			blobChanges = true
 		}
 		if !blobCfgModel.AllowedMimeTypes.IsNull() && !blobCfgModel.AllowedMimeTypes.IsUnknown() {
-			diags.Append(blobCfgModel.AllowedMimeTypes.ElementsAs(ctx, &apiBlobCfg.AllowedMimeTypes, false)...)
+			var mimeTypes []string
+			diags.Append(blobCfgModel.AllowedMimeTypes.ElementsAs(ctx, &mimeTypes, false)...)
 			if diags.HasError() {
 				return nil
 			}
+			apiBlobCfg.AllowedMimeTypes = mimeTypes
 			blobChanges = true
 		}
 		if blobChanges {
-			apiConfig.BlobConfig = apiBlobCfg
+			apiConfig.BlobConfig.Set(apiBlobCfg)
 			hasChanges = true
 		}
 	}
@@ -267,30 +271,25 @@ func capabilityConfigModelToAPI(ctx context.Context, modelConfig types.Object, d
 			return nil
 		}
 
-		apiDR := &coraxclient.DataRetention{}
-		drChanges := false
-
 		if !drModel.Type.IsNull() && !drModel.Type.IsUnknown() {
 			retentionType := drModel.Type.ValueString()
-			apiDR.Type = retentionType
-			drChanges = true // Setting the type is a change
 
 			switch retentionType {
 			case "timed":
-				// Schema ensures Hours is non-null and valid if Type is "timed"
+				hours := int32(1) // default
 				if !drModel.Hours.IsNull() && !drModel.Hours.IsUnknown() {
-					val := int(drModel.Hours.ValueInt64())
-					apiDR.Hours = &val
+					hours = int32(drModel.Hours.ValueInt64())
 				}
-				// If Hours were null/unknown here despite schema, it's an issue.
-				// The API requires 'hours' for 'timed' type.
+				timedDR := api.NewTimedDataRetention(hours)
+				apiConfig.DataRetention = &api.DataRetention{
+					TimedDataRetention: timedDR,
+				}
 			case "infinite":
-				apiDR.Hours = nil // Explicitly ensure Hours is not sent for infinite type
+				infiniteDR := api.NewInfiniteDataRetention()
+				apiConfig.DataRetention = &api.DataRetention{
+					InfiniteDataRetention: infiniteDR,
+				}
 			}
-		}
-
-		if drChanges {
-			apiConfig.DataRetention = apiDR
 			hasChanges = true
 		}
 	}
@@ -312,15 +311,16 @@ func capabilityConfigModelToAPI(ctx context.Context, modelConfig types.Object, d
 	return apiConfig
 }
 
-func capabilityConfigAPItoModel(ctx context.Context, apiConfig *coraxclient.CapabilityConfig, diags *diag.Diagnostics) types.Object {
+func capabilityConfigAPItoModel(ctx context.Context, apiConfig *api.CapabilityConfig, diags *diag.Diagnostics) types.Object {
 	if apiConfig == nil {
 		return types.ObjectNull(capabilityConfigAttributeTypes())
 	}
 
 	attrs := make(map[string]attr.Value)
 
-	if apiConfig.Temperature != nil {
-		attrs["temperature"] = types.Float64Value(*apiConfig.Temperature)
+	if apiConfig.Temperature.IsSet() && apiConfig.Temperature.Get() != nil {
+		// Round to avoid floating-point precision issues from float32
+		attrs["temperature"] = types.Float64Value(math.Round(float64(*apiConfig.Temperature.Get())*100) / 100)
 	} else {
 		attrs["temperature"] = types.Float64Null()
 	}
@@ -332,20 +332,21 @@ func capabilityConfigAPItoModel(ctx context.Context, apiConfig *coraxclient.Capa
 		attrs["content_tracing"] = types.BoolValue(true)
 	}
 
-	if apiConfig.BlobConfig != nil {
+	if apiConfig.BlobConfig.IsSet() && apiConfig.BlobConfig.Get() != nil {
+		blobCfg := apiConfig.BlobConfig.Get()
 		blobAttrs := make(map[string]attr.Value)
-		if apiConfig.BlobConfig.MaxFileSizeMB != nil {
-			blobAttrs["max_file_size_mb"] = types.Int64Value(int64(*apiConfig.BlobConfig.MaxFileSizeMB))
+		if blobCfg.MaxFileSizeMb != nil {
+			blobAttrs["max_file_size_mb"] = types.Int64Value(int64(*blobCfg.MaxFileSizeMb))
 		} else {
 			blobAttrs["max_file_size_mb"] = types.Int64Null()
 		}
-		if apiConfig.BlobConfig.MaxBlobs != nil {
-			blobAttrs["max_blobs"] = types.Int64Value(int64(*apiConfig.BlobConfig.MaxBlobs))
+		if blobCfg.MaxBlobs != nil {
+			blobAttrs["max_blobs"] = types.Int64Value(int64(*blobCfg.MaxBlobs))
 		} else {
 			blobAttrs["max_blobs"] = types.Int64Null()
 		}
-		if apiConfig.BlobConfig.AllowedMimeTypes != nil {
-			listVal, listDiags := types.ListValueFrom(ctx, types.StringType, apiConfig.BlobConfig.AllowedMimeTypes)
+		if blobCfg.AllowedMimeTypes != nil {
+			listVal, listDiags := types.ListValueFrom(ctx, types.StringType, blobCfg.AllowedMimeTypes)
 			diags.Append(listDiags...)
 			blobAttrs["allowed_mime_types"] = listVal
 		} else {
@@ -360,24 +361,23 @@ func capabilityConfigAPItoModel(ctx context.Context, apiConfig *coraxclient.Capa
 
 	if apiConfig.DataRetention != nil {
 		drAttrs := make(map[string]attr.Value)
-		retentionType := apiConfig.DataRetention.Type
 
-		drAttrs["type"] = types.StringValue(retentionType)
-
-		if retentionType == "timed" && apiConfig.DataRetention.Hours != nil {
-			drAttrs["hours"] = types.Int64Value(int64(*apiConfig.DataRetention.Hours))
+		if apiConfig.DataRetention.TimedDataRetention != nil {
+			drAttrs["type"] = types.StringValue("timed")
+			drAttrs["hours"] = types.Int64Value(int64(apiConfig.DataRetention.TimedDataRetention.Hours))
+		} else if apiConfig.DataRetention.InfiniteDataRetention != nil {
+			drAttrs["type"] = types.StringValue("infinite")
+			drAttrs["hours"] = types.Int64Null()
 		} else {
-			// For "infinite", or if "timed" but hours is missing from API (which would be an API inconsistency for "timed")
-			// or if type is unknown from API.
+			// Unknown data retention type — set null
+			drAttrs["type"] = types.StringNull()
 			drAttrs["hours"] = types.Int64Null()
 		}
 
-		// Use the new dataRetentionAttributeTypes() which expects "type" and "hours"
 		drObj, drObjDiags := types.ObjectValue(dataRetentionAttributeTypes(), drAttrs)
 		diags.Append(drObjDiags...)
 		attrs["data_retention"] = drObj
 	} else {
-		// Use the new dataRetentionAttributeTypes()
 		attrs["data_retention"] = types.ObjectNull(dataRetentionAttributeTypes())
 	}
 

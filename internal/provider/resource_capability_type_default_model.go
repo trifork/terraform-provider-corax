@@ -17,6 +17,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 
 	"terraform-provider-corax/internal/coraxclient"
+	api "terraform-provider-corax/internal/generated"
 )
 
 // Ensure provider defined types fully satisfy framework interfaces.
@@ -92,12 +93,11 @@ func (r *CapabilityTypeDefaultModelResource) Create(ctx context.Context, req res
 	tflog.Debug(ctx, "Create function for corax_capability_type_default_model (actually PUT).")
 	// Create is effectively an Update (PUT) operation
 
-	updatePayload := coraxclient.DefaultModelDeploymentUpdate{
-		DefaultModelDeploymentID: plan.DefaultModelDeploymentID.ValueString(),
-	}
+	updatePayload := api.NewDefaultModelDeploymentUpdate()
+	updatePayload.SetDefaultModelDeploymentId(plan.DefaultModelDeploymentID.ValueString())
 	capabilityType := plan.CapabilityType.ValueString()
 
-	apiResp, err := r.client.SetCapabilityTypeDefaultModel(ctx, capabilityType, updatePayload)
+	apiResp, err := r.client.SetCapabilityTypeDefaultModel(ctx, capabilityType, *updatePayload)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to set default model for capability type %s: %s", capabilityType, err))
 		return
@@ -129,13 +129,10 @@ func (r *CapabilityTypeDefaultModelResource) Read(ctx context.Context, req resou
 	}
 
 	state.Name = types.StringValue(apiResp.Name)
-	if apiResp.DefaultModelDeploymentID != nil {
-		state.DefaultModelDeploymentID = types.StringValue(*apiResp.DefaultModelDeploymentID)
+	if defaultModelId, ok := apiResp.GetDefaultModelDeploymentIdOk(); ok && defaultModelId != nil {
+		state.DefaultModelDeploymentID = types.StringValue(*defaultModelId)
 	} else {
 		// If API returns null, it means no default is set.
-		// Terraform might see this as a diff if the config expects one.
-		// This resource *manages* the default, so if it's null, TF should try to set it on apply.
-		// For Read, if it's null, we reflect that.
 		state.DefaultModelDeploymentID = types.StringNull()
 	}
 
@@ -154,12 +151,11 @@ func (r *CapabilityTypeDefaultModelResource) Update(ctx context.Context, req res
 	// Since capability_type RequiresReplace, Update is only for default_model_deployment_id.
 	tflog.Debug(ctx, "Update function for corax_capability_type_default_model (actually PUT).")
 
-	updatePayload := coraxclient.DefaultModelDeploymentUpdate{
-		DefaultModelDeploymentID: plan.DefaultModelDeploymentID.ValueString(),
-	}
+	updatePayload := api.NewDefaultModelDeploymentUpdate()
+	updatePayload.SetDefaultModelDeploymentId(plan.DefaultModelDeploymentID.ValueString())
 	capabilityType := plan.CapabilityType.ValueString()
 
-	apiResp, err := r.client.SetCapabilityTypeDefaultModel(ctx, capabilityType, updatePayload)
+	apiResp, err := r.client.SetCapabilityTypeDefaultModel(ctx, capabilityType, *updatePayload)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to update default model for capability type %s: %s", capabilityType, err))
 		return

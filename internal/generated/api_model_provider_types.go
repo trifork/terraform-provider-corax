@@ -28,7 +28,7 @@ type ModelProviderTypesAPIGetModelProviderConfigurationV1ModelProviderTypesProvi
 	providerType string
 }
 
-func (r ModelProviderTypesAPIGetModelProviderConfigurationV1ModelProviderTypesProviderTypeModelProviderConfigurationGetRequest) Execute() (*Configuration, *http.Response, error) {
+func (r ModelProviderTypesAPIGetModelProviderConfigurationV1ModelProviderTypesProviderTypeModelProviderConfigurationGetRequest) Execute() (*ModelConfiguration, *http.Response, error) {
 	return r.ApiService.GetModelProviderConfigurationV1ModelProviderTypesProviderTypeModelProviderConfigurationGetExecute(r)
 }
 
@@ -51,13 +51,13 @@ func (a *ModelProviderTypesAPIService) GetModelProviderConfigurationV1ModelProvi
 
 // Execute executes the request
 //
-//	@return Configuration
-func (a *ModelProviderTypesAPIService) GetModelProviderConfigurationV1ModelProviderTypesProviderTypeModelProviderConfigurationGetExecute(r ModelProviderTypesAPIGetModelProviderConfigurationV1ModelProviderTypesProviderTypeModelProviderConfigurationGetRequest) (*Configuration, *http.Response, error) {
+//	@return ModelConfiguration
+func (a *ModelProviderTypesAPIService) GetModelProviderConfigurationV1ModelProviderTypesProviderTypeModelProviderConfigurationGetExecute(r ModelProviderTypesAPIGetModelProviderConfigurationV1ModelProviderTypesProviderTypeModelProviderConfigurationGetRequest) (*ModelConfiguration, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodGet
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue *Configuration
+		localVarReturnValue *ModelConfiguration
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "ModelProviderTypesAPIService.GetModelProviderConfigurationV1ModelProviderTypesProviderTypeModelProviderConfigurationGet")
@@ -156,7 +156,7 @@ type ModelProviderTypesAPIGetModelProviderDeploymentConfigurationV1ModelProvider
 	providerType string
 }
 
-func (r ModelProviderTypesAPIGetModelProviderDeploymentConfigurationV1ModelProviderTypesProviderTypeModelDeploymentConfigurationGetRequest) Execute() (*Configuration, *http.Response, error) {
+func (r ModelProviderTypesAPIGetModelProviderDeploymentConfigurationV1ModelProviderTypesProviderTypeModelDeploymentConfigurationGetRequest) Execute() (*ModelConfiguration, *http.Response, error) {
 	return r.ApiService.GetModelProviderDeploymentConfigurationV1ModelProviderTypesProviderTypeModelDeploymentConfigurationGetExecute(r)
 }
 
@@ -179,13 +179,13 @@ func (a *ModelProviderTypesAPIService) GetModelProviderDeploymentConfigurationV1
 
 // Execute executes the request
 //
-//	@return Configuration
-func (a *ModelProviderTypesAPIService) GetModelProviderDeploymentConfigurationV1ModelProviderTypesProviderTypeModelDeploymentConfigurationGetExecute(r ModelProviderTypesAPIGetModelProviderDeploymentConfigurationV1ModelProviderTypesProviderTypeModelDeploymentConfigurationGetRequest) (*Configuration, *http.Response, error) {
+//	@return ModelConfiguration
+func (a *ModelProviderTypesAPIService) GetModelProviderDeploymentConfigurationV1ModelProviderTypesProviderTypeModelDeploymentConfigurationGetExecute(r ModelProviderTypesAPIGetModelProviderDeploymentConfigurationV1ModelProviderTypesProviderTypeModelDeploymentConfigurationGetRequest) (*ModelConfiguration, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodGet
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue *Configuration
+		localVarReturnValue *ModelConfiguration
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "ModelProviderTypesAPIService.GetModelProviderDeploymentConfigurationV1ModelProviderTypesProviderTypeModelDeploymentConfigurationGet")

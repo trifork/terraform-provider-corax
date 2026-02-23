@@ -8,8 +8,9 @@ import (
 	"fmt"
 	"os"
 	"testing"
+	"time"
 
-	"terraform-provider-corax/internal/coraxclient"
+	api "terraform-provider-corax/internal/generated"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -150,41 +151,42 @@ func TestSchemaDefAPIToString(t *testing.T) {
 }
 
 // TestMapAPICompletionCapabilityToModel_VariablesAsStringSlice tests that
-// mapAPICompletionCapabilityToModel handles []string variables defensively,
+// mapCompletionCapabilityRepresentationToModel handles []string variables defensively,
 // even though the primary fix ensures []interface{} is always produced.
 func TestMapAPICompletionCapabilityToModel_VariablesAsStringSlice(t *testing.T) {
 	ctx := context.Background()
-	isPublic := true
-	apiCap := &coraxclient.CapabilityRepresentation{
-		ID:         "cap-1",
-		Name:       "Test",
-		Type:       "completion",
-		SemanticID: "test-cap",
-		Owner:      "owner-1",
-		CreatedBy:  "user-1",
-		UpdatedBy:  "user-1",
-		CreatedAt:  "2024-01-01T00:00:00Z",
-		UpdatedAt:  "2024-01-01T00:00:00Z",
-		IsPublic:   &isPublic,
-		Input: map[string]interface{}{
+	now := time.Now()
+	apiCap := api.NewCapabilityRepresentation(
+		"Test",       // name
+		"completion", // type
+		"test-cap",   // semanticId
+		"cap-1",      // id
+		"user-1",     // createdBy
+		"user-1",     // updatedBy
+		now,          // createdAt
+		now,          // updatedAt
+		"owner-1",    // owner
+		map[string]interface{}{ // input
 			// Simulate the bug scenario: variables as []string instead of []interface{}
 			"variables": []string{"context", "name"},
 		},
-		Output: map[string]interface{}{
+		map[string]interface{}{ // output
 			"type": "text",
 		},
-		Configuration: map[string]interface{}{
+		map[string]interface{}{ // configuration
 			"system_prompt":     "system",
 			"completion_prompt": "completion",
 		},
-	}
+		true, // isDefaultVersion
+	)
+	apiCap.SetIsPublic(true)
 
 	model := &CompletionCapabilityResourceModel{
 		Variables: types.SetNull(types.StringType),
 	}
 	var diags diag.Diagnostics
 
-	mapAPICompletionCapabilityToModel(apiCap, model, &diags, ctx)
+	mapCompletionCapabilityRepresentationToModel(apiCap, model, &diags, ctx)
 
 	// Should not produce any warnings or errors
 	if diags.HasError() {

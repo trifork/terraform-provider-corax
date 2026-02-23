@@ -16,37 +16,37 @@ import (
 	"fmt"
 )
 
-// checks if the Configuration type satisfies the MappedNullable interface at compile time
-var _ MappedNullable = &Configuration{}
+// checks if the ModelConfiguration type satisfies the MappedNullable interface at compile time
+var _ MappedNullable = &ModelConfiguration{}
 
-// Configuration struct for Configuration
-type Configuration struct {
+// ModelConfiguration struct for ModelConfiguration
+type ModelConfiguration struct {
 	Links         map[string]HateoasLink `json:"_links,omitempty"`
 	Configuration []ConfigurationField   `json:"configuration"`
 }
 
-type _Configuration Configuration
+type _ModelConfiguration ModelConfiguration
 
-// NewConfiguration instantiates a new Configuration object
+// NewModelConfiguration instantiates a new ModelConfiguration object
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewConfiguration(configuration []ConfigurationField) *Configuration {
-	this := Configuration{}
+func NewModelConfiguration(configuration []ConfigurationField) *ModelConfiguration {
+	this := ModelConfiguration{}
 	this.Configuration = configuration
 	return &this
 }
 
-// NewConfigurationWithDefaults instantiates a new Configuration object
+// NewModelConfigurationWithDefaults instantiates a new ModelConfiguration object
 // This constructor will only assign default values to properties that have it defined,
 // but it doesn't guarantee that properties required by API are set
-func NewConfigurationWithDefaults() *Configuration {
-	this := Configuration{}
+func NewModelConfigurationWithDefaults() *ModelConfiguration {
+	this := ModelConfiguration{}
 	return &this
 }
 
 // GetLinks returns the Links field value if set, zero value otherwise (both if not set or set to explicit null).
-func (o *Configuration) GetLinks() map[string]HateoasLink {
+func (o *ModelConfiguration) GetLinks() map[string]HateoasLink {
 	if o == nil {
 		var ret map[string]HateoasLink
 		return ret
@@ -57,7 +57,7 @@ func (o *Configuration) GetLinks() map[string]HateoasLink {
 // GetLinksOk returns a tuple with the Links field value if set, nil otherwise
 // and a boolean to check if the value has been set.
 // NOTE: If the value is an explicit nil, `nil, true` will be returned
-func (o *Configuration) GetLinksOk() (map[string]HateoasLink, bool) {
+func (o *ModelConfiguration) GetLinksOk() (map[string]HateoasLink, bool) {
 	if o == nil || IsNil(o.Links) {
 		return map[string]HateoasLink{}, false
 	}
@@ -65,7 +65,7 @@ func (o *Configuration) GetLinksOk() (map[string]HateoasLink, bool) {
 }
 
 // HasLinks returns a boolean if a field has been set.
-func (o *Configuration) HasLinks() bool {
+func (o *ModelConfiguration) HasLinks() bool {
 	if o != nil && !IsNil(o.Links) {
 		return true
 	}
@@ -74,12 +74,12 @@ func (o *Configuration) HasLinks() bool {
 }
 
 // SetLinks gets a reference to the given map[string]HateoasLink and assigns it to the Links field.
-func (o *Configuration) SetLinks(v map[string]HateoasLink) {
+func (o *ModelConfiguration) SetLinks(v map[string]HateoasLink) {
 	o.Links = v
 }
 
 // GetConfiguration returns the Configuration field value
-func (o *Configuration) GetConfiguration() []ConfigurationField {
+func (o *ModelConfiguration) GetConfiguration() []ConfigurationField {
 	if o == nil {
 		var ret []ConfigurationField
 		return ret
@@ -90,7 +90,7 @@ func (o *Configuration) GetConfiguration() []ConfigurationField {
 
 // GetConfigurationOk returns a tuple with the Configuration field value
 // and a boolean to check if the value has been set.
-func (o *Configuration) GetConfigurationOk() ([]ConfigurationField, bool) {
+func (o *ModelConfiguration) GetConfigurationOk() ([]ConfigurationField, bool) {
 	if o == nil {
 		return nil, false
 	}
@@ -98,11 +98,11 @@ func (o *Configuration) GetConfigurationOk() ([]ConfigurationField, bool) {
 }
 
 // SetConfiguration sets field value
-func (o *Configuration) SetConfiguration(v []ConfigurationField) {
+func (o *ModelConfiguration) SetConfiguration(v []ConfigurationField) {
 	o.Configuration = v
 }
 
-func (o Configuration) MarshalJSON() ([]byte, error) {
+func (o ModelConfiguration) MarshalJSON() ([]byte, error) {
 	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
@@ -110,7 +110,7 @@ func (o Configuration) MarshalJSON() ([]byte, error) {
 	return json.Marshal(toSerialize)
 }
 
-func (o Configuration) ToMap() (map[string]interface{}, error) {
+func (o ModelConfiguration) ToMap() (map[string]interface{}, error) {
 	toSerialize := map[string]interface{}{}
 	if o.Links != nil {
 		toSerialize["_links"] = o.Links
@@ -119,7 +119,7 @@ func (o Configuration) ToMap() (map[string]interface{}, error) {
 	return toSerialize, nil
 }
 
-func (o *Configuration) UnmarshalJSON(data []byte) (err error) {
+func (o *ModelConfiguration) UnmarshalJSON(data []byte) (err error) {
 	// This validates that all required properties are included in the JSON object
 	// by unmarshalling the object into a generic map with string keys and checking
 	// that every required field exists as a key in the generic map.
@@ -141,53 +141,53 @@ func (o *Configuration) UnmarshalJSON(data []byte) (err error) {
 		}
 	}
 
-	varConfiguration := _Configuration{}
+	varModelConfiguration := _ModelConfiguration{}
 
 	decoder := json.NewDecoder(bytes.NewReader(data))
 	decoder.DisallowUnknownFields()
-	err = decoder.Decode(&varConfiguration)
+	err = decoder.Decode(&varModelConfiguration)
 
 	if err != nil {
 		return err
 	}
 
-	*o = Configuration(varConfiguration)
+	*o = ModelConfiguration(varModelConfiguration)
 
 	return err
 }
 
-type NullableConfiguration struct {
-	value *Configuration
+type NullableModelConfiguration struct {
+	value *ModelConfiguration
 	isSet bool
 }
 
-func (v NullableConfiguration) Get() *Configuration {
+func (v NullableModelConfiguration) Get() *ModelConfiguration {
 	return v.value
 }
 
-func (v *NullableConfiguration) Set(val *Configuration) {
+func (v *NullableModelConfiguration) Set(val *ModelConfiguration) {
 	v.value = val
 	v.isSet = true
 }
 
-func (v NullableConfiguration) IsSet() bool {
+func (v NullableModelConfiguration) IsSet() bool {
 	return v.isSet
 }
 
-func (v *NullableConfiguration) Unset() {
+func (v *NullableModelConfiguration) Unset() {
 	v.value = nil
 	v.isSet = false
 }
 
-func NewNullableConfiguration(val *Configuration) *NullableConfiguration {
-	return &NullableConfiguration{value: val, isSet: true}
+func NewNullableModelConfiguration(val *ModelConfiguration) *NullableModelConfiguration {
+	return &NullableModelConfiguration{value: val, isSet: true}
 }
 
-func (v NullableConfiguration) MarshalJSON() ([]byte, error) {
+func (v NullableModelConfiguration) MarshalJSON() ([]byte, error) {
 	return json.Marshal(v.value)
 }
 
-func (v *NullableConfiguration) UnmarshalJSON(src []byte) error {
+func (v *NullableModelConfiguration) UnmarshalJSON(src []byte) error {
 	v.isSet = true
 	return json.Unmarshal(src, &v.value)
 }

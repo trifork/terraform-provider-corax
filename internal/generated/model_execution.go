@@ -45,7 +45,7 @@ type _Execution Execution
 // will change when the set of required properties is changed
 func NewExecution(createdAt time.Time, updatedAt time.Time, createdBy string, updatedBy string, id string, capabilityId string) *Execution {
 	this := Execution{}
-	var status ExecutionStatus = PENDING
+	var status ExecutionStatus = EXECUTION_STATUS_PENDING
 	this.Status = &status
 	this.CreatedAt = createdAt
 	this.UpdatedAt = updatedAt
@@ -61,7 +61,7 @@ func NewExecution(createdAt time.Time, updatedAt time.Time, createdBy string, up
 // but it doesn't guarantee that properties required by API are set
 func NewExecutionWithDefaults() *Execution {
 	this := Execution{}
-	var status ExecutionStatus = PENDING
+	var status ExecutionStatus = EXECUTION_STATUS_PENDING
 	this.Status = &status
 	return &this
 }
