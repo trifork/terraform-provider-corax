@@ -163,7 +163,7 @@ import (
 
 func main() {
 	capabilityType := "capabilityType_example" // string | 
-	defaultModelDeploymentUpdate := *openapiclient.NewDefaultModelDeploymentUpdate("DefaultModelDeploymentId_example") // DefaultModelDeploymentUpdate | 
+	defaultModelDeploymentUpdate := *openapiclient.NewDefaultModelDeploymentUpdate() // DefaultModelDeploymentUpdate | 
 
 	configuration := openapiclient.NewConfiguration()
 	apiClient := openapiclient.NewAPIClient(configuration)

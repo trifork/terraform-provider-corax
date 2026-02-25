@@ -725,8 +725,8 @@ func TestGetCapability(t *testing.T) {
 		if err != nil {
 			t.Fatalf("Unexpected error: %v", err)
 		}
-		if result.ID != "cap-123" {
-			t.Errorf("Expected ID 'cap-123', got %s", result.ID)
+		if result.Id != "cap-123" {
+			t.Errorf("Expected ID 'cap-123', got %s", result.Id)
 		}
 	})
 
@@ -787,10 +787,10 @@ func TestListCapabilityTypes(t *testing.T) {
 
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusOK)
-			_ = json.NewEncoder(w).Encode(CapabilityTypesRepresentation{
-				Embedded: []CapabilityTypeRepresentation{
-					{ID: "chat", Name: "Chat"},
-					{ID: "completion", Name: "Completion"},
+			_ = json.NewEncoder(w).Encode(map[string]interface{}{
+				"_embedded": []map[string]interface{}{
+					{"id": "chat", "name": "Chat"},
+					{"id": "completion", "name": "Completion"},
 				},
 			})
 		}
@@ -822,9 +822,9 @@ func TestGetCapabilityType(t *testing.T) {
 
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusOK)
-			_ = json.NewEncoder(w).Encode(CapabilityTypeRepresentation{
-				ID:   "chat",
-				Name: "Chat",
+			_ = json.NewEncoder(w).Encode(map[string]interface{}{
+				"id":   "chat",
+				"name": "Chat",
 			})
 		}
 
@@ -836,8 +836,8 @@ func TestGetCapabilityType(t *testing.T) {
 		if err != nil {
 			t.Fatalf("Unexpected error: %v", err)
 		}
-		if result.ID != "chat" {
-			t.Errorf("Expected ID 'chat', got %s", result.ID)
+		if result.Id != "chat" {
+			t.Errorf("Expected ID 'chat', got %s", result.Id)
 		}
 	})
 }

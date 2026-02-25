@@ -5,9 +5,12 @@ All URIs are relative to *http://localhost*
 Method | HTTP request | Description
 ------------- | ------------- | -------------
 [**CreateModelProviderV1ModelProvidersPost**](ModelProvidersAPI.md#CreateModelProviderV1ModelProvidersPost) | **Post** /v1/model-providers | Create Model Provider
+[**CreateModelProviderWithDeploymentsV1ModelProvidersWithDeploymentsPost**](ModelProvidersAPI.md#CreateModelProviderWithDeploymentsV1ModelProvidersWithDeploymentsPost) | **Post** /v1/model-providers/with-deployments | Create Model Provider With Deployments
 [**DeleteModelProviderV1ModelProvidersProviderIdDelete**](ModelProvidersAPI.md#DeleteModelProviderV1ModelProvidersProviderIdDelete) | **Delete** /v1/model-providers/{provider_id} | Delete Model Provider
 [**GetModelProviderV1ModelProvidersProviderIdGet**](ModelProvidersAPI.md#GetModelProviderV1ModelProvidersProviderIdGet) | **Get** /v1/model-providers/{provider_id} | Get Model Provider
+[**GetProviderHealthV1ModelProvidersProviderIdHealthGet**](ModelProvidersAPI.md#GetProviderHealthV1ModelProvidersProviderIdHealthGet) | **Get** /v1/model-providers/{provider_id}/health | Get Provider Health
 [**ListModelProvidersV1ModelProvidersGet**](ModelProvidersAPI.md#ListModelProvidersV1ModelProvidersGet) | **Get** /v1/model-providers | List Model Providers
+[**TriggerProviderHealthCheckV1ModelProvidersProviderIdHealthCheckPost**](ModelProvidersAPI.md#TriggerProviderHealthCheckV1ModelProvidersProviderIdHealthCheckPost) | **Post** /v1/model-providers/{provider_id}/health-check | Trigger Provider Health Check
 [**UpdateModelProviderV1ModelProvidersProviderIdPut**](ModelProvidersAPI.md#UpdateModelProviderV1ModelProvidersProviderIdPut) | **Put** /v1/model-providers/{provider_id} | Update Model Provider
 
 
@@ -59,6 +62,72 @@ Other parameters are passed through a pointer to a apiCreateModelProviderV1Model
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **modelProviderCreate** | [**ModelProviderCreate**](ModelProviderCreate.md) |  | 
+
+### Return type
+
+[**ModelProvider**](ModelProvider.md)
+
+### Authorization
+
+[APIKeyHeader](../README.md#APIKeyHeader), [HTTPBearer](../README.md#HTTPBearer)
+
+### HTTP request headers
+
+- **Content-Type**: application/json
+- **Accept**: application/json
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints)
+[[Back to Model list]](../README.md#documentation-for-models)
+[[Back to README]](../README.md)
+
+
+## CreateModelProviderWithDeploymentsV1ModelProvidersWithDeploymentsPost
+
+> ModelProvider CreateModelProviderWithDeploymentsV1ModelProvidersWithDeploymentsPost(ctx).Data(data).Execute()
+
+Create Model Provider With Deployments
+
+
+
+### Example
+
+```go
+package main
+
+import (
+	"context"
+	"fmt"
+	"os"
+	openapiclient "github.com/GIT_USER_ID/GIT_REPO_ID/api"
+)
+
+func main() {
+	data := *openapiclient.NewData(*openapiclient.NewOpenAIConfiguration("ApiKey_example"), "Name_example", "ProviderType_example", []openapiclient.DeploymentCreate{*openapiclient.NewDeploymentCreate("ModelId_example", "DisplayName_example", []string{"SupportedTasks_example"})}) // Data | 
+
+	configuration := openapiclient.NewConfiguration()
+	apiClient := openapiclient.NewAPIClient(configuration)
+	resp, r, err := apiClient.ModelProvidersAPI.CreateModelProviderWithDeploymentsV1ModelProvidersWithDeploymentsPost(context.Background()).Data(data).Execute()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error when calling `ModelProvidersAPI.CreateModelProviderWithDeploymentsV1ModelProvidersWithDeploymentsPost``: %v\n", err)
+		fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
+	}
+	// response from `CreateModelProviderWithDeploymentsV1ModelProvidersWithDeploymentsPost`: ModelProvider
+	fmt.Fprintf(os.Stdout, "Response from `ModelProvidersAPI.CreateModelProviderWithDeploymentsV1ModelProvidersWithDeploymentsPost`: %v\n", resp)
+}
+```
+
+### Path Parameters
+
+
+
+### Other Parameters
+
+Other parameters are passed through a pointer to a apiCreateModelProviderWithDeploymentsV1ModelProvidersWithDeploymentsPostRequest struct via the builder pattern
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **data** | [**Data**](Data.md) |  | 
 
 ### Return type
 
@@ -216,6 +285,76 @@ Name | Type | Description  | Notes
 [[Back to README]](../README.md)
 
 
+## GetProviderHealthV1ModelProvidersProviderIdHealthGet
+
+> ProviderHealthResponse GetProviderHealthV1ModelProvidersProviderIdHealthGet(ctx, providerId).Execute()
+
+Get Provider Health
+
+
+
+### Example
+
+```go
+package main
+
+import (
+	"context"
+	"fmt"
+	"os"
+	openapiclient "github.com/GIT_USER_ID/GIT_REPO_ID/api"
+)
+
+func main() {
+	providerId := "38400000-8cf0-11bd-b23e-10b96e4ef00d" // string | 
+
+	configuration := openapiclient.NewConfiguration()
+	apiClient := openapiclient.NewAPIClient(configuration)
+	resp, r, err := apiClient.ModelProvidersAPI.GetProviderHealthV1ModelProvidersProviderIdHealthGet(context.Background(), providerId).Execute()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error when calling `ModelProvidersAPI.GetProviderHealthV1ModelProvidersProviderIdHealthGet``: %v\n", err)
+		fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
+	}
+	// response from `GetProviderHealthV1ModelProvidersProviderIdHealthGet`: ProviderHealthResponse
+	fmt.Fprintf(os.Stdout, "Response from `ModelProvidersAPI.GetProviderHealthV1ModelProvidersProviderIdHealthGet`: %v\n", resp)
+}
+```
+
+### Path Parameters
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+**ctx** | **context.Context** | context for authentication, logging, cancellation, deadlines, tracing, etc.
+**providerId** | **string** |  | 
+
+### Other Parameters
+
+Other parameters are passed through a pointer to a apiGetProviderHealthV1ModelProvidersProviderIdHealthGetRequest struct via the builder pattern
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+
+
+### Return type
+
+[**ProviderHealthResponse**](ProviderHealthResponse.md)
+
+### Authorization
+
+[APIKeyHeader](../README.md#APIKeyHeader), [HTTPBearer](../README.md#HTTPBearer)
+
+### HTTP request headers
+
+- **Content-Type**: Not defined
+- **Accept**: application/json
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints)
+[[Back to Model list]](../README.md#documentation-for-models)
+[[Back to README]](../README.md)
+
+
 ## ListModelProvidersV1ModelProvidersGet
 
 > PagedResponseModelModelProvider ListModelProvidersV1ModelProvidersGet(ctx).Page(page).Size(size).Sort(sort).Filter(filter).Execute()
@@ -273,6 +412,76 @@ Name | Type | Description  | Notes
 ### Return type
 
 [**PagedResponseModelModelProvider**](PagedResponseModelModelProvider.md)
+
+### Authorization
+
+[APIKeyHeader](../README.md#APIKeyHeader), [HTTPBearer](../README.md#HTTPBearer)
+
+### HTTP request headers
+
+- **Content-Type**: Not defined
+- **Accept**: application/json
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints)
+[[Back to Model list]](../README.md#documentation-for-models)
+[[Back to README]](../README.md)
+
+
+## TriggerProviderHealthCheckV1ModelProvidersProviderIdHealthCheckPost
+
+> ProviderHealthResponse TriggerProviderHealthCheckV1ModelProvidersProviderIdHealthCheckPost(ctx, providerId).Execute()
+
+Trigger Provider Health Check
+
+
+
+### Example
+
+```go
+package main
+
+import (
+	"context"
+	"fmt"
+	"os"
+	openapiclient "github.com/GIT_USER_ID/GIT_REPO_ID/api"
+)
+
+func main() {
+	providerId := "38400000-8cf0-11bd-b23e-10b96e4ef00d" // string | 
+
+	configuration := openapiclient.NewConfiguration()
+	apiClient := openapiclient.NewAPIClient(configuration)
+	resp, r, err := apiClient.ModelProvidersAPI.TriggerProviderHealthCheckV1ModelProvidersProviderIdHealthCheckPost(context.Background(), providerId).Execute()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error when calling `ModelProvidersAPI.TriggerProviderHealthCheckV1ModelProvidersProviderIdHealthCheckPost``: %v\n", err)
+		fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
+	}
+	// response from `TriggerProviderHealthCheckV1ModelProvidersProviderIdHealthCheckPost`: ProviderHealthResponse
+	fmt.Fprintf(os.Stdout, "Response from `ModelProvidersAPI.TriggerProviderHealthCheckV1ModelProvidersProviderIdHealthCheckPost`: %v\n", resp)
+}
+```
+
+### Path Parameters
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+**ctx** | **context.Context** | context for authentication, logging, cancellation, deadlines, tracing, etc.
+**providerId** | **string** |  | 
+
+### Other Parameters
+
+Other parameters are passed through a pointer to a apiTriggerProviderHealthCheckV1ModelProvidersProviderIdHealthCheckPostRequest struct via the builder pattern
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+
+
+### Return type
+
+[**ProviderHealthResponse**](ProviderHealthResponse.md)
 
 ### Authorization
 

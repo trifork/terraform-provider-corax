@@ -4,9 +4,7 @@ package coraxclient
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
-	"math"
 	"net/http"
 	"net/url"
 	"strings"
@@ -433,545 +431,10 @@ func convertProject(gen *api.Project) *Project {
 
 // --- Capability Methods ---
 
-// convertCapabilityConfig converts a generated CapabilityConfig to our custom type.
-func convertCapabilityConfig(gen *api.CapabilityConfig) *CapabilityConfig {
-	if gen == nil {
-		return nil
-	}
-
-	result := &CapabilityConfig{
-		ContentTracing:   gen.ContentTracing,
-		CustomParameters: gen.CustomParameters,
-	}
-
-	if gen.Temperature.IsSet() {
-		temp := gen.Temperature.Get()
-		if temp != nil {
-			// Round to 6 decimal places to avoid float32 to float64 precision issues
-			f64 := math.Round(float64(*temp)*1000000) / 1000000
-			result.Temperature = &f64
-		}
-	}
-
-	if gen.BlobConfig.IsSet() {
-		bc := gen.BlobConfig.Get()
-		if bc != nil {
-			result.BlobConfig = &BlobConfig{
-				AllowedMimeTypes: bc.AllowedMimeTypes,
-			}
-			if bc.MaxFileSizeMb != nil {
-				val := int(*bc.MaxFileSizeMb)
-				result.BlobConfig.MaxFileSizeMB = &val
-			}
-			if bc.MaxBlobs != nil {
-				val := int(*bc.MaxBlobs)
-				result.BlobConfig.MaxBlobs = &val
-			}
-		}
-	}
-
-	if gen.DataRetention != nil {
-		if gen.DataRetention.InfiniteDataRetention != nil {
-			result.DataRetention = &DataRetention{
-				Type: "infinite",
-			}
-		} else if gen.DataRetention.TimedDataRetention != nil {
-			hours := int(gen.DataRetention.TimedDataRetention.Hours)
-			result.DataRetention = &DataRetention{
-				Type:  "timed",
-				Hours: &hours,
-			}
-		}
-	}
-
-	return result
-}
-
-// convertCapabilityRepresentation converts a generated CapabilityRepresentation to our custom type.
-func convertCapabilityRepresentation(gen *api.CapabilityRepresentation) *CapabilityRepresentation {
-	if gen == nil {
-		return nil
-	}
-
-	result := &CapabilityRepresentation{
-		ID:            gen.Id,
-		Name:          gen.Name,
-		Type:          gen.Type,
-		SemanticID:    gen.SemanticId,
-		CreatedBy:     gen.CreatedBy,
-		UpdatedBy:     gen.UpdatedBy,
-		CreatedAt:     formatTime(gen.CreatedAt),
-		UpdatedAt:     formatTime(gen.UpdatedAt),
-		Owner:         gen.Owner,
-		Input:         gen.Input,
-		Output:        gen.Output,
-		Configuration: gen.Configuration,
-	}
-
-	if gen.IsPublic.IsSet() {
-		result.IsPublic = gen.IsPublic.Get()
-	}
-
-	if gen.ModelId.IsSet() {
-		result.ModelID = gen.ModelId.Get()
-	}
-
-	if gen.Config.IsSet() {
-		cfg := gen.Config.Get()
-		result.Config = convertCapabilityConfig(cfg)
-	}
-
-	if gen.ProjectId.IsSet() {
-		result.ProjectID = gen.ProjectId.Get()
-	}
-
-	if gen.ArchivedAt.IsSet() {
-		result.ArchivedAt = formatTimePtr(gen.ArchivedAt.Get())
-	}
-
-	return result
-}
-
-// convertCapabilityConfigToGen converts our CapabilityConfig to the generated type.
-func convertCapabilityConfigToGen(cfg *CapabilityConfig) *api.CapabilityConfig {
-	if cfg == nil {
-		return nil
-	}
-
-	result := api.NewCapabilityConfig()
-
-	if cfg.Temperature != nil {
-		result.SetTemperature(float32(*cfg.Temperature))
-	}
-
-	if cfg.CustomParameters != nil {
-		result.CustomParameters = cfg.CustomParameters
-	}
-
-	if cfg.ContentTracing != nil {
-		result.ContentTracing = cfg.ContentTracing
-	}
-
-	if cfg.BlobConfig != nil {
-		bc := api.BlobConfig{
-			AllowedMimeTypes: cfg.BlobConfig.AllowedMimeTypes,
-		}
-		if cfg.BlobConfig.MaxFileSizeMB != nil {
-			val := int32(*cfg.BlobConfig.MaxFileSizeMB)
-			bc.MaxFileSizeMb = &val
-		}
-		if cfg.BlobConfig.MaxBlobs != nil {
-			val := int32(*cfg.BlobConfig.MaxBlobs)
-			bc.MaxBlobs = &val
-		}
-		result.BlobConfig = *api.NewNullableBlobConfig(&bc)
-	}
-
-	if cfg.DataRetention != nil {
-		switch cfg.DataRetention.Type {
-		case "infinite":
-			result.DataRetention = &api.DataRetention{
-				InfiniteDataRetention: api.NewInfiniteDataRetention(),
-			}
-		case "timed":
-			hours := int32(0)
-			if cfg.DataRetention.Hours != nil {
-				hours = int32(*cfg.DataRetention.Hours)
-			}
-			result.DataRetention = &api.DataRetention{
-				TimedDataRetention: api.NewTimedDataRetention(hours),
-			}
-		}
-	}
-
-	return result
-}
-
-// convertChatCapabilityUpdateToGen converts our ChatCapabilityUpdate to the generated type.
-func convertChatCapabilityUpdateToGen(u *ChatCapabilityUpdate) *api.ChatCapabilityUpdate {
-	if u == nil {
-		return nil
-	}
-
-	// Name and Type are required in the generated type
-	name := ""
-	if u.Name != nil {
-		name = *u.Name
-	}
-	capType := "chat"
-	if u.Type != nil {
-		capType = *u.Type
-	}
-
-	result := api.NewChatCapabilityUpdate(name, capType)
-
-	if u.IsPublic != nil {
-		result.SetIsPublic(*u.IsPublic)
-	}
-
-	if u.ModelID != nil {
-		result.SetModelId(*u.ModelID)
-	}
-
-	if u.Config != nil {
-		genCfg := convertCapabilityConfigToGen(u.Config)
-		if genCfg != nil {
-			result.SetConfig(*genCfg)
-		}
-	}
-
-	if u.ProjectID != nil {
-		result.SetProjectId(*u.ProjectID)
-	}
-
-	if u.SystemPrompt != nil {
-		result.SetSystemPrompt(*u.SystemPrompt)
-	}
-
-	return result
-}
-
-// convertCompletionCapabilityUpdateToGen converts our CompletionCapabilityUpdate to the generated type.
-func convertCompletionCapabilityUpdateToGen(u *CompletionCapabilityUpdate) (*api.CompletionCapabilityUpdate, error) {
-	if u == nil {
-		return nil, nil
-	}
-
-	// Name and Type are required in the generated type
-	name := ""
-	if u.Name != nil {
-		name = *u.Name
-	}
-	capType := "completion"
-	if u.Type != nil {
-		capType = *u.Type
-	}
-
-	result := api.NewCompletionCapabilityUpdate(name, capType)
-
-	if u.IsPublic != nil {
-		result.SetIsPublic(*u.IsPublic)
-	}
-
-	if u.SemanticID != nil {
-		result.SetSemanticId(*u.SemanticID)
-	}
-
-	if u.ModelID != nil {
-		result.SetModelId(*u.ModelID)
-	}
-
-	if u.Config != nil {
-		genCfg := convertCapabilityConfigToGen(u.Config)
-		if genCfg != nil {
-			result.SetConfig(*genCfg)
-		}
-	}
-
-	if u.ProjectID != nil {
-		result.SetProjectId(*u.ProjectID)
-	}
-
-	if u.SystemPrompt != nil {
-		result.SetSystemPrompt(*u.SystemPrompt)
-	}
-
-	if u.CompletionPrompt != nil {
-		result.SetCompletionPrompt(*u.CompletionPrompt)
-	}
-
-	if u.Variables != nil {
-		result.Variables = u.Variables
-	}
-
-	if u.OutputType != nil {
-		result.SetOutputType(*u.OutputType)
-	}
-
-	if u.SchemaDef != nil {
-		schemaDef, err := convertSchemaDefToGen(u.SchemaDef)
-		if err != nil {
-			return nil, err
-		}
-		if schemaDef != nil {
-			result.SetSchemaDef(schemaDef)
-		}
-	}
-
-	return result, nil
-}
-
-func convertSchemaDefToGen(schemaDef map[string]interface{}) (map[string]api.CompletionCapabilityCreateSchemaDefValue, error) {
-	if schemaDef == nil {
-		return nil, nil
-	}
-
-	result := make(map[string]api.CompletionCapabilityCreateSchemaDefValue, len(schemaDef))
-	for key, value := range schemaDef {
-		raw, err := json.Marshal(value)
-		if err != nil {
-			return nil, fmt.Errorf("schema_def[%s]: marshal: %w", key, err)
-		}
-
-		var converted api.CompletionCapabilityCreateSchemaDefValue
-		if err := json.Unmarshal(raw, &converted); err != nil {
-			return nil, fmt.Errorf("schema_def[%s]: unmarshal: %w", key, err)
-		}
-
-		result[key] = converted
-	}
-
-	return result, nil
-}
-
-// convertChatCapabilityCreateToGen converts our ChatCapabilityCreate to the generated type.
-func convertChatCapabilityCreateToGen(c *ChatCapabilityCreate) *api.ChatCapabilityCreate {
-	if c == nil {
-		return nil
-	}
-
-	result := api.NewChatCapabilityCreate(c.Name, c.Type, c.SystemPrompt)
-
-	if c.IsPublic != nil {
-		result.SetIsPublic(*c.IsPublic)
-	}
-
-	if c.ModelID != nil {
-		result.SetModelId(*c.ModelID)
-	}
-
-	if c.Config != nil {
-		genCfg := convertCapabilityConfigToGen(c.Config)
-		if genCfg != nil {
-			result.SetConfig(*genCfg)
-		}
-	}
-
-	if c.ProjectID != nil {
-		result.SetProjectId(*c.ProjectID)
-	}
-
-	return result
-}
-
-// convertCompletionCapabilityCreateToGen converts our CompletionCapabilityCreate to the generated type.
-func convertCompletionCapabilityCreateToGen(c *CompletionCapabilityCreate) (*api.CompletionCapabilityCreate, error) {
-	if c == nil {
-		return nil, nil
-	}
-
-	result := api.NewCompletionCapabilityCreate(c.Name, c.Type, c.SystemPrompt, c.CompletionPrompt, c.OutputType)
-
-	if c.IsPublic != nil {
-		result.SetIsPublic(*c.IsPublic)
-	}
-
-	if c.SemanticID != nil {
-		result.SetSemanticId(*c.SemanticID)
-	}
-
-	if c.ModelID != nil {
-		result.SetModelId(*c.ModelID)
-	}
-
-	if c.Config != nil {
-		genCfg := convertCapabilityConfigToGen(c.Config)
-		if genCfg != nil {
-			result.SetConfig(*genCfg)
-		}
-	}
-
-	if c.ProjectID != nil {
-		result.SetProjectId(*c.ProjectID)
-	}
-
-	if c.Variables != nil {
-		result.Variables = c.Variables
-	}
-
-	if c.SchemaDef != nil {
-		schemaDef, err := convertSchemaDefToGen(c.SchemaDef)
-		if err != nil {
-			return nil, err
-		}
-		if schemaDef != nil {
-			result.SetSchemaDef(schemaDef)
-		}
-	}
-
-	return result, nil
-}
-
-// convertChatCapabilityToRepresentation converts a generated ChatCapability to CapabilityRepresentation.
-func convertChatCapabilityToRepresentation(gen *api.ChatCapability) *CapabilityRepresentation {
-	if gen == nil {
-		return nil
-	}
-
-	capType := "chat"
-	if gen.Type != nil {
-		capType = *gen.Type
-	}
-
-	result := &CapabilityRepresentation{
-		ID:            gen.Id,
-		Name:          gen.Name,
-		Type:          capType,
-		CreatedBy:     gen.CreatedBy,
-		UpdatedBy:     gen.UpdatedBy,
-		CreatedAt:     formatTime(gen.CreatedAt),
-		UpdatedAt:     formatTime(gen.UpdatedAt),
-		Owner:         gen.Owner,
-		Input:         make(map[string]interface{}),
-		Output:        make(map[string]interface{}),
-		Configuration: make(map[string]interface{}),
-	}
-
-	if gen.IsPublic.IsSet() {
-		result.IsPublic = gen.IsPublic.Get()
-	}
-
-	if gen.ModelId.IsSet() {
-		result.ModelID = gen.ModelId.Get()
-	}
-
-	if gen.Config.IsSet() {
-		cfg := gen.Config.Get()
-		result.Config = convertCapabilityConfig(cfg)
-	}
-
-	if gen.ProjectId.IsSet() {
-		result.ProjectID = gen.ProjectId.Get()
-	}
-
-	if gen.SemanticId.IsSet() && gen.SemanticId.Get() != nil {
-		result.SemanticID = *gen.SemanticId.Get()
-	}
-
-	if gen.ArchivedAt.IsSet() {
-		result.ArchivedAt = formatTimePtr(gen.ArchivedAt.Get())
-	}
-
-	// Store chat-specific fields in Configuration
-	result.Configuration["system_prompt"] = gen.SystemPrompt
-
-	return result
-}
-
-// convertCompletionCapabilityToRepresentation converts a generated CompletionCapability to CapabilityRepresentation.
-func convertCompletionCapabilityToRepresentation(gen *api.CompletionCapability) *CapabilityRepresentation {
-	if gen == nil {
-		return nil
-	}
-
-	capType := "completion"
-	if gen.Type != nil {
-		capType = *gen.Type
-	}
-
-	result := &CapabilityRepresentation{
-		ID:            gen.Id,
-		Name:          gen.Name,
-		Type:          capType,
-		CreatedBy:     gen.CreatedBy,
-		UpdatedBy:     gen.UpdatedBy,
-		CreatedAt:     formatTime(gen.CreatedAt),
-		UpdatedAt:     formatTime(gen.UpdatedAt),
-		Owner:         gen.Owner,
-		Input:         make(map[string]interface{}),
-		Output:        make(map[string]interface{}),
-		Configuration: make(map[string]interface{}),
-	}
-
-	if gen.IsPublic.IsSet() {
-		result.IsPublic = gen.IsPublic.Get()
-	}
-
-	if gen.ModelId.IsSet() {
-		result.ModelID = gen.ModelId.Get()
-	}
-
-	if gen.Config.IsSet() {
-		cfg := gen.Config.Get()
-		result.Config = convertCapabilityConfig(cfg)
-	}
-
-	if gen.ProjectId.IsSet() {
-		result.ProjectID = gen.ProjectId.Get()
-	}
-
-	if gen.SemanticId.IsSet() && gen.SemanticId.Get() != nil {
-		result.SemanticID = *gen.SemanticId.Get()
-	}
-
-	if gen.ArchivedAt.IsSet() {
-		result.ArchivedAt = formatTimePtr(gen.ArchivedAt.Get())
-	}
-
-	// Store completion-specific fields
-	result.Configuration["system_prompt"] = gen.SystemPrompt
-	result.Configuration["completion_prompt"] = gen.CompletionPrompt
-	result.Output["type"] = gen.OutputType
-	if gen.Variables != nil {
-		result.Input["variables"] = gen.Variables
-	}
-	// Note: schema_def would need conversion from the generated type
-
-	return result
-}
-
-// convertCreateCapabilityResponse converts the generated create response to CapabilityRepresentation.
-func convertCreateCapabilityResponse(resp *api.ResponseCreateCapabilityV1CapabilitiesPost) (*CapabilityRepresentation, error) {
-	if resp == nil {
-		return nil, fmt.Errorf("nil response")
-	}
-
-	if resp.ChatCapability != nil {
-		return convertChatCapabilityToRepresentation(resp.ChatCapability), nil
-	}
-
-	if resp.CompletionCapability != nil {
-		return convertCompletionCapabilityToRepresentation(resp.CompletionCapability), nil
-	}
-
-	// Note: ExtractionCapability and SpeechToTextCapability not supported yet
-	if resp.ExtractionCapability != nil {
-		return nil, fmt.Errorf("ExtractionCapability not supported")
-	}
-
-	if resp.SpeechToTextCapability != nil {
-		return nil, fmt.Errorf("SpeechToTextCapability not supported")
-	}
-
-	return nil, fmt.Errorf("unknown capability type in response")
-}
-
-// CreateCapability creates a new capability.
-// The payload should be either ChatCapabilityCreate or CompletionCapabilityCreate.
+// CreateChatCapability creates a new chat capability.
 // Corresponds to POST /v1/capabilities.
-func (c *Client) CreateCapability(ctx context.Context, capabilityData interface{}) (*CapabilityRepresentation, error) {
-	// Convert capabilityData to the generated Capability1 union type
-	var cap1 api.Capability1
-	switch v := capabilityData.(type) {
-	case ChatCapabilityCreate:
-		cap1.ChatCapabilityCreate = convertChatCapabilityCreateToGen(&v)
-	case *ChatCapabilityCreate:
-		cap1.ChatCapabilityCreate = convertChatCapabilityCreateToGen(v)
-	case CompletionCapabilityCreate:
-		converted, err := convertCompletionCapabilityCreateToGen(&v)
-		if err != nil {
-			return nil, err
-		}
-		cap1.CompletionCapabilityCreate = converted
-	case *CompletionCapabilityCreate:
-		converted, err := convertCompletionCapabilityCreateToGen(v)
-		if err != nil {
-			return nil, err
-		}
-		cap1.CompletionCapabilityCreate = converted
-	default:
-		return nil, fmt.Errorf("CreateCapability: unsupported capability type %T", capabilityData)
-	}
+func (c *Client) CreateChatCapability(ctx context.Context, create api.ChatCapabilityCreate) (*api.ChatCapability, error) {
+	cap1 := api.Capability1{ChatCapabilityCreate: &create}
 
 	result, resp, err := c.generated.CapabilitiesAPI.CreateCapabilityV1CapabilitiesPost(c.withAuth(ctx)).
 		Capability1(cap1).
@@ -981,12 +444,43 @@ func (c *Client) CreateCapability(ctx context.Context, capabilityData interface{
 		return nil, convertError(err, resp)
 	}
 
-	return convertCreateCapabilityResponse(result)
+	if result == nil {
+		return nil, fmt.Errorf("nil response from create capability")
+	}
+	if result.ChatCapability != nil {
+		return result.ChatCapability, nil
+	}
+
+	return nil, fmt.Errorf("expected ChatCapability in response but got a different type")
+}
+
+// CreateCompletionCapability creates a new completion capability.
+// Corresponds to POST /v1/capabilities.
+func (c *Client) CreateCompletionCapability(ctx context.Context, create api.CompletionCapabilityCreate) (*api.CompletionCapability, error) {
+	cap1 := api.Capability1{CompletionCapabilityCreate: &create}
+
+	result, resp, err := c.generated.CapabilitiesAPI.CreateCapabilityV1CapabilitiesPost(c.withAuth(ctx)).
+		Capability1(cap1).
+		Execute()
+
+	if err != nil {
+		return nil, convertError(err, resp)
+	}
+
+	if result == nil {
+		return nil, fmt.Errorf("nil response from create capability")
+	}
+	if result.CompletionCapability != nil {
+		return result.CompletionCapability, nil
+	}
+
+	return nil, fmt.Errorf("expected CompletionCapability in response but got a different type")
 }
 
 // GetCapability retrieves a specific capability by its ID.
+// Returns the generic CapabilityRepresentation from the API.
 // Corresponds to GET /v1/capabilities/{capability_id}.
-func (c *Client) GetCapability(ctx context.Context, capabilityID string) (*CapabilityRepresentation, error) {
+func (c *Client) GetCapability(ctx context.Context, capabilityID string) (*api.CapabilityRepresentation, error) {
 	if strings.TrimSpace(capabilityID) == "" {
 		return nil, fmt.Errorf("capabilityID cannot be empty")
 	}
@@ -999,41 +493,18 @@ func (c *Client) GetCapability(ctx context.Context, capabilityID string) (*Capab
 		return nil, convertError(err, resp)
 	}
 
-	return convertCapabilityRepresentation(result), nil
+	return result, nil
 }
 
-// UpdateCapability updates a specific capability by its ID.
-// The payload should be either ChatCapabilityUpdate or CompletionCapabilityUpdate.
+// UpdateChatCapability updates a chat capability by its ID.
 // Corresponds to PUT /v1/capabilities/{capability_id}.
-func (c *Client) UpdateCapability(ctx context.Context, capabilityID string, capabilityData interface{}) (*CapabilityRepresentation, error) {
+func (c *Client) UpdateChatCapability(ctx context.Context, capabilityID string, update api.ChatCapabilityUpdate) (*api.CapabilityRepresentation, error) {
 	if strings.TrimSpace(capabilityID) == "" {
 		return nil, fmt.Errorf("capabilityID cannot be empty")
 	}
 
 	capId := api.CapabilityId1{String: &capabilityID}
-
-	// Convert capabilityData to the generated Capability2 union type
-	var cap2 api.Capability2
-	switch v := capabilityData.(type) {
-	case ChatCapabilityUpdate:
-		cap2.ChatCapabilityUpdate = convertChatCapabilityUpdateToGen(&v)
-	case *ChatCapabilityUpdate:
-		cap2.ChatCapabilityUpdate = convertChatCapabilityUpdateToGen(v)
-	case CompletionCapabilityUpdate:
-		converted, err := convertCompletionCapabilityUpdateToGen(&v)
-		if err != nil {
-			return nil, err
-		}
-		cap2.CompletionCapabilityUpdate = converted
-	case *CompletionCapabilityUpdate:
-		converted, err := convertCompletionCapabilityUpdateToGen(v)
-		if err != nil {
-			return nil, err
-		}
-		cap2.CompletionCapabilityUpdate = converted
-	default:
-		return nil, fmt.Errorf("UpdateCapability: unsupported capability type %T", capabilityData)
-	}
+	cap2 := api.Capability2{ChatCapabilityUpdate: &update}
 
 	result, resp, err := c.generated.CapabilitiesAPI.UpdateCapabilityV1CapabilitiesCapabilityIdPut(c.withAuth(ctx), capId).
 		Capability2(cap2).
@@ -1043,7 +514,28 @@ func (c *Client) UpdateCapability(ctx context.Context, capabilityID string, capa
 		return nil, convertError(err, resp)
 	}
 
-	return convertCapabilityRepresentation(result), nil
+	return result, nil
+}
+
+// UpdateCompletionCapability updates a completion capability by its ID.
+// Corresponds to PUT /v1/capabilities/{capability_id}.
+func (c *Client) UpdateCompletionCapability(ctx context.Context, capabilityID string, update api.CompletionCapabilityUpdate) (*api.CapabilityRepresentation, error) {
+	if strings.TrimSpace(capabilityID) == "" {
+		return nil, fmt.Errorf("capabilityID cannot be empty")
+	}
+
+	capId := api.CapabilityId1{String: &capabilityID}
+	cap2 := api.Capability2{CompletionCapabilityUpdate: &update}
+
+	result, resp, err := c.generated.CapabilitiesAPI.UpdateCapabilityV1CapabilitiesCapabilityIdPut(c.withAuth(ctx), capId).
+		Capability2(cap2).
+		Execute()
+
+	if err != nil {
+		return nil, convertError(err, resp)
+	}
+
+	return result, nil
 }
 
 // DeleteCapability deletes a specific capability by its ID.
@@ -1149,9 +641,9 @@ func (c *Client) CreateModelDeployment(ctx context.Context, deploymentData Model
 	genCreate := api.NewModelDeploymentCreate(
 		deploymentData.Name,
 		convertSupportedTasksToGen(deploymentData.SupportedTasks),
-		convertConfigurationToGen(deploymentData.Configuration),
 		deploymentData.ProviderID,
 	)
+	genCreate.Configuration = convertConfigurationToGen(deploymentData.Configuration)
 
 	if deploymentData.Description != nil {
 		genCreate.SetDescription(*deploymentData.Description)
@@ -1197,9 +689,9 @@ func (c *Client) UpdateModelDeployment(ctx context.Context, deploymentID string,
 	genUpdate := api.NewModelDeploymentUpdate(
 		deploymentData.Name,
 		convertSupportedTasksToGen(deploymentData.SupportedTasks),
-		convertConfigurationToGen(deploymentData.Configuration),
 		deploymentData.ProviderID,
 	)
+	genUpdate.Configuration = convertConfigurationToGen(deploymentData.Configuration)
 
 	if deploymentData.Description != nil {
 		genUpdate.SetDescription(*deploymentData.Description)
@@ -1340,46 +832,9 @@ func (c *Client) DeleteModelProvider(ctx context.Context, providerID string) err
 
 // --- CapabilityType Methods ---
 
-// convertCapabilityTypeRepresentation converts a generated CapabilityTypeRepresentation to our custom type.
-func convertCapabilityTypeRepresentation(gen *api.CapabilityTypeRepresentation) *CapabilityTypeRepresentation {
-	if gen == nil {
-		return nil
-	}
-
-	result := &CapabilityTypeRepresentation{
-		ID:   gen.Id,
-		Name: gen.Name,
-	}
-
-	if gen.DefaultModelDeploymentId.IsSet() {
-		result.DefaultModelDeploymentID = gen.DefaultModelDeploymentId.Get()
-	}
-
-	return result
-}
-
-// convertCapabilityTypesRepresentation converts a generated CapabilityTypesRepresentation to our custom type.
-func convertCapabilityTypesRepresentation(gen *api.CapabilityTypesRepresentation) *CapabilityTypesRepresentation {
-	if gen == nil {
-		return nil
-	}
-
-	embedded := make([]CapabilityTypeRepresentation, len(gen.Embedded))
-	for i, ct := range gen.Embedded {
-		converted := convertCapabilityTypeRepresentation(&ct)
-		if converted != nil {
-			embedded[i] = *converted
-		}
-	}
-
-	return &CapabilityTypesRepresentation{
-		Embedded: embedded,
-	}
-}
-
 // GetCapabilityType retrieves a specific capability type definition.
 // Corresponds to GET /v1/capability-types/{capability_type}.
-func (c *Client) GetCapabilityType(ctx context.Context, capabilityType string) (*CapabilityTypeRepresentation, error) {
+func (c *Client) GetCapabilityType(ctx context.Context, capabilityType string) (*api.CapabilityTypeRepresentation, error) {
 	if strings.TrimSpace(capabilityType) == "" {
 		return nil, fmt.Errorf("capabilityType cannot be empty")
 	}
@@ -1390,37 +845,35 @@ func (c *Client) GetCapabilityType(ctx context.Context, capabilityType string) (
 		return nil, convertError(err, resp)
 	}
 
-	return convertCapabilityTypeRepresentation(result), nil
+	return result, nil
 }
 
 // SetCapabilityTypeDefaultModel sets the default model deployment for a capability type.
 // Corresponds to PUT /v1/capability-types/{capability_type}.
-func (c *Client) SetCapabilityTypeDefaultModel(ctx context.Context, capabilityType string, data DefaultModelDeploymentUpdate) (*CapabilityTypeRepresentation, error) {
+func (c *Client) SetCapabilityTypeDefaultModel(ctx context.Context, capabilityType string, data api.DefaultModelDeploymentUpdate) (*api.CapabilityTypeRepresentation, error) {
 	if strings.TrimSpace(capabilityType) == "" {
 		return nil, fmt.Errorf("capabilityType cannot be empty")
 	}
 
-	genUpdate := api.NewDefaultModelDeploymentUpdate(data.DefaultModelDeploymentID)
-
 	result, resp, err := c.generated.CapabilityTypesAPI.UpdateCapabilityTypeV1CapabilityTypesCapabilityTypePut(c.withAuth(ctx), capabilityType).
-		DefaultModelDeploymentUpdate(*genUpdate).
+		DefaultModelDeploymentUpdate(data).
 		Execute()
 
 	if err != nil {
 		return nil, convertError(err, resp)
 	}
 
-	return convertCapabilityTypeRepresentation(result), nil
+	return result, nil
 }
 
 // ListCapabilityTypes retrieves all capability type definitions.
 // Corresponds to GET /v1/capability-types.
-func (c *Client) ListCapabilityTypes(ctx context.Context) (*CapabilityTypesRepresentation, error) {
+func (c *Client) ListCapabilityTypes(ctx context.Context) (*api.CapabilityTypesRepresentation, error) {
 	result, resp, err := c.generated.CapabilityTypesAPI.ListCapabilityTypesV1CapabilityTypesGet(c.withAuth(ctx)).Execute()
 
 	if err != nil {
 		return nil, convertError(err, resp)
 	}
 
-	return convertCapabilityTypesRepresentation(result), nil
+	return result, nil
 }
