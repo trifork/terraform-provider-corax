@@ -33,7 +33,7 @@ import (
 )
 
 func main() {
-	modelDeploymentCreate := *openapiclient.NewModelDeploymentCreate("Name_example", []openapiclient.CapabilityType{openapiclient.CapabilityType("chat")}, map[string]interface{}{"key": interface{}(123)}, "ProviderId_example") // ModelDeploymentCreate | 
+	modelDeploymentCreate := *openapiclient.NewModelDeploymentCreate("Name_example", []openapiclient.CapabilityType{openapiclient.CapabilityType("chat")}, "ProviderId_example") // ModelDeploymentCreate | 
 
 	configuration := openapiclient.NewConfiguration()
 	apiClient := openapiclient.NewAPIClient(configuration)
@@ -310,7 +310,7 @@ import (
 
 func main() {
 	deploymentId := "38400000-8cf0-11bd-b23e-10b96e4ef00d" // string | 
-	modelDeploymentUpdate := *openapiclient.NewModelDeploymentUpdate("Name_example", []openapiclient.CapabilityType{openapiclient.CapabilityType("chat")}, map[string]interface{}{"key": interface{}(123)}, "ProviderId_example") // ModelDeploymentUpdate | 
+	modelDeploymentUpdate := *openapiclient.NewModelDeploymentUpdate("Name_example", []openapiclient.CapabilityType{openapiclient.CapabilityType("chat")}, "ProviderId_example") // ModelDeploymentUpdate | 
 
 	configuration := openapiclient.NewConfiguration()
 	apiClient := openapiclient.NewAPIClient(configuration)

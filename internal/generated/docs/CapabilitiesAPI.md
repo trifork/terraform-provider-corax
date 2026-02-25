@@ -8,6 +8,7 @@ Method | HTTP request | Description
 [**DeleteCapabilityV1CapabilitiesCapabilityIdDelete**](CapabilitiesAPI.md#DeleteCapabilityV1CapabilitiesCapabilityIdDelete) | **Delete** /v1/capabilities/{capability_id} | Delete Capability
 [**ExecuteCapabilityV1CapabilitiesCapabilityIdExecutionsPost**](CapabilitiesAPI.md#ExecuteCapabilityV1CapabilitiesCapabilityIdExecutionsPost) | **Post** /v1/capabilities/{capability_id}/executions | Execute Capability
 [**GetCapabilityVersionV1CapabilitiesCapabilityIdVersionsVersionGet**](CapabilitiesAPI.md#GetCapabilityVersionV1CapabilitiesCapabilityIdVersionsVersionGet) | **Get** /v1/capabilities/{capability_id}/versions/{version} | Get Capability Version
+[**GetExecutionCallbackV1CapabilitiesCapabilityIdExecutionsExecutionIdCallbackGet**](CapabilitiesAPI.md#GetExecutionCallbackV1CapabilitiesCapabilityIdExecutionsExecutionIdCallbackGet) | **Get** /v1/capabilities/{capability_id}/executions/{execution_id}/callback | Get Execution Callback
 [**GetExecutionResultV1CapabilitiesCapabilityIdExecutionsExecutionIdResultGet**](CapabilitiesAPI.md#GetExecutionResultV1CapabilitiesCapabilityIdExecutionsExecutionIdResultGet) | **Get** /v1/capabilities/{capability_id}/executions/{execution_id}/result | Get Execution Result
 [**GetExecutionUsageV1CapabilitiesCapabilityIdExecutionsExecutionIdUsageGet**](CapabilitiesAPI.md#GetExecutionUsageV1CapabilitiesCapabilityIdExecutionsExecutionIdUsageGet) | **Get** /v1/capabilities/{capability_id}/executions/{execution_id}/usage | Get Execution Usage
 [**GetExecutionV1CapabilitiesCapabilityIdExecutionsExecutionIdGet**](CapabilitiesAPI.md#GetExecutionV1CapabilitiesCapabilityIdExecutionsExecutionIdGet) | **Get** /v1/capabilities/{capability_id}/executions/{execution_id} | Get Execution
@@ -290,6 +291,79 @@ Name | Type | Description  | Notes
 ### Return type
 
 [**CapabilityRepresentation**](CapabilityRepresentation.md)
+
+### Authorization
+
+[APIKeyHeader](../README.md#APIKeyHeader), [HTTPBearer](../README.md#HTTPBearer)
+
+### HTTP request headers
+
+- **Content-Type**: Not defined
+- **Accept**: application/json
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints)
+[[Back to Model list]](../README.md#documentation-for-models)
+[[Back to README]](../README.md)
+
+
+## GetExecutionCallbackV1CapabilitiesCapabilityIdExecutionsExecutionIdCallbackGet
+
+> ExecutionCallback GetExecutionCallbackV1CapabilitiesCapabilityIdExecutionsExecutionIdCallbackGet(ctx, executionId, capabilityId).Execute()
+
+Get Execution Callback
+
+
+
+### Example
+
+```go
+package main
+
+import (
+	"context"
+	"fmt"
+	"os"
+	openapiclient "github.com/GIT_USER_ID/GIT_REPO_ID/api"
+)
+
+func main() {
+	executionId := "38400000-8cf0-11bd-b23e-10b96e4ef00d" // string | 
+	capabilityId := *openapiclient.NewCapabilityId1() // CapabilityId1 | The ID or semantic ID of the capability
+
+	configuration := openapiclient.NewConfiguration()
+	apiClient := openapiclient.NewAPIClient(configuration)
+	resp, r, err := apiClient.CapabilitiesAPI.GetExecutionCallbackV1CapabilitiesCapabilityIdExecutionsExecutionIdCallbackGet(context.Background(), executionId, capabilityId).Execute()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error when calling `CapabilitiesAPI.GetExecutionCallbackV1CapabilitiesCapabilityIdExecutionsExecutionIdCallbackGet``: %v\n", err)
+		fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
+	}
+	// response from `GetExecutionCallbackV1CapabilitiesCapabilityIdExecutionsExecutionIdCallbackGet`: ExecutionCallback
+	fmt.Fprintf(os.Stdout, "Response from `CapabilitiesAPI.GetExecutionCallbackV1CapabilitiesCapabilityIdExecutionsExecutionIdCallbackGet`: %v\n", resp)
+}
+```
+
+### Path Parameters
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+**ctx** | **context.Context** | context for authentication, logging, cancellation, deadlines, tracing, etc.
+**executionId** | **string** |  | 
+**capabilityId** | [**CapabilityId1**](.md) | The ID or semantic ID of the capability | 
+
+### Other Parameters
+
+Other parameters are passed through a pointer to a apiGetExecutionCallbackV1CapabilitiesCapabilityIdExecutionsExecutionIdCallbackGetRequest struct via the builder pattern
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+
+
+
+### Return type
+
+[**ExecutionCallback**](ExecutionCallback.md)
 
 ### Authorization
 

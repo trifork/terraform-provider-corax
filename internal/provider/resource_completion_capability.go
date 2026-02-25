@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
@@ -23,6 +24,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 
 	"terraform-provider-corax/internal/coraxclient"
+	api "terraform-provider-corax/internal/generated"
 )
 
 // Ensure provider defined types fully satisfy framework interfaces.
@@ -199,20 +201,21 @@ func schemaDefAPIToString(apiSchemaDef map[string]interface{}, diags *diag.Diagn
 	return types.StringValue(string(jsonBytes))
 }
 
-func mapAPICompletionCapabilityToModel(apiCap *coraxclient.CapabilityRepresentation, model *CompletionCapabilityResourceModel, diags *diag.Diagnostics, ctx context.Context) {
-	model.ID = types.StringValue(apiCap.ID)
-	model.SemanticID = types.StringValue(apiCap.SemanticID)
+// mapCompletionCapabilityRepresentationToModel maps an api.CapabilityRepresentation (from Get/Update) to the TF model.
+func mapCompletionCapabilityRepresentationToModel(apiCap *api.CapabilityRepresentation, model *CompletionCapabilityResourceModel, diags *diag.Diagnostics, ctx context.Context) {
+	model.ID = types.StringValue(apiCap.Id)
+	model.SemanticID = types.StringValue(apiCap.SemanticId)
 	model.Name = types.StringValue(apiCap.Name)
-	model.IsPublic = types.BoolValue(apiCap.IsPublic != nil && *apiCap.IsPublic)
+	model.IsPublic = types.BoolValue(apiCap.GetIsPublic())
 	model.Type = types.StringValue(apiCap.Type)
 
-	if apiCap.ModelID != nil {
-		model.ModelID = types.StringValue(*apiCap.ModelID)
+	if modelId, ok := apiCap.GetModelIdOk(); ok && modelId != nil {
+		model.ModelID = types.StringValue(*modelId)
 	} else {
 		model.ModelID = types.StringNull()
 	}
-	if apiCap.ProjectID != nil {
-		model.ProjectID = types.StringValue(*apiCap.ProjectID)
+	if projectId, ok := apiCap.GetProjectIdOk(); ok && projectId != nil {
+		model.ProjectID = types.StringValue(*projectId)
 	} else {
 		model.ProjectID = types.StringNull()
 	}
@@ -222,22 +225,18 @@ func mapAPICompletionCapabilityToModel(apiCap *coraxclient.CapabilityRepresentat
 		if sysPrompt, ok := apiCap.Configuration["system_prompt"].(string); ok {
 			model.SystemPrompt = types.StringValue(sysPrompt)
 		} else {
-			// If key is missing or not a string, treat as unknown.
-			// Per schema, system_prompt is required, so Unknown is appropriate if not found/convertible.
 			model.SystemPrompt = types.StringUnknown()
 		}
 
 		if compPrompt, ok := apiCap.Configuration["completion_prompt"].(string); ok {
 			model.CompletionPrompt = types.StringValue(compPrompt)
 		} else {
-			// Per schema, completion_prompt is required.
 			model.CompletionPrompt = types.StringUnknown()
 		}
 	} else {
-		// apiCap.Configuration map itself is nil
 		model.SystemPrompt = types.StringUnknown()
 		model.CompletionPrompt = types.StringUnknown()
-		tflog.Debug(ctx, fmt.Sprintf("apiCap.Configuration is nil for capability %s. SystemPrompt and CompletionPrompt will be unknown.", apiCap.ID))
+		tflog.Debug(ctx, fmt.Sprintf("apiCap.Configuration is nil for capability %s. SystemPrompt and CompletionPrompt will be unknown.", apiCap.Id))
 	}
 
 	// Populate OutputType and SchemaDef from apiCap.Output
@@ -245,19 +244,14 @@ func mapAPICompletionCapabilityToModel(apiCap *coraxclient.CapabilityRepresentat
 		if outputTypeVal, ok := apiCap.Output["type"].(string); ok {
 			model.OutputType = types.StringValue(outputTypeVal)
 		} else {
-			// Per schema, output_type is required.
 			model.OutputType = types.StringUnknown()
 		}
 
-		// schema_def is sourced from apiCap.Output["result"]
-		// Only populate schema_def if output_type is "schema" - for "text" type, we ignore the API value
-		// because users don't set it in HCL and we don't want drift.
 		outputType := model.OutputType.ValueString()
 		if outputType == "schema" {
 			if schemaDefVal, ok := apiCap.Output["result"].(map[string]interface{}); ok {
 				model.SchemaDef = schemaDefAPIToString(schemaDefVal, diags)
 			} else {
-				// If "result" is not found, or not a map[string]interface{}, treat SchemaDef as null.
 				if _, found := apiCap.Output["result"]; found && !ok {
 					diags.AddAttributeWarning(
 						path.Root("schema_def"),
@@ -268,21 +262,18 @@ func mapAPICompletionCapabilityToModel(apiCap *coraxclient.CapabilityRepresentat
 				model.SchemaDef = types.StringNull()
 			}
 		} else {
-			// For "text" output type, schema_def should be null
 			model.SchemaDef = types.StringNull()
 		}
 	} else {
-		// apiCap.Output map itself is nil
 		model.OutputType = types.StringUnknown()
 		model.SchemaDef = types.StringNull()
-		tflog.Debug(ctx, fmt.Sprintf("apiCap.Output is nil for capability %s. OutputType will be unknown and SchemaDef null.", apiCap.ID))
+		tflog.Debug(ctx, fmt.Sprintf("apiCap.Output is nil for capability %s. OutputType will be unknown and SchemaDef null.", apiCap.Id))
 	}
 
 	// Populate Variables from apiCap.Input
 	if apiCap.Input != nil {
 		if varsData, found := apiCap.Input["variables"]; found && varsData != nil {
 			if vars, ok := varsData.([]interface{}); ok {
-				// If empty array, treat as null to avoid drift when user doesn't set variables
 				if len(vars) == 0 {
 					model.Variables = types.SetNull(types.StringType)
 				} else {
@@ -313,8 +304,7 @@ func mapAPICompletionCapabilityToModel(apiCap *coraxclient.CapabilityRepresentat
 						model.Variables = types.SetNull(types.StringType)
 					}
 				}
-			} else if varsMap, ok := varsData.(map[string]interface{}); ok { // Handle map from GET
-				// If empty map, treat as null to avoid drift when user doesn't set variables
+			} else if varsMap, ok := varsData.(map[string]interface{}); ok {
 				if len(varsMap) == 0 {
 					model.Variables = types.SetNull(types.StringType)
 				} else {
@@ -336,10 +326,7 @@ func mapAPICompletionCapabilityToModel(apiCap *coraxclient.CapabilityRepresentat
 						)
 					}
 				}
-			} else if vars, ok := varsData.([]string); ok { // Defensive: handle []string from typed API responses
-				// The primary fix in convertCompletionCapabilityToRepresentation ensures []interface{} is
-				// always produced. This branch guards against future regressions or alternative code paths
-				// that might bypass that conversion.
+			} else if vars, ok := varsData.([]string); ok {
 				if len(vars) == 0 {
 					model.Variables = types.SetNull(types.StringType)
 				} else {
@@ -351,7 +338,7 @@ func mapAPICompletionCapabilityToModel(apiCap *coraxclient.CapabilityRepresentat
 						model.Variables = types.SetNull(types.StringType)
 					}
 				}
-			} else { // apiCap.Input["variables"] is present but not []interface{} and not map[string]interface{}
+			} else {
 				diags.AddAttributeWarning(
 					path.Root("variables"),
 					"Incorrect Type for Variables in API Response",
@@ -359,25 +346,143 @@ func mapAPICompletionCapabilityToModel(apiCap *coraxclient.CapabilityRepresentat
 				)
 				model.Variables = types.SetNull(types.StringType)
 			}
-		} else { // "variables" key not found in apiCap.Input or its value is JSON null
+		} else {
 			if model.Variables.IsNull() || model.Variables.IsUnknown() {
 				model.Variables = types.SetNull(types.StringType)
 			}
 		}
-	} else { // apiCap.Input map itself is nil
+	} else {
 		if model.Variables.IsNull() || model.Variables.IsUnknown() {
 			model.Variables = types.SetNull(types.StringType)
 		}
-		tflog.Debug(ctx, fmt.Sprintf("apiCap.Input is nil for capability %s. Variables will be null.", apiCap.ID))
+		tflog.Debug(ctx, fmt.Sprintf("apiCap.Input is nil for capability %s. Variables will be null.", apiCap.Id))
 	}
 
-	model.Config = capabilityConfigAPItoModel(ctx, apiCap.Config, diags) // Common config
+	// Extract config from NullableCapabilityConfig
+	var cfgPtr *api.CapabilityConfig
+	if configVal, ok := apiCap.GetConfigOk(); ok {
+		cfgPtr = configVal
+	}
+	model.Config = capabilityConfigAPItoModel(ctx, cfgPtr, diags)
 
 	model.Owner = types.StringValue(apiCap.Owner)
-	model.CreatedAt = types.StringValue(apiCap.CreatedAt)
-	model.UpdatedAt = types.StringValue(apiCap.UpdatedAt)
+	model.CreatedAt = types.StringValue(apiCap.CreatedAt.Format(time.RFC3339))
+	model.UpdatedAt = types.StringValue(apiCap.UpdatedAt.Format(time.RFC3339))
 	model.CreatedBy = types.StringValue(apiCap.CreatedBy)
 	model.UpdatedBy = types.StringValue(apiCap.UpdatedBy)
+}
+
+// mapCompletionCapabilityCreateResponseToModel maps an api.CompletionCapability (from Create) to the TF model.
+func mapCompletionCapabilityCreateResponseToModel(apiCap *api.CompletionCapability, model *CompletionCapabilityResourceModel, diags *diag.Diagnostics, ctx context.Context) {
+	model.ID = types.StringValue(apiCap.Id)
+	model.Name = types.StringValue(apiCap.Name)
+	model.IsPublic = types.BoolValue(apiCap.GetIsPublic())
+
+	if apiCap.Type != nil {
+		model.Type = types.StringValue(*apiCap.Type)
+	} else {
+		model.Type = types.StringValue("completion")
+	}
+
+	if modelId, ok := apiCap.GetModelIdOk(); ok && modelId != nil {
+		model.ModelID = types.StringValue(*modelId)
+	} else {
+		model.ModelID = types.StringNull()
+	}
+	if projectId, ok := apiCap.GetProjectIdOk(); ok && projectId != nil {
+		model.ProjectID = types.StringValue(*projectId)
+	} else {
+		model.ProjectID = types.StringNull()
+	}
+	if semanticId, ok := apiCap.GetSemanticIdOk(); ok && semanticId != nil {
+		model.SemanticID = types.StringValue(*semanticId)
+	} else {
+		model.SemanticID = types.StringValue("")
+	}
+
+	model.SystemPrompt = types.StringValue(apiCap.SystemPrompt)
+	model.CompletionPrompt = types.StringValue(apiCap.CompletionPrompt)
+	model.OutputType = types.StringValue(apiCap.OutputType)
+
+	// Variables from typed []string
+	if len(apiCap.Variables) == 0 {
+		model.Variables = types.SetNull(types.StringType)
+	} else {
+		setValue, conversionDiags := types.SetValueFrom(ctx, types.StringType, apiCap.Variables)
+		diags.Append(conversionDiags...)
+		if !conversionDiags.HasError() {
+			model.Variables = setValue
+		} else {
+			model.Variables = types.SetNull(types.StringType)
+		}
+	}
+
+	// SchemaDef from typed map[string]CompletionCapabilitySchemaDefValue
+	if apiCap.OutputType == "schema" && len(apiCap.SchemaDef) > 0 {
+		// Convert typed schema def to map[string]interface{} then to JSON string
+		genericMap := make(map[string]interface{}, len(apiCap.SchemaDef))
+		for k, v := range apiCap.SchemaDef {
+			jsonBytes, err := json.Marshal(v)
+			if err != nil {
+				diags.AddError("SchemaDef Conversion Error",
+					fmt.Sprintf("Failed to marshal schema_def value for key '%s': %s", k, err))
+				model.SchemaDef = types.StringNull()
+				break
+			}
+			var generic interface{}
+			if err := json.Unmarshal(jsonBytes, &generic); err != nil {
+				diags.AddError("SchemaDef Conversion Error",
+					fmt.Sprintf("Failed to unmarshal schema_def value for key '%s': %s", k, err))
+				model.SchemaDef = types.StringNull()
+				break
+			}
+			genericMap[k] = generic
+		}
+		if !diags.HasError() {
+			model.SchemaDef = schemaDefAPIToString(genericMap, diags)
+		}
+	} else {
+		model.SchemaDef = types.StringNull()
+	}
+
+	// Extract config from NullableCapabilityConfig
+	var cfgPtr *api.CapabilityConfig
+	if configVal, ok := apiCap.GetConfigOk(); ok {
+		cfgPtr = configVal
+	}
+	model.Config = capabilityConfigAPItoModel(ctx, cfgPtr, diags)
+
+	model.Owner = types.StringValue(apiCap.Owner)
+	model.CreatedAt = types.StringValue(apiCap.CreatedAt.Format(time.RFC3339))
+	model.UpdatedAt = types.StringValue(apiCap.UpdatedAt.Format(time.RFC3339))
+	model.CreatedBy = types.StringValue(apiCap.CreatedBy)
+	model.UpdatedBy = types.StringValue(apiCap.UpdatedBy)
+}
+
+// schemaDefToTypedAPI converts a map[string]interface{} to map[string]api.CompletionCapabilityCreateSchemaDefValue.
+// Each value is marshaled to JSON and then unmarshaled into the union type which has UnmarshalJSON
+// that tries ArrayPropertyInput, BasicProperty, EnumProperty, ObjectPropertyInput.
+func schemaDefToTypedAPI(genericMap map[string]interface{}, diags *diag.Diagnostics) map[string]api.CompletionCapabilityCreateSchemaDefValue {
+	if genericMap == nil || len(genericMap) == 0 {
+		return nil
+	}
+	result := make(map[string]api.CompletionCapabilityCreateSchemaDefValue, len(genericMap))
+	for k, v := range genericMap {
+		jsonBytes, err := json.Marshal(v)
+		if err != nil {
+			diags.AddError("SchemaDef Conversion Error",
+				fmt.Sprintf("Failed to marshal schema_def value for key '%s': %s", k, err))
+			return nil
+		}
+		var typedVal api.CompletionCapabilityCreateSchemaDefValue
+		if err := json.Unmarshal(jsonBytes, &typedVal); err != nil {
+			diags.AddError("SchemaDef Conversion Error",
+				fmt.Sprintf("Failed to unmarshal schema_def value for key '%s' into API type: %s", k, err))
+			return nil
+		}
+		result[k] = typedVal
+	}
+	return result
 }
 
 func (r *CompletionCapabilityResource) Configure(ctx context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
@@ -401,35 +506,33 @@ func (r *CompletionCapabilityResource) Create(ctx context.Context, req resource.
 
 	tflog.Debug(ctx, fmt.Sprintf("Creating Completion Capability: %s", plan.Name.ValueString()))
 
-	apiPayload := coraxclient.CompletionCapabilityCreate{
-		Name:             plan.Name.ValueString(),
-		Type:             "completion", // Hardcoded
-		SystemPrompt:     plan.SystemPrompt.ValueString(),
-		CompletionPrompt: plan.CompletionPrompt.ValueString(),
-		OutputType:       plan.OutputType.ValueString(),
-	}
+	apiPayload := api.NewCompletionCapabilityCreate(
+		plan.Name.ValueString(),
+		"completion",
+		plan.SystemPrompt.ValueString(),
+		plan.CompletionPrompt.ValueString(),
+		plan.OutputType.ValueString(),
+	)
 
 	if !plan.IsPublic.IsNull() && !plan.IsPublic.IsUnknown() {
-		isPublic := plan.IsPublic.ValueBool()
-		apiPayload.IsPublic = &isPublic
+		apiPayload.SetIsPublic(plan.IsPublic.ValueBool())
 	}
 	if !plan.SemanticID.IsNull() && !plan.SemanticID.IsUnknown() {
-		semanticID := plan.SemanticID.ValueString()
-		apiPayload.SemanticID = &semanticID
+		apiPayload.SetSemanticId(plan.SemanticID.ValueString())
 	}
 	if !plan.ModelID.IsNull() && !plan.ModelID.IsUnknown() {
-		modelID := plan.ModelID.ValueString()
-		apiPayload.ModelID = &modelID
+		apiPayload.SetModelId(plan.ModelID.ValueString())
 	}
 	if !plan.ProjectID.IsNull() && !plan.ProjectID.IsUnknown() {
-		projectID := plan.ProjectID.ValueString()
-		apiPayload.ProjectID = &projectID
+		apiPayload.SetProjectId(plan.ProjectID.ValueString())
 	}
 	if !plan.Variables.IsNull() && !plan.Variables.IsUnknown() {
-		resp.Diagnostics.Append(plan.Variables.ElementsAs(ctx, &apiPayload.Variables, false)...)
+		var vars []string
+		resp.Diagnostics.Append(plan.Variables.ElementsAs(ctx, &vars, false)...)
 		if resp.Diagnostics.HasError() {
 			return
 		}
+		apiPayload.SetVariables(vars)
 	}
 	outputType := plan.OutputType.ValueString()
 	if outputType == "schema" {
@@ -437,15 +540,20 @@ func (r *CompletionCapabilityResource) Create(ctx context.Context, req resource.
 			resp.Diagnostics.AddError("Validation Error", "schema_def is required when output_type is 'schema'")
 			return
 		}
-		apiPayload.SchemaDef = schemaDefToAPI(ctx, plan.SchemaDef, &resp.Diagnostics)
+		genericSchemaDef := schemaDefToAPI(ctx, plan.SchemaDef, &resp.Diagnostics)
 		if resp.Diagnostics.HasError() {
 			return
 		}
-		tflog.Debug(ctx, fmt.Sprintf("Create: schema_def converted to: %+v", apiPayload.SchemaDef))
-		if apiPayload.SchemaDef == nil || len(apiPayload.SchemaDef) == 0 {
+		tflog.Debug(ctx, fmt.Sprintf("Create: schema_def converted to: %+v", genericSchemaDef))
+		if genericSchemaDef == nil || len(genericSchemaDef) == 0 {
 			resp.Diagnostics.AddError("SchemaDef Conversion Error", "schema_def was provided but conversion resulted in nil or empty map")
 			return
 		}
+		typedSchemaDef := schemaDefToTypedAPI(genericSchemaDef, &resp.Diagnostics)
+		if resp.Diagnostics.HasError() {
+			return
+		}
+		apiPayload.SetSchemaDef(typedSchemaDef)
 	} else if outputType == "text" {
 		if !plan.SchemaDef.IsNull() && !plan.SchemaDef.IsUnknown() {
 			resp.Diagnostics.AddError("Validation Error", "schema_def must not be set when output_type is 'text'")
@@ -456,20 +564,22 @@ func (r *CompletionCapabilityResource) Create(ctx context.Context, req resource.
 		return
 	}
 
-	// Common config mapping (reuse from chat capability if moved to common, or define here)
-	// For now, assuming capabilityConfigModelToAPI is available (defined in chat_capability.go or common)
-	apiPayload.Config = capabilityConfigModelToAPI(ctx, plan.Config, &resp.Diagnostics)
+	// Common config mapping
+	apiConfig := capabilityConfigModelToAPI(ctx, plan.Config, &resp.Diagnostics)
 	if resp.Diagnostics.HasError() {
 		return
 	}
+	if apiConfig != nil {
+		apiPayload.SetConfig(*apiConfig)
+	}
 
-	createdAPICap, err := r.client.CreateCapability(ctx, apiPayload)
+	createdAPICap, err := r.client.CreateCompletionCapability(ctx, *apiPayload)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to create completion capability, got error: %s", err))
 		return
 	}
 
-	mapAPICompletionCapabilityToModel(createdAPICap, &plan, &resp.Diagnostics, ctx)
+	mapCompletionCapabilityCreateResponseToModel(createdAPICap, &plan, &resp.Diagnostics, ctx)
 	if resp.Diagnostics.HasError() {
 		return
 	}
@@ -505,7 +615,7 @@ func (r *CompletionCapabilityResource) Read(ctx context.Context, req resource.Re
 		return
 	}
 
-	mapAPICompletionCapabilityToModel(apiCap, &state, &resp.Diagnostics, ctx)
+	mapCompletionCapabilityRepresentationToModel(apiCap, &state, &resp.Diagnostics, ctx)
 	if resp.Diagnostics.HasError() {
 		return
 	}
@@ -527,52 +637,36 @@ func (r *CompletionCapabilityResource) Update(ctx context.Context, req resource.
 	tflog.Debug(ctx, fmt.Sprintf("Updating Completion Capability with ID: %s using full plan payload", capabilityID))
 
 	// --- Construct full update payload from plan ---
-	nameValue := plan.Name.ValueString()
-	typeValue := "completion" // Type is fixed for this resource
-	systemPromptValue := plan.SystemPrompt.ValueString()
-	completionPromptValue := plan.CompletionPrompt.ValueString()
 	outputTypeValue := plan.OutputType.ValueString()
 
-	updatePayload := coraxclient.CompletionCapabilityUpdate{
-		Name:             &nameValue,
-		Type:             &typeValue,
-		SystemPrompt:     &systemPromptValue,
-		CompletionPrompt: &completionPromptValue,
-		OutputType:       &outputTypeValue,
-	}
+	updatePayload := api.NewCompletionCapabilityUpdate(plan.Name.ValueString(), "completion")
 
 	// IsPublic
 	if !plan.IsPublic.IsNull() && !plan.IsPublic.IsUnknown() {
-		isPublicVal := plan.IsPublic.ValueBool()
-		updatePayload.IsPublic = &isPublicVal
+		updatePayload.SetIsPublic(plan.IsPublic.ValueBool())
 	} else {
-		defaultIsPublic := false // As per schema default
-		updatePayload.IsPublic = &defaultIsPublic
+		updatePayload.SetIsPublic(false) // default
 	}
 
 	// SemanticID
 	if !plan.SemanticID.IsNull() && !plan.SemanticID.IsUnknown() {
-		semanticIDVal := plan.SemanticID.ValueString()
-		updatePayload.SemanticID = &semanticIDVal
-	} else {
-		updatePayload.SemanticID = nil
+		updatePayload.SetSemanticId(plan.SemanticID.ValueString())
 	}
 
 	// ModelID
 	if !plan.ModelID.IsNull() && !plan.ModelID.IsUnknown() {
-		modelIDVal := plan.ModelID.ValueString()
-		updatePayload.ModelID = &modelIDVal
-	} else {
-		updatePayload.ModelID = nil
+		updatePayload.SetModelId(plan.ModelID.ValueString())
 	}
 
 	// ProjectID
 	if !plan.ProjectID.IsNull() && !plan.ProjectID.IsUnknown() {
-		projectIDVal := plan.ProjectID.ValueString()
-		updatePayload.ProjectID = &projectIDVal
-	} else {
-		updatePayload.ProjectID = nil
+		updatePayload.SetProjectId(plan.ProjectID.ValueString())
 	}
+
+	// SystemPrompt, CompletionPrompt, OutputType
+	updatePayload.SetSystemPrompt(plan.SystemPrompt.ValueString())
+	updatePayload.SetCompletionPrompt(plan.CompletionPrompt.ValueString())
+	updatePayload.SetOutputType(outputTypeValue)
 
 	// Variables
 	if !plan.Variables.IsNull() && !plan.Variables.IsUnknown() {
@@ -581,11 +675,7 @@ func (r *CompletionCapabilityResource) Update(ctx context.Context, req resource.
 		if resp.Diagnostics.HasError() {
 			return
 		}
-		updatePayload.Variables = vars // Assign directly, omitempty handles if vars is nil/empty based on API needs
-	} else {
-		// If API expects an empty list to clear, send []string{}. If omitempty on nil is preferred, send nil.
-		// Assuming omitempty on nil is fine for now.
-		updatePayload.Variables = nil
+		updatePayload.SetVariables(vars)
 	}
 
 	// SchemaDef
@@ -594,35 +684,42 @@ func (r *CompletionCapabilityResource) Update(ctx context.Context, req resource.
 			resp.Diagnostics.AddError("Validation Error", "schema_def is required when output_type is 'schema'")
 			return
 		}
-		updatePayload.SchemaDef = schemaDefToAPI(ctx, plan.SchemaDef, &resp.Diagnostics)
+		genericSchemaDef := schemaDefToAPI(ctx, plan.SchemaDef, &resp.Diagnostics)
 		if resp.Diagnostics.HasError() {
 			return
 		}
+		typedSchemaDef := schemaDefToTypedAPI(genericSchemaDef, &resp.Diagnostics)
+		if resp.Diagnostics.HasError() {
+			return
+		}
+		updatePayload.SetSchemaDef(typedSchemaDef)
 	} else if outputTypeValue == "text" {
 		if !plan.SchemaDef.IsNull() && !plan.SchemaDef.IsUnknown() {
 			resp.Diagnostics.AddError("Validation Error", "schema_def must not be set when output_type is 'text'")
 			return
 		}
-		updatePayload.SchemaDef = nil
 	} else {
 		resp.Diagnostics.AddError("Validation Error", fmt.Sprintf("unsupported output_type '%s', must be either 'text' or 'schema'", outputTypeValue))
 		return
 	}
 
 	// Config
-	updatePayload.Config = capabilityConfigModelToAPI(ctx, plan.Config, &resp.Diagnostics)
+	apiConfig := capabilityConfigModelToAPI(ctx, plan.Config, &resp.Diagnostics)
 	if resp.Diagnostics.HasError() {
 		return
 	}
+	if apiConfig != nil {
+		updatePayload.SetConfig(*apiConfig)
+	}
 	// --- End of payload construction ---
 
-	updatedAPICap, err := r.client.UpdateCapability(ctx, capabilityID, updatePayload)
+	updatedAPICap, err := r.client.UpdateCompletionCapability(ctx, capabilityID, *updatePayload)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to update completion capability %s: %s", capabilityID, err))
 		return
 	}
 
-	mapAPICompletionCapabilityToModel(updatedAPICap, &plan, &resp.Diagnostics, ctx)
+	mapCompletionCapabilityRepresentationToModel(updatedAPICap, &plan, &resp.Diagnostics, ctx)
 	if resp.Diagnostics.HasError() {
 		return
 	}

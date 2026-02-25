@@ -6,6 +6,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
@@ -21,6 +22,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 
 	"terraform-provider-corax/internal/coraxclient"
+	api "terraform-provider-corax/internal/generated"
 )
 
 // Ensure provider defined types fully satisfy framework interfaces.
@@ -144,42 +146,81 @@ func (r *ChatCapabilityResource) Configure(ctx context.Context, req resource.Con
 
 // Helper functions for mapping (capabilityConfigModelToAPI, capabilityConfigAPItoModel are now in common_capability_config.go)
 
-func mapAPICapabilityToChatModel(apiCap *coraxclient.CapabilityRepresentation, model *ChatCapabilityResourceModel, diags *diag.Diagnostics, ctx context.Context) {
-	model.ID = types.StringValue(apiCap.ID)
+// mapChatCapabilityRepresentationToModel maps an api.CapabilityRepresentation (from Get/Update) to the TF model.
+func mapChatCapabilityRepresentationToModel(apiCap *api.CapabilityRepresentation, model *ChatCapabilityResourceModel, diags *diag.Diagnostics, ctx context.Context) {
+	model.ID = types.StringValue(apiCap.Id)
 	model.Name = types.StringValue(apiCap.Name)
-	model.IsPublic = types.BoolValue(apiCap.IsPublic != nil && *apiCap.IsPublic) // API default is false
+	model.IsPublic = types.BoolValue(apiCap.GetIsPublic())
 	model.Type = types.StringValue(apiCap.Type)
 
-	if apiCap.ModelID != nil {
-		model.ModelID = types.StringValue(*apiCap.ModelID)
+	if modelId, ok := apiCap.GetModelIdOk(); ok && modelId != nil {
+		model.ModelID = types.StringValue(*modelId)
 	} else {
 		model.ModelID = types.StringNull()
 	}
-	if apiCap.ProjectID != nil {
-		model.ProjectID = types.StringValue(*apiCap.ProjectID)
+	if projectId, ok := apiCap.GetProjectIdOk(); ok && projectId != nil {
+		model.ProjectID = types.StringValue(*projectId)
 	} else {
 		model.ProjectID = types.StringNull()
 	}
 
-	// SystemPrompt is likely in apiCap.Configuration for chat capabilities
-	// This needs to be confirmed based on actual API response structure.
-	// Assuming it's directly in `configuration` map for now.
+	// SystemPrompt is in apiCap.Configuration map for CapabilityRepresentation
 	if sysPrompt, ok := apiCap.Configuration["system_prompt"].(string); ok {
 		model.SystemPrompt = types.StringValue(sysPrompt)
 	} else {
-		// This might indicate an issue if system_prompt is expected for chat type
-		// Or it might be truly optional in some API views. For TF, it's required in schema.
-		// If it's missing on read for an existing resource, it's problematic.
-		// For now, if not found, make it null/unknown and let TF diff handle it.
 		model.SystemPrompt = types.StringUnknown()
-		tflog.Warn(ctx, fmt.Sprintf("System prompt not found in API response configuration for capability %s", apiCap.ID))
+		tflog.Warn(ctx, fmt.Sprintf("System prompt not found in API response configuration for capability %s", apiCap.Id))
 	}
 
-	model.Config = capabilityConfigAPItoModel(ctx, apiCap.Config, diags)
+	// Extract config from NullableCapabilityConfig
+	var cfgPtr *api.CapabilityConfig
+	if configVal, ok := apiCap.GetConfigOk(); ok {
+		cfgPtr = configVal
+	}
+	model.Config = capabilityConfigAPItoModel(ctx, cfgPtr, diags)
 
 	model.Owner = types.StringValue(apiCap.Owner)
-	model.CreatedAt = types.StringValue(apiCap.CreatedAt)
-	model.UpdatedAt = types.StringValue(apiCap.UpdatedAt)
+	model.CreatedAt = types.StringValue(apiCap.CreatedAt.Format(time.RFC3339))
+	model.UpdatedAt = types.StringValue(apiCap.UpdatedAt.Format(time.RFC3339))
+	model.CreatedBy = types.StringValue(apiCap.CreatedBy)
+	model.UpdatedBy = types.StringValue(apiCap.UpdatedBy)
+}
+
+// mapChatCapabilityCreateResponseToModel maps an api.ChatCapability (from Create) to the TF model.
+func mapChatCapabilityCreateResponseToModel(apiCap *api.ChatCapability, model *ChatCapabilityResourceModel, diags *diag.Diagnostics, ctx context.Context) {
+	model.ID = types.StringValue(apiCap.Id)
+	model.Name = types.StringValue(apiCap.Name)
+	model.IsPublic = types.BoolValue(apiCap.GetIsPublic())
+
+	if apiCap.Type != nil {
+		model.Type = types.StringValue(*apiCap.Type)
+	} else {
+		model.Type = types.StringValue("chat")
+	}
+
+	if modelId, ok := apiCap.GetModelIdOk(); ok && modelId != nil {
+		model.ModelID = types.StringValue(*modelId)
+	} else {
+		model.ModelID = types.StringNull()
+	}
+	if projectId, ok := apiCap.GetProjectIdOk(); ok && projectId != nil {
+		model.ProjectID = types.StringValue(*projectId)
+	} else {
+		model.ProjectID = types.StringNull()
+	}
+
+	model.SystemPrompt = types.StringValue(apiCap.SystemPrompt)
+
+	// Extract config from NullableCapabilityConfig
+	var cfgPtr *api.CapabilityConfig
+	if configVal, ok := apiCap.GetConfigOk(); ok {
+		cfgPtr = configVal
+	}
+	model.Config = capabilityConfigAPItoModel(ctx, cfgPtr, diags)
+
+	model.Owner = types.StringValue(apiCap.Owner)
+	model.CreatedAt = types.StringValue(apiCap.CreatedAt.Format(time.RFC3339))
+	model.UpdatedAt = types.StringValue(apiCap.UpdatedAt.Format(time.RFC3339))
 	model.CreatedBy = types.StringValue(apiCap.CreatedBy)
 	model.UpdatedBy = types.StringValue(apiCap.UpdatedBy)
 }
@@ -193,37 +234,33 @@ func (r *ChatCapabilityResource) Create(ctx context.Context, req resource.Create
 
 	tflog.Debug(ctx, fmt.Sprintf("Creating Chat Capability: %s", plan.Name.ValueString()))
 
-	apiPayload := coraxclient.ChatCapabilityCreate{
-		Name:         plan.Name.ValueString(),
-		Type:         "chat", // Hardcoded for this resource
-		SystemPrompt: plan.SystemPrompt.ValueString(),
-	}
+	apiPayload := api.NewChatCapabilityCreate(plan.Name.ValueString(), "chat", plan.SystemPrompt.ValueString())
 
 	if !plan.IsPublic.IsNull() && !plan.IsPublic.IsUnknown() {
-		isPublic := plan.IsPublic.ValueBool()
-		apiPayload.IsPublic = &isPublic
+		apiPayload.SetIsPublic(plan.IsPublic.ValueBool())
 	}
 	if !plan.ModelID.IsNull() && !plan.ModelID.IsUnknown() {
-		modelID := plan.ModelID.ValueString()
-		apiPayload.ModelID = &modelID
+		apiPayload.SetModelId(plan.ModelID.ValueString())
 	}
 	if !plan.ProjectID.IsNull() && !plan.ProjectID.IsUnknown() {
-		projectID := plan.ProjectID.ValueString()
-		apiPayload.ProjectID = &projectID
+		apiPayload.SetProjectId(plan.ProjectID.ValueString())
 	}
 
-	apiPayload.Config = capabilityConfigModelToAPI(ctx, plan.Config, &resp.Diagnostics)
+	apiConfig := capabilityConfigModelToAPI(ctx, plan.Config, &resp.Diagnostics)
 	if resp.Diagnostics.HasError() {
 		return
 	}
+	if apiConfig != nil {
+		apiPayload.SetConfig(*apiConfig)
+	}
 
-	createdAPICap, err := r.client.CreateCapability(ctx, apiPayload)
+	createdAPICap, err := r.client.CreateChatCapability(ctx, *apiPayload)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to create chat capability, got error: %s", err))
 		return
 	}
 
-	mapAPICapabilityToChatModel(createdAPICap, &plan, &resp.Diagnostics, ctx)
+	mapChatCapabilityCreateResponseToModel(createdAPICap, &plan, &resp.Diagnostics, ctx)
 	if resp.Diagnostics.HasError() {
 		return
 	}
@@ -261,7 +298,7 @@ func (r *ChatCapabilityResource) Read(ctx context.Context, req resource.ReadRequ
 
 	//currentConfig := state.Config // Preserve potentially more detailed config from state if API is lossy
 
-	mapAPICapabilityToChatModel(apiCap, &state, &resp.Diagnostics, ctx)
+	mapChatCapabilityRepresentationToModel(apiCap, &state, &resp.Diagnostics, ctx)
 	if resp.Diagnostics.HasError() {
 		return
 	}
@@ -291,61 +328,47 @@ func (r *ChatCapabilityResource) Update(ctx context.Context, req resource.Update
 	capabilityID := state.ID.ValueString() // Get ID from state
 	tflog.Debug(ctx, fmt.Sprintf("Updating Chat Capability with ID: %s using full plan payload", capabilityID))
 
-	// --- Construct full update payload from plan ---
-	nameValue := plan.Name.ValueString()
-	typeValue := "chat" // Type is fixed for this resource
-	systemPromptValue := plan.SystemPrompt.ValueString()
-
-	updatePayload := coraxclient.ChatCapabilityUpdate{
-		Name:         &nameValue,
-		Type:         &typeValue,
-		SystemPrompt: &systemPromptValue,
-	}
+	// --- Construct update payload from plan ---
+	updatePayload := api.NewChatCapabilityUpdate(plan.Name.ValueString(), "chat")
 
 	// IsPublic
 	if !plan.IsPublic.IsNull() && !plan.IsPublic.IsUnknown() {
-		isPublicVal := plan.IsPublic.ValueBool()
-		updatePayload.IsPublic = &isPublicVal
+		updatePayload.SetIsPublic(plan.IsPublic.ValueBool())
 	} else {
-		// If IsPublic is null or unknown in plan, send the default value (false)
-		// as API expects all fields.
-		defaultIsPublic := false // As per schema default
-		updatePayload.IsPublic = &defaultIsPublic
+		updatePayload.SetIsPublic(false) // default
 	}
 
 	// ModelID
 	if !plan.ModelID.IsNull() && !plan.ModelID.IsUnknown() {
-		modelIDVal := plan.ModelID.ValueString()
-		updatePayload.ModelID = &modelIDVal
-	} else {
-		updatePayload.ModelID = nil // API will treat as not set or use its default
+		updatePayload.SetModelId(plan.ModelID.ValueString())
 	}
 
 	// ProjectID
 	if !plan.ProjectID.IsNull() && !plan.ProjectID.IsUnknown() {
-		projectIDVal := plan.ProjectID.ValueString()
-		updatePayload.ProjectID = &projectIDVal
-	} else {
-		updatePayload.ProjectID = nil // API will treat as not set or use its default
+		updatePayload.SetProjectId(plan.ProjectID.ValueString())
 	}
 
+	// SystemPrompt
+	updatePayload.SetSystemPrompt(plan.SystemPrompt.ValueString())
+
 	// Config
-	// The capabilityConfigModelToAPI helper should handle plan.Config being null/unknown
-	// and return nil for apiConfig, which `omitempty` will then exclude.
-	updatePayload.Config = capabilityConfigModelToAPI(ctx, plan.Config, &resp.Diagnostics)
+	apiConfig := capabilityConfigModelToAPI(ctx, plan.Config, &resp.Diagnostics)
 	if resp.Diagnostics.HasError() {
 		return
 	}
+	if apiConfig != nil {
+		updatePayload.SetConfig(*apiConfig)
+	}
 	// --- End of payload construction ---
 
-	updatedAPICap, err := r.client.UpdateCapability(ctx, capabilityID, updatePayload)
+	updatedAPICap, err := r.client.UpdateChatCapability(ctx, capabilityID, *updatePayload)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to update chat capability %s: %s", capabilityID, err))
 		return
 	}
 
 	// Map response back to plan model to refresh computed values
-	mapAPICapabilityToChatModel(updatedAPICap, &plan, &resp.Diagnostics, ctx)
+	mapChatCapabilityRepresentationToModel(updatedAPICap, &plan, &resp.Diagnostics, ctx)
 	if resp.Diagnostics.HasError() {
 		return
 	}
