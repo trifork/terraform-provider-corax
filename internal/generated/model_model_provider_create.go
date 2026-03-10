@@ -19,9 +19,9 @@ var _ MappedNullable = &ModelProviderCreate{}
 
 // ModelProviderCreate struct for ModelProviderCreate
 type ModelProviderCreate struct {
-	Name string `json:"name"`
-	ProviderType string `json:"provider_type"`
-	Configuration map[string]interface{} `json:"configuration"`
+	Name                 string                 `json:"name"`
+	ProviderType         string                 `json:"provider_type"`
+	Configuration        map[string]interface{} `json:"configuration"`
 	AdditionalProperties map[string]interface{}
 }
 
@@ -120,7 +120,7 @@ func (o *ModelProviderCreate) SetConfiguration(v map[string]interface{}) {
 }
 
 func (o ModelProviderCreate) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -175,5 +175,3 @@ func (v *NullableModelProviderCreate) UnmarshalJSON(src []byte) error {
 	v.isSet = true
 	return json.Unmarshal(src, &v.value)
 }
-
-

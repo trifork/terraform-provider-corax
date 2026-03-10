@@ -20,18 +20,18 @@ var _ MappedNullable = &Project{}
 
 // Project struct for Project
 type Project struct {
-	Links map[string]HateoasLink `json:"_links,omitempty"`
-	Name string `json:"name"`
-	Description NullableString `json:"description,omitempty"`
-	IsPublic NullableBool `json:"is_public,omitempty"`
-	Id string `json:"id"`
-	CreatedBy string `json:"created_by"`
-	UpdatedBy string `json:"updated_by"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
-	Owner string `json:"owner"`
-	CollectionCount *int32 `json:"collection_count,omitempty"`
-	CapabilityCount *int32 `json:"capability_count,omitempty"`
+	Links                map[string]HateoasLink `json:"_links,omitempty"`
+	Name                 string                 `json:"name"`
+	Description          NullableString         `json:"description,omitempty"`
+	IsPublic             NullableBool           `json:"is_public,omitempty"`
+	Id                   string                 `json:"id"`
+	CreatedBy            string                 `json:"created_by"`
+	UpdatedBy            string                 `json:"updated_by"`
+	CreatedAt            time.Time              `json:"created_at"`
+	UpdatedAt            time.Time              `json:"updated_at"`
+	Owner                string                 `json:"owner"`
+	CollectionCount      *int32                 `json:"collection_count,omitempty"`
+	CapabilityCount      *int32                 `json:"capability_count,omitempty"`
 	AdditionalProperties map[string]interface{}
 }
 
@@ -158,6 +158,7 @@ func (o *Project) HasDescription() bool {
 func (o *Project) SetDescription(v string) {
 	o.Description.Set(&v)
 }
+
 // SetDescriptionNil sets the value for Description to be an explicit nil
 func (o *Project) SetDescriptionNil() {
 	o.Description.Set(nil)
@@ -200,6 +201,7 @@ func (o *Project) HasIsPublic() bool {
 func (o *Project) SetIsPublic(v bool) {
 	o.IsPublic.Set(&v)
 }
+
 // SetIsPublicNil sets the value for IsPublic to be an explicit nil
 func (o *Project) SetIsPublicNil() {
 	o.IsPublic.Set(nil)
@@ -419,7 +421,7 @@ func (o *Project) SetCapabilityCount(v int32) {
 }
 
 func (o Project) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -493,5 +495,3 @@ func (v *NullableProject) UnmarshalJSON(src []byte) error {
 	v.isSet = true
 	return json.Unmarshal(src, &v.value)
 }
-
-

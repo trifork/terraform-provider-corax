@@ -19,7 +19,7 @@ var _ MappedNullable = &OpenAIConfiguration{}
 
 // OpenAIConfiguration Configuration for OpenAI provider.
 type OpenAIConfiguration struct {
-	ApiKey string `json:"api_key"`
+	ApiKey               string `json:"api_key"`
 	AdditionalProperties map[string]interface{}
 }
 
@@ -68,7 +68,7 @@ func (o *OpenAIConfiguration) SetApiKey(v string) {
 }
 
 func (o OpenAIConfiguration) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -121,5 +121,3 @@ func (v *NullableOpenAIConfiguration) UnmarshalJSON(src []byte) error {
 	v.isSet = true
 	return json.Unmarshal(src, &v.value)
 }
-
-

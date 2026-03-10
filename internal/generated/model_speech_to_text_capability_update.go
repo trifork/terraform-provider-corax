@@ -19,17 +19,17 @@ var _ MappedNullable = &SpeechToTextCapabilityUpdate{}
 
 // SpeechToTextCapabilityUpdate struct for SpeechToTextCapabilityUpdate
 type SpeechToTextCapabilityUpdate struct {
-	Name string `json:"name"`
-	IsPublic NullableBool `json:"is_public,omitempty"`
-	Type string `json:"type"`
-	ModelId NullableString `json:"model_id,omitempty"`
-	ModelPoolId NullableString `json:"model_pool_id,omitempty"`
-	Config NullableCapabilityConfig `json:"config,omitempty"`
-	ProjectId NullableString `json:"project_id,omitempty"`
-	SemanticId NullableString `json:"semantic_id,omitempty" validate:"regexp=^[a-z0-9]+(?:-[a-z0-9]+)*$"`
-	SystemPrompt NullableString `json:"system_prompt,omitempty"`
-	OutputType *string `json:"output_type,omitempty"`
-	SetAsDefault NullableBool `json:"set_as_default,omitempty"`
+	Name                 string                   `json:"name"`
+	IsPublic             NullableBool             `json:"is_public,omitempty"`
+	Type                 string                   `json:"type"`
+	ModelId              NullableString           `json:"model_id,omitempty"`
+	ModelPoolId          NullableString           `json:"model_pool_id,omitempty"`
+	Config               NullableCapabilityConfig `json:"config,omitempty"`
+	ProjectId            NullableString           `json:"project_id,omitempty"`
+	SemanticId           NullableString           `json:"semantic_id,omitempty" validate:"regexp=^[a-z0-9]+(?:-[a-z0-9]+)*$"`
+	SystemPrompt         NullableString           `json:"system_prompt,omitempty"`
+	OutputType           *string                  `json:"output_type,omitempty"`
+	SetAsDefault         NullableBool             `json:"set_as_default,omitempty"`
 	AdditionalProperties map[string]interface{}
 }
 
@@ -114,6 +114,7 @@ func (o *SpeechToTextCapabilityUpdate) HasIsPublic() bool {
 func (o *SpeechToTextCapabilityUpdate) SetIsPublic(v bool) {
 	o.IsPublic.Set(&v)
 }
+
 // SetIsPublicNil sets the value for IsPublic to be an explicit nil
 func (o *SpeechToTextCapabilityUpdate) SetIsPublicNil() {
 	o.IsPublic.Set(nil)
@@ -180,6 +181,7 @@ func (o *SpeechToTextCapabilityUpdate) HasModelId() bool {
 func (o *SpeechToTextCapabilityUpdate) SetModelId(v string) {
 	o.ModelId.Set(&v)
 }
+
 // SetModelIdNil sets the value for ModelId to be an explicit nil
 func (o *SpeechToTextCapabilityUpdate) SetModelIdNil() {
 	o.ModelId.Set(nil)
@@ -222,6 +224,7 @@ func (o *SpeechToTextCapabilityUpdate) HasModelPoolId() bool {
 func (o *SpeechToTextCapabilityUpdate) SetModelPoolId(v string) {
 	o.ModelPoolId.Set(&v)
 }
+
 // SetModelPoolIdNil sets the value for ModelPoolId to be an explicit nil
 func (o *SpeechToTextCapabilityUpdate) SetModelPoolIdNil() {
 	o.ModelPoolId.Set(nil)
@@ -264,6 +267,7 @@ func (o *SpeechToTextCapabilityUpdate) HasConfig() bool {
 func (o *SpeechToTextCapabilityUpdate) SetConfig(v CapabilityConfig) {
 	o.Config.Set(&v)
 }
+
 // SetConfigNil sets the value for Config to be an explicit nil
 func (o *SpeechToTextCapabilityUpdate) SetConfigNil() {
 	o.Config.Set(nil)
@@ -306,6 +310,7 @@ func (o *SpeechToTextCapabilityUpdate) HasProjectId() bool {
 func (o *SpeechToTextCapabilityUpdate) SetProjectId(v string) {
 	o.ProjectId.Set(&v)
 }
+
 // SetProjectIdNil sets the value for ProjectId to be an explicit nil
 func (o *SpeechToTextCapabilityUpdate) SetProjectIdNil() {
 	o.ProjectId.Set(nil)
@@ -348,6 +353,7 @@ func (o *SpeechToTextCapabilityUpdate) HasSemanticId() bool {
 func (o *SpeechToTextCapabilityUpdate) SetSemanticId(v string) {
 	o.SemanticId.Set(&v)
 }
+
 // SetSemanticIdNil sets the value for SemanticId to be an explicit nil
 func (o *SpeechToTextCapabilityUpdate) SetSemanticIdNil() {
 	o.SemanticId.Set(nil)
@@ -390,6 +396,7 @@ func (o *SpeechToTextCapabilityUpdate) HasSystemPrompt() bool {
 func (o *SpeechToTextCapabilityUpdate) SetSystemPrompt(v string) {
 	o.SystemPrompt.Set(&v)
 }
+
 // SetSystemPromptNil sets the value for SystemPrompt to be an explicit nil
 func (o *SpeechToTextCapabilityUpdate) SetSystemPromptNil() {
 	o.SystemPrompt.Set(nil)
@@ -464,6 +471,7 @@ func (o *SpeechToTextCapabilityUpdate) HasSetAsDefault() bool {
 func (o *SpeechToTextCapabilityUpdate) SetSetAsDefault(v bool) {
 	o.SetAsDefault.Set(&v)
 }
+
 // SetSetAsDefaultNil sets the value for SetAsDefault to be an explicit nil
 func (o *SpeechToTextCapabilityUpdate) SetSetAsDefaultNil() {
 	o.SetAsDefault.Set(nil)
@@ -475,7 +483,7 @@ func (o *SpeechToTextCapabilityUpdate) UnsetSetAsDefault() {
 }
 
 func (o SpeechToTextCapabilityUpdate) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -556,5 +564,3 @@ func (v *NullableSpeechToTextCapabilityUpdate) UnmarshalJSON(src []byte) error {
 	v.isSet = true
 	return json.Unmarshal(src, &v.value)
 }
-
-

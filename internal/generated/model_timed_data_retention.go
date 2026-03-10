@@ -21,7 +21,7 @@ var _ MappedNullable = &TimedDataRetention{}
 type TimedDataRetention struct {
 	Type *string `json:"type,omitempty"`
 	// Duration in hours. Must be at least 1 hour.
-	Hours int32 `json:"hours"`
+	Hours                int32 `json:"hours"`
 	AdditionalProperties map[string]interface{}
 }
 
@@ -106,7 +106,7 @@ func (o *TimedDataRetention) SetHours(v int32) {
 }
 
 func (o TimedDataRetention) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -162,5 +162,3 @@ func (v *NullableTimedDataRetention) UnmarshalJSON(src []byte) error {
 	v.isSet = true
 	return json.Unmarshal(src, &v.value)
 }
-
-

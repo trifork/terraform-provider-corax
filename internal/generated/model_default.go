@@ -15,11 +15,10 @@ import (
 	"fmt"
 )
 
-
 // Default struct for Default
 type Default struct {
 	ArrayOfAny *[]interface{}
-	String *string
+	String     *string
 }
 
 // Unmarshal JSON data into any of the pointers in the struct
@@ -31,7 +30,7 @@ func (dst *Default) UnmarshalJSON(data []byte) error {
 	}
 
 	// try to unmarshal JSON data into ArrayOfAny
-	err = json.Unmarshal(data, &dst.ArrayOfAny);
+	err = json.Unmarshal(data, &dst.ArrayOfAny)
 	if err == nil {
 		jsonArrayOfAny, _ := json.Marshal(dst.ArrayOfAny)
 		if string(jsonArrayOfAny) == "{}" { // empty struct
@@ -44,7 +43,7 @@ func (dst *Default) UnmarshalJSON(data []byte) error {
 	}
 
 	// try to unmarshal JSON data into String
-	err = json.Unmarshal(data, &dst.String);
+	err = json.Unmarshal(data, &dst.String)
 	if err == nil {
 		jsonString, _ := json.Marshal(dst.String)
 		if string(jsonString) == "{}" { // empty struct
@@ -71,7 +70,6 @@ func (src Default) MarshalJSON() ([]byte, error) {
 
 	return nil, nil // no data in anyOf schemas
 }
-
 
 type NullableDefault struct {
 	value *Default
@@ -108,5 +106,3 @@ func (v *NullableDefault) UnmarshalJSON(src []byte) error {
 	v.isSet = true
 	return json.Unmarshal(src, &v.value)
 }
-
-

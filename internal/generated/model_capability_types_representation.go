@@ -19,8 +19,8 @@ var _ MappedNullable = &CapabilityTypesRepresentation{}
 
 // CapabilityTypesRepresentation struct for CapabilityTypesRepresentation
 type CapabilityTypesRepresentation struct {
-	Links map[string]HateoasLink `json:"_links,omitempty"`
-	Embedded []CapabilityTypeRepresentation `json:"_embedded"`
+	Links                map[string]HateoasLink         `json:"_links,omitempty"`
+	Embedded             []CapabilityTypeRepresentation `json:"_embedded"`
 	AdditionalProperties map[string]interface{}
 }
 
@@ -102,7 +102,7 @@ func (o *CapabilityTypesRepresentation) SetEmbedded(v []CapabilityTypeRepresenta
 }
 
 func (o CapabilityTypesRepresentation) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -158,5 +158,3 @@ func (v *NullableCapabilityTypesRepresentation) UnmarshalJSON(src []byte) error 
 	v.isSet = true
 	return json.Unmarshal(src, &v.value)
 }
-
-

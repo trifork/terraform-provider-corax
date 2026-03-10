@@ -26,16 +26,16 @@ type EvaluationExecutionRepresentation struct {
 	// Status of the evaluation execution
 	Status EvaluationExecutionStatus `json:"status"`
 	// Progress of the evaluation execution
-	Progress EvaluationExecutionProgress `json:"progress"`
-	Data []EvaluationExecutionData `json:"data,omitempty"`
-	EvaluationId NullableString `json:"evaluation_id,omitempty"`
+	Progress     EvaluationExecutionProgress `json:"progress"`
+	Data         []EvaluationExecutionData   `json:"data,omitempty"`
+	EvaluationId NullableString              `json:"evaluation_id,omitempty"`
 	// Number of criteria in the evaluation execution
-	CriteriaExecutionCount *int32 `json:"criteria_execution_count,omitempty"`
-	CreatedAt time.Time `json:"created_at"`
-	Passed NullableBool `json:"passed"`
-	SuccessRate NullableFloat32 `json:"success_rate"`
+	CriteriaExecutionCount *int32          `json:"criteria_execution_count,omitempty"`
+	CreatedAt              time.Time       `json:"created_at"`
+	Passed                 NullableBool    `json:"passed"`
+	SuccessRate            NullableFloat32 `json:"success_rate"`
 	// Human-readable status: 'Pending', 'In Progress', 'Passed', 'Not Passed', or 'Failed'.
-	StatusDisplay string `json:"status_display"`
+	StatusDisplay        string `json:"status_display"`
 	AdditionalProperties map[string]interface{}
 }
 
@@ -239,6 +239,7 @@ func (o *EvaluationExecutionRepresentation) HasEvaluationId() bool {
 func (o *EvaluationExecutionRepresentation) SetEvaluationId(v string) {
 	o.EvaluationId.Set(&v)
 }
+
 // SetEvaluationIdNil sets the value for EvaluationId to be an explicit nil
 func (o *EvaluationExecutionRepresentation) SetEvaluationIdNil() {
 	o.EvaluationId.Set(nil)
@@ -382,7 +383,7 @@ func (o *EvaluationExecutionRepresentation) SetStatusDisplay(v string) {
 }
 
 func (o EvaluationExecutionRepresentation) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -453,5 +454,3 @@ func (v *NullableEvaluationExecutionRepresentation) UnmarshalJSON(src []byte) er
 	v.isSet = true
 	return json.Unmarshal(src, &v.value)
 }
-
-

@@ -19,9 +19,9 @@ var _ MappedNullable = &ProjectCreate{}
 
 // ProjectCreate struct for ProjectCreate
 type ProjectCreate struct {
-	Name string `json:"name"`
-	Description NullableString `json:"description,omitempty"`
-	IsPublic NullableBool `json:"is_public,omitempty"`
+	Name                 string         `json:"name"`
+	Description          NullableString `json:"description,omitempty"`
+	IsPublic             NullableBool   `json:"is_public,omitempty"`
 	AdditionalProperties map[string]interface{}
 }
 
@@ -101,6 +101,7 @@ func (o *ProjectCreate) HasDescription() bool {
 func (o *ProjectCreate) SetDescription(v string) {
 	o.Description.Set(&v)
 }
+
 // SetDescriptionNil sets the value for Description to be an explicit nil
 func (o *ProjectCreate) SetDescriptionNil() {
 	o.Description.Set(nil)
@@ -143,6 +144,7 @@ func (o *ProjectCreate) HasIsPublic() bool {
 func (o *ProjectCreate) SetIsPublic(v bool) {
 	o.IsPublic.Set(&v)
 }
+
 // SetIsPublicNil sets the value for IsPublic to be an explicit nil
 func (o *ProjectCreate) SetIsPublicNil() {
 	o.IsPublic.Set(nil)
@@ -154,7 +156,7 @@ func (o *ProjectCreate) UnsetIsPublic() {
 }
 
 func (o ProjectCreate) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -213,5 +215,3 @@ func (v *NullableProjectCreate) UnmarshalJSON(src []byte) error {
 	v.isSet = true
 	return json.Unmarshal(src, &v.value)
 }
-
-

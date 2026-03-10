@@ -15,12 +15,11 @@ import (
 	"fmt"
 )
 
-
 // Capability2 struct for Capability2
 type Capability2 struct {
-	ChatCapabilityUpdate *ChatCapabilityUpdate
-	CompletionCapabilityUpdate *CompletionCapabilityUpdate
-	ExtractionCapabilityUpdate *ExtractionCapabilityUpdate
+	ChatCapabilityUpdate         *ChatCapabilityUpdate
+	CompletionCapabilityUpdate   *CompletionCapabilityUpdate
+	ExtractionCapabilityUpdate   *ExtractionCapabilityUpdate
 	SpeechToTextCapabilityUpdate *SpeechToTextCapabilityUpdate
 }
 
@@ -28,7 +27,7 @@ type Capability2 struct {
 func (dst *Capability2) UnmarshalJSON(data []byte) error {
 	var err error
 	// try to unmarshal JSON data into ChatCapabilityUpdate
-	err = json.Unmarshal(data, &dst.ChatCapabilityUpdate);
+	err = json.Unmarshal(data, &dst.ChatCapabilityUpdate)
 	if err == nil {
 		jsonChatCapabilityUpdate, _ := json.Marshal(dst.ChatCapabilityUpdate)
 		if string(jsonChatCapabilityUpdate) == "{}" { // empty struct
@@ -41,7 +40,7 @@ func (dst *Capability2) UnmarshalJSON(data []byte) error {
 	}
 
 	// try to unmarshal JSON data into CompletionCapabilityUpdate
-	err = json.Unmarshal(data, &dst.CompletionCapabilityUpdate);
+	err = json.Unmarshal(data, &dst.CompletionCapabilityUpdate)
 	if err == nil {
 		jsonCompletionCapabilityUpdate, _ := json.Marshal(dst.CompletionCapabilityUpdate)
 		if string(jsonCompletionCapabilityUpdate) == "{}" { // empty struct
@@ -54,7 +53,7 @@ func (dst *Capability2) UnmarshalJSON(data []byte) error {
 	}
 
 	// try to unmarshal JSON data into ExtractionCapabilityUpdate
-	err = json.Unmarshal(data, &dst.ExtractionCapabilityUpdate);
+	err = json.Unmarshal(data, &dst.ExtractionCapabilityUpdate)
 	if err == nil {
 		jsonExtractionCapabilityUpdate, _ := json.Marshal(dst.ExtractionCapabilityUpdate)
 		if string(jsonExtractionCapabilityUpdate) == "{}" { // empty struct
@@ -67,7 +66,7 @@ func (dst *Capability2) UnmarshalJSON(data []byte) error {
 	}
 
 	// try to unmarshal JSON data into SpeechToTextCapabilityUpdate
-	err = json.Unmarshal(data, &dst.SpeechToTextCapabilityUpdate);
+	err = json.Unmarshal(data, &dst.SpeechToTextCapabilityUpdate)
 	if err == nil {
 		jsonSpeechToTextCapabilityUpdate, _ := json.Marshal(dst.SpeechToTextCapabilityUpdate)
 		if string(jsonSpeechToTextCapabilityUpdate) == "{}" { // empty struct
@@ -102,7 +101,6 @@ func (src Capability2) MarshalJSON() ([]byte, error) {
 
 	return nil, nil // no data in anyOf schemas
 }
-
 
 type NullableCapability2 struct {
 	value *Capability2
@@ -139,5 +137,3 @@ func (v *NullableCapability2) UnmarshalJSON(src []byte) error {
 	v.isSet = true
 	return json.Unmarshal(src, &v.value)
 }
-
-

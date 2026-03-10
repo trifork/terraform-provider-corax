@@ -15,11 +15,10 @@ import (
 	"fmt"
 )
 
-
 // Min struct for Min
 type Min struct {
 	Float32 *float32
-	Int32 *int32
+	Int32   *int32
 }
 
 // Unmarshal JSON data into any of the pointers in the struct
@@ -31,7 +30,7 @@ func (dst *Min) UnmarshalJSON(data []byte) error {
 	}
 
 	// try to unmarshal JSON data into Float32
-	err = json.Unmarshal(data, &dst.Float32);
+	err = json.Unmarshal(data, &dst.Float32)
 	if err == nil {
 		jsonFloat32, _ := json.Marshal(dst.Float32)
 		if string(jsonFloat32) == "{}" { // empty struct
@@ -44,7 +43,7 @@ func (dst *Min) UnmarshalJSON(data []byte) error {
 	}
 
 	// try to unmarshal JSON data into Int32
-	err = json.Unmarshal(data, &dst.Int32);
+	err = json.Unmarshal(data, &dst.Int32)
 	if err == nil {
 		jsonInt32, _ := json.Marshal(dst.Int32)
 		if string(jsonInt32) == "{}" { // empty struct
@@ -71,7 +70,6 @@ func (src Min) MarshalJSON() ([]byte, error) {
 
 	return nil, nil // no data in anyOf schemas
 }
-
 
 type NullableMin struct {
 	value *Min
@@ -108,5 +106,3 @@ func (v *NullableMin) UnmarshalJSON(src []byte) error {
 	v.isSet = true
 	return json.Unmarshal(src, &v.value)
 }
-
-

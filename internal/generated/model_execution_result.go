@@ -20,11 +20,11 @@ var _ MappedNullable = &ExecutionResult{}
 
 // ExecutionResult struct for ExecutionResult
 type ExecutionResult struct {
-	Result interface{} `json:"result,omitempty"`
-	Feedback map[string]interface{} `json:"feedback,omitempty"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
-	Id string `json:"id"`
+	Result               interface{}            `json:"result,omitempty"`
+	Feedback             map[string]interface{} `json:"feedback,omitempty"`
+	CreatedAt            time.Time              `json:"created_at"`
+	UpdatedAt            time.Time              `json:"updated_at"`
+	Id                   string                 `json:"id"`
 	AdditionalProperties map[string]interface{}
 }
 
@@ -189,7 +189,7 @@ func (o *ExecutionResult) SetId(v string) {
 }
 
 func (o ExecutionResult) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -250,5 +250,3 @@ func (v *NullableExecutionResult) UnmarshalJSON(src []byte) error {
 	v.isSet = true
 	return json.Unmarshal(src, &v.value)
 }
-
-

@@ -20,11 +20,11 @@ var _ MappedNullable = &AvailableModel{}
 // AvailableModel A model available from a provider.
 type AvailableModel struct {
 	// Model identifier from provider
-	ModelId string `json:"model_id"`
-	DisplayName NullableString `json:"display_name,omitempty"`
-	ContextLength NullableInt32 `json:"context_length,omitempty"`
+	ModelId       string         `json:"model_id"`
+	DisplayName   NullableString `json:"display_name,omitempty"`
+	ContextLength NullableInt32  `json:"context_length,omitempty"`
 	// Model capabilities: chat, completion, embedding, vision
-	Capabilities []string `json:"capabilities,omitempty"`
+	Capabilities         []string `json:"capabilities,omitempty"`
 	AdditionalProperties map[string]interface{}
 }
 
@@ -104,6 +104,7 @@ func (o *AvailableModel) HasDisplayName() bool {
 func (o *AvailableModel) SetDisplayName(v string) {
 	o.DisplayName.Set(&v)
 }
+
 // SetDisplayNameNil sets the value for DisplayName to be an explicit nil
 func (o *AvailableModel) SetDisplayNameNil() {
 	o.DisplayName.Set(nil)
@@ -146,6 +147,7 @@ func (o *AvailableModel) HasContextLength() bool {
 func (o *AvailableModel) SetContextLength(v int32) {
 	o.ContextLength.Set(&v)
 }
+
 // SetContextLengthNil sets the value for ContextLength to be an explicit nil
 func (o *AvailableModel) SetContextLengthNil() {
 	o.ContextLength.Set(nil)
@@ -189,7 +191,7 @@ func (o *AvailableModel) SetCapabilities(v []string) {
 }
 
 func (o AvailableModel) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -251,5 +253,3 @@ func (v *NullableAvailableModel) UnmarshalJSON(src []byte) error {
 	v.isSet = true
 	return json.Unmarshal(src, &v.value)
 }
-
-

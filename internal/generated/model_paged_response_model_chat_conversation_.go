@@ -19,9 +19,9 @@ var _ MappedNullable = &PagedResponseModelChatConversation{}
 
 // PagedResponseModelChatConversation struct for PagedResponseModelChatConversation
 type PagedResponseModelChatConversation struct {
-	Embedded []ChatConversation `json:"_embedded"`
-	Page Page `json:"page"`
-	Links map[string]HateoasLink `json:"_links,omitempty"`
+	Embedded             []ChatConversation     `json:"_embedded"`
+	Page                 Page                   `json:"page"`
+	Links                map[string]HateoasLink `json:"_links,omitempty"`
 	AdditionalProperties map[string]interface{}
 }
 
@@ -128,7 +128,7 @@ func (o *PagedResponseModelChatConversation) SetLinks(v map[string]HateoasLink) 
 }
 
 func (o PagedResponseModelChatConversation) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -185,5 +185,3 @@ func (v *NullablePagedResponseModelChatConversation) UnmarshalJSON(src []byte) e
 	v.isSet = true
 	return json.Unmarshal(src, &v.value)
 }
-
-

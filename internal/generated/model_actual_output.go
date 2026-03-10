@@ -15,11 +15,10 @@ import (
 	"fmt"
 )
 
-
 // ActualOutput struct for ActualOutput
 type ActualOutput struct {
 	ArrayOfInputAnyOfInner *[]InputAnyOfInner
-	String *string
+	String                 *string
 }
 
 // Unmarshal JSON data into any of the pointers in the struct
@@ -31,7 +30,7 @@ func (dst *ActualOutput) UnmarshalJSON(data []byte) error {
 	}
 
 	// try to unmarshal JSON data into ArrayOfInputAnyOfInner
-	err = json.Unmarshal(data, &dst.ArrayOfInputAnyOfInner);
+	err = json.Unmarshal(data, &dst.ArrayOfInputAnyOfInner)
 	if err == nil {
 		jsonArrayOfInputAnyOfInner, _ := json.Marshal(dst.ArrayOfInputAnyOfInner)
 		if string(jsonArrayOfInputAnyOfInner) == "{}" { // empty struct
@@ -44,7 +43,7 @@ func (dst *ActualOutput) UnmarshalJSON(data []byte) error {
 	}
 
 	// try to unmarshal JSON data into String
-	err = json.Unmarshal(data, &dst.String);
+	err = json.Unmarshal(data, &dst.String)
 	if err == nil {
 		jsonString, _ := json.Marshal(dst.String)
 		if string(jsonString) == "{}" { // empty struct
@@ -71,7 +70,6 @@ func (src ActualOutput) MarshalJSON() ([]byte, error) {
 
 	return nil, nil // no data in anyOf schemas
 }
-
 
 type NullableActualOutput struct {
 	value *ActualOutput
@@ -108,5 +106,3 @@ func (v *NullableActualOutput) UnmarshalJSON(src []byte) error {
 	v.isSet = true
 	return json.Unmarshal(src, &v.value)
 }
-
-

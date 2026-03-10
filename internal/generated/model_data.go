@@ -15,27 +15,26 @@ import (
 	"fmt"
 )
 
-
 // Data struct for Data
 type Data struct {
-	AnthropicProviderWithDeploymentsCreate *AnthropicProviderWithDeploymentsCreate
-	AzureAiProviderWithDeploymentsCreate *AzureAiProviderWithDeploymentsCreate
-	AzureProviderWithDeploymentsCreate *AzureProviderWithDeploymentsCreate
+	AnthropicProviderWithDeploymentsCreate   *AnthropicProviderWithDeploymentsCreate
+	AzureAiProviderWithDeploymentsCreate     *AzureAiProviderWithDeploymentsCreate
+	AzureProviderWithDeploymentsCreate       *AzureProviderWithDeploymentsCreate
 	AzureSpeechProviderWithDeploymentsCreate *AzureSpeechProviderWithDeploymentsCreate
-	BedrockProviderWithDeploymentsCreate *BedrockProviderWithDeploymentsCreate
-	GeminiProviderWithDeploymentsCreate *GeminiProviderWithDeploymentsCreate
-	MistralProviderWithDeploymentsCreate *MistralProviderWithDeploymentsCreate
-	OllamaProviderWithDeploymentsCreate *OllamaProviderWithDeploymentsCreate
-	OpenAILikeProviderWithDeploymentsCreate *OpenAILikeProviderWithDeploymentsCreate
-	OpenAIProviderWithDeploymentsCreate *OpenAIProviderWithDeploymentsCreate
-	OpenRouterProviderWithDeploymentsCreate *OpenRouterProviderWithDeploymentsCreate
+	BedrockProviderWithDeploymentsCreate     *BedrockProviderWithDeploymentsCreate
+	GeminiProviderWithDeploymentsCreate      *GeminiProviderWithDeploymentsCreate
+	MistralProviderWithDeploymentsCreate     *MistralProviderWithDeploymentsCreate
+	OllamaProviderWithDeploymentsCreate      *OllamaProviderWithDeploymentsCreate
+	OpenAILikeProviderWithDeploymentsCreate  *OpenAILikeProviderWithDeploymentsCreate
+	OpenAIProviderWithDeploymentsCreate      *OpenAIProviderWithDeploymentsCreate
+	OpenRouterProviderWithDeploymentsCreate  *OpenRouterProviderWithDeploymentsCreate
 }
 
 // Unmarshal JSON data into any of the pointers in the struct
 func (dst *Data) UnmarshalJSON(data []byte) error {
 	var err error
 	// try to unmarshal JSON data into AnthropicProviderWithDeploymentsCreate
-	err = json.Unmarshal(data, &dst.AnthropicProviderWithDeploymentsCreate);
+	err = json.Unmarshal(data, &dst.AnthropicProviderWithDeploymentsCreate)
 	if err == nil {
 		jsonAnthropicProviderWithDeploymentsCreate, _ := json.Marshal(dst.AnthropicProviderWithDeploymentsCreate)
 		if string(jsonAnthropicProviderWithDeploymentsCreate) == "{}" { // empty struct
@@ -48,7 +47,7 @@ func (dst *Data) UnmarshalJSON(data []byte) error {
 	}
 
 	// try to unmarshal JSON data into AzureAiProviderWithDeploymentsCreate
-	err = json.Unmarshal(data, &dst.AzureAiProviderWithDeploymentsCreate);
+	err = json.Unmarshal(data, &dst.AzureAiProviderWithDeploymentsCreate)
 	if err == nil {
 		jsonAzureAiProviderWithDeploymentsCreate, _ := json.Marshal(dst.AzureAiProviderWithDeploymentsCreate)
 		if string(jsonAzureAiProviderWithDeploymentsCreate) == "{}" { // empty struct
@@ -61,7 +60,7 @@ func (dst *Data) UnmarshalJSON(data []byte) error {
 	}
 
 	// try to unmarshal JSON data into AzureProviderWithDeploymentsCreate
-	err = json.Unmarshal(data, &dst.AzureProviderWithDeploymentsCreate);
+	err = json.Unmarshal(data, &dst.AzureProviderWithDeploymentsCreate)
 	if err == nil {
 		jsonAzureProviderWithDeploymentsCreate, _ := json.Marshal(dst.AzureProviderWithDeploymentsCreate)
 		if string(jsonAzureProviderWithDeploymentsCreate) == "{}" { // empty struct
@@ -74,7 +73,7 @@ func (dst *Data) UnmarshalJSON(data []byte) error {
 	}
 
 	// try to unmarshal JSON data into AzureSpeechProviderWithDeploymentsCreate
-	err = json.Unmarshal(data, &dst.AzureSpeechProviderWithDeploymentsCreate);
+	err = json.Unmarshal(data, &dst.AzureSpeechProviderWithDeploymentsCreate)
 	if err == nil {
 		jsonAzureSpeechProviderWithDeploymentsCreate, _ := json.Marshal(dst.AzureSpeechProviderWithDeploymentsCreate)
 		if string(jsonAzureSpeechProviderWithDeploymentsCreate) == "{}" { // empty struct
@@ -87,7 +86,7 @@ func (dst *Data) UnmarshalJSON(data []byte) error {
 	}
 
 	// try to unmarshal JSON data into BedrockProviderWithDeploymentsCreate
-	err = json.Unmarshal(data, &dst.BedrockProviderWithDeploymentsCreate);
+	err = json.Unmarshal(data, &dst.BedrockProviderWithDeploymentsCreate)
 	if err == nil {
 		jsonBedrockProviderWithDeploymentsCreate, _ := json.Marshal(dst.BedrockProviderWithDeploymentsCreate)
 		if string(jsonBedrockProviderWithDeploymentsCreate) == "{}" { // empty struct
@@ -100,7 +99,7 @@ func (dst *Data) UnmarshalJSON(data []byte) error {
 	}
 
 	// try to unmarshal JSON data into GeminiProviderWithDeploymentsCreate
-	err = json.Unmarshal(data, &dst.GeminiProviderWithDeploymentsCreate);
+	err = json.Unmarshal(data, &dst.GeminiProviderWithDeploymentsCreate)
 	if err == nil {
 		jsonGeminiProviderWithDeploymentsCreate, _ := json.Marshal(dst.GeminiProviderWithDeploymentsCreate)
 		if string(jsonGeminiProviderWithDeploymentsCreate) == "{}" { // empty struct
@@ -113,7 +112,7 @@ func (dst *Data) UnmarshalJSON(data []byte) error {
 	}
 
 	// try to unmarshal JSON data into MistralProviderWithDeploymentsCreate
-	err = json.Unmarshal(data, &dst.MistralProviderWithDeploymentsCreate);
+	err = json.Unmarshal(data, &dst.MistralProviderWithDeploymentsCreate)
 	if err == nil {
 		jsonMistralProviderWithDeploymentsCreate, _ := json.Marshal(dst.MistralProviderWithDeploymentsCreate)
 		if string(jsonMistralProviderWithDeploymentsCreate) == "{}" { // empty struct
@@ -126,7 +125,7 @@ func (dst *Data) UnmarshalJSON(data []byte) error {
 	}
 
 	// try to unmarshal JSON data into OllamaProviderWithDeploymentsCreate
-	err = json.Unmarshal(data, &dst.OllamaProviderWithDeploymentsCreate);
+	err = json.Unmarshal(data, &dst.OllamaProviderWithDeploymentsCreate)
 	if err == nil {
 		jsonOllamaProviderWithDeploymentsCreate, _ := json.Marshal(dst.OllamaProviderWithDeploymentsCreate)
 		if string(jsonOllamaProviderWithDeploymentsCreate) == "{}" { // empty struct
@@ -139,7 +138,7 @@ func (dst *Data) UnmarshalJSON(data []byte) error {
 	}
 
 	// try to unmarshal JSON data into OpenAILikeProviderWithDeploymentsCreate
-	err = json.Unmarshal(data, &dst.OpenAILikeProviderWithDeploymentsCreate);
+	err = json.Unmarshal(data, &dst.OpenAILikeProviderWithDeploymentsCreate)
 	if err == nil {
 		jsonOpenAILikeProviderWithDeploymentsCreate, _ := json.Marshal(dst.OpenAILikeProviderWithDeploymentsCreate)
 		if string(jsonOpenAILikeProviderWithDeploymentsCreate) == "{}" { // empty struct
@@ -152,7 +151,7 @@ func (dst *Data) UnmarshalJSON(data []byte) error {
 	}
 
 	// try to unmarshal JSON data into OpenAIProviderWithDeploymentsCreate
-	err = json.Unmarshal(data, &dst.OpenAIProviderWithDeploymentsCreate);
+	err = json.Unmarshal(data, &dst.OpenAIProviderWithDeploymentsCreate)
 	if err == nil {
 		jsonOpenAIProviderWithDeploymentsCreate, _ := json.Marshal(dst.OpenAIProviderWithDeploymentsCreate)
 		if string(jsonOpenAIProviderWithDeploymentsCreate) == "{}" { // empty struct
@@ -165,7 +164,7 @@ func (dst *Data) UnmarshalJSON(data []byte) error {
 	}
 
 	// try to unmarshal JSON data into OpenRouterProviderWithDeploymentsCreate
-	err = json.Unmarshal(data, &dst.OpenRouterProviderWithDeploymentsCreate);
+	err = json.Unmarshal(data, &dst.OpenRouterProviderWithDeploymentsCreate)
 	if err == nil {
 		jsonOpenRouterProviderWithDeploymentsCreate, _ := json.Marshal(dst.OpenRouterProviderWithDeploymentsCreate)
 		if string(jsonOpenRouterProviderWithDeploymentsCreate) == "{}" { // empty struct
@@ -229,7 +228,6 @@ func (src Data) MarshalJSON() ([]byte, error) {
 	return nil, nil // no data in anyOf schemas
 }
 
-
 type NullableData struct {
 	value *Data
 	isSet bool
@@ -265,5 +263,3 @@ func (v *NullableData) UnmarshalJSON(src []byte) error {
 	v.isSet = true
 	return json.Unmarshal(src, &v.value)
 }
-
-

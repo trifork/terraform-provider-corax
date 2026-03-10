@@ -19,8 +19,8 @@ var _ MappedNullable = &OpenAILikeConfiguration{}
 
 // OpenAILikeConfiguration Configuration for OpenAI-compatible providers.
 type OpenAILikeConfiguration struct {
-	ApiEndpoint string `json:"api_endpoint"`
-	ApiKey NullableString `json:"api_key,omitempty"`
+	ApiEndpoint          string         `json:"api_endpoint"`
+	ApiKey               NullableString `json:"api_key,omitempty"`
 	AdditionalProperties map[string]interface{}
 }
 
@@ -100,6 +100,7 @@ func (o *OpenAILikeConfiguration) HasApiKey() bool {
 func (o *OpenAILikeConfiguration) SetApiKey(v string) {
 	o.ApiKey.Set(&v)
 }
+
 // SetApiKeyNil sets the value for ApiKey to be an explicit nil
 func (o *OpenAILikeConfiguration) SetApiKeyNil() {
 	o.ApiKey.Set(nil)
@@ -111,7 +112,7 @@ func (o *OpenAILikeConfiguration) UnsetApiKey() {
 }
 
 func (o OpenAILikeConfiguration) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -167,5 +168,3 @@ func (v *NullableOpenAILikeConfiguration) UnmarshalJSON(src []byte) error {
 	v.isSet = true
 	return json.Unmarshal(src, &v.value)
 }
-
-

@@ -19,13 +19,13 @@ var _ MappedNullable = &ExecutionUsage{}
 
 // ExecutionUsage struct for ExecutionUsage
 type ExecutionUsage struct {
-	InputTokens int32 `json:"input_tokens"`
-	OutputTokens int32 `json:"output_tokens"`
-	TotalTokens int32 `json:"total_tokens"`
-	CachedTokens *int32 `json:"cached_tokens,omitempty"`
-	DurationSeconds NullableInt32 `json:"duration_seconds,omitempty"`
-	TotalProcessedPages NullableInt32 `json:"total_processed_pages,omitempty"`
-	ModelId string `json:"model_id"`
+	InputTokens          int32         `json:"input_tokens"`
+	OutputTokens         int32         `json:"output_tokens"`
+	TotalTokens          int32         `json:"total_tokens"`
+	CachedTokens         *int32        `json:"cached_tokens,omitempty"`
+	DurationSeconds      NullableInt32 `json:"duration_seconds,omitempty"`
+	TotalProcessedPages  NullableInt32 `json:"total_processed_pages,omitempty"`
+	ModelId              string        `json:"model_id"`
 	AdditionalProperties map[string]interface{}
 }
 
@@ -192,6 +192,7 @@ func (o *ExecutionUsage) HasDurationSeconds() bool {
 func (o *ExecutionUsage) SetDurationSeconds(v int32) {
 	o.DurationSeconds.Set(&v)
 }
+
 // SetDurationSecondsNil sets the value for DurationSeconds to be an explicit nil
 func (o *ExecutionUsage) SetDurationSecondsNil() {
 	o.DurationSeconds.Set(nil)
@@ -234,6 +235,7 @@ func (o *ExecutionUsage) HasTotalProcessedPages() bool {
 func (o *ExecutionUsage) SetTotalProcessedPages(v int32) {
 	o.TotalProcessedPages.Set(&v)
 }
+
 // SetTotalProcessedPagesNil sets the value for TotalProcessedPages to be an explicit nil
 func (o *ExecutionUsage) SetTotalProcessedPagesNil() {
 	o.TotalProcessedPages.Set(nil)
@@ -269,7 +271,7 @@ func (o *ExecutionUsage) SetModelId(v string) {
 }
 
 func (o ExecutionUsage) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -334,5 +336,3 @@ func (v *NullableExecutionUsage) UnmarshalJSON(src []byte) error {
 	v.isSet = true
 	return json.Unmarshal(src, &v.value)
 }
-
-

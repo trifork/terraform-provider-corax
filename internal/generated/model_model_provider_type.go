@@ -19,14 +19,14 @@ var _ MappedNullable = &ModelProviderType{}
 
 // ModelProviderType struct for ModelProviderType
 type ModelProviderType struct {
-	Links map[string]HateoasLink `json:"_links,omitempty"`
-	Name string `json:"name"`
-	Label string `json:"label"`
-	Description NullableString `json:"description,omitempty"`
-	IconUrl NullableString `json:"icon_url,omitempty"`
-	Configuration []ConfigurationField `json:"configuration"`
-	ModelDeploymentConfiguration []ConfigurationField `json:"model_deployment_configuration"`
-	AdditionalProperties map[string]interface{}
+	Links                        map[string]HateoasLink `json:"_links,omitempty"`
+	Name                         string                 `json:"name"`
+	Label                        string                 `json:"label"`
+	Description                  NullableString         `json:"description,omitempty"`
+	IconUrl                      NullableString         `json:"icon_url,omitempty"`
+	Configuration                []ConfigurationField   `json:"configuration"`
+	ModelDeploymentConfiguration []ConfigurationField   `json:"model_deployment_configuration"`
+	AdditionalProperties         map[string]interface{}
 }
 
 type _ModelProviderType ModelProviderType
@@ -165,6 +165,7 @@ func (o *ModelProviderType) HasDescription() bool {
 func (o *ModelProviderType) SetDescription(v string) {
 	o.Description.Set(&v)
 }
+
 // SetDescriptionNil sets the value for Description to be an explicit nil
 func (o *ModelProviderType) SetDescriptionNil() {
 	o.Description.Set(nil)
@@ -207,6 +208,7 @@ func (o *ModelProviderType) HasIconUrl() bool {
 func (o *ModelProviderType) SetIconUrl(v string) {
 	o.IconUrl.Set(&v)
 }
+
 // SetIconUrlNil sets the value for IconUrl to be an explicit nil
 func (o *ModelProviderType) SetIconUrlNil() {
 	o.IconUrl.Set(nil)
@@ -266,7 +268,7 @@ func (o *ModelProviderType) SetModelDeploymentConfiguration(v []ConfigurationFie
 }
 
 func (o ModelProviderType) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -331,5 +333,3 @@ func (v *NullableModelProviderType) UnmarshalJSON(src []byte) error {
 	v.isSet = true
 	return json.Unmarshal(src, &v.value)
 }
-
-

@@ -20,18 +20,18 @@ var _ MappedNullable = &ModelDeployment{}
 
 // ModelDeployment struct for ModelDeployment
 type ModelDeployment struct {
-	Links map[string]HateoasLink `json:"_links,omitempty"`
-	Name string `json:"name"`
-	Description NullableString `json:"description,omitempty"`
-	SupportedTasks []CapabilityType `json:"supported_tasks"`
-	Configuration map[string]interface{} `json:"configuration,omitempty"`
-	IsActive *bool `json:"is_active,omitempty"`
-	ProviderId string `json:"provider_id"`
-	Id string `json:"id"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt NullableTime `json:"updated_at,omitempty"`
-	CreatedBy string `json:"created_by"`
-	UpdatedBy NullableString `json:"updated_by,omitempty"`
+	Links                map[string]HateoasLink `json:"_links,omitempty"`
+	Name                 string                 `json:"name"`
+	Description          NullableString         `json:"description,omitempty"`
+	SupportedTasks       []CapabilityType       `json:"supported_tasks"`
+	Configuration        map[string]interface{} `json:"configuration,omitempty"`
+	IsActive             *bool                  `json:"is_active,omitempty"`
+	ProviderId           string                 `json:"provider_id"`
+	Id                   string                 `json:"id"`
+	CreatedAt            time.Time              `json:"created_at"`
+	UpdatedAt            NullableTime           `json:"updated_at,omitempty"`
+	CreatedBy            string                 `json:"created_by"`
+	UpdatedBy            NullableString         `json:"updated_by,omitempty"`
 	AdditionalProperties map[string]interface{}
 }
 
@@ -153,6 +153,7 @@ func (o *ModelDeployment) HasDescription() bool {
 func (o *ModelDeployment) SetDescription(v string) {
 	o.Description.Set(&v)
 }
+
 // SetDescriptionNil sets the value for Description to be an explicit nil
 func (o *ModelDeployment) SetDescriptionNil() {
 	o.Description.Set(nil)
@@ -355,6 +356,7 @@ func (o *ModelDeployment) HasUpdatedAt() bool {
 func (o *ModelDeployment) SetUpdatedAt(v time.Time) {
 	o.UpdatedAt.Set(&v)
 }
+
 // SetUpdatedAtNil sets the value for UpdatedAt to be an explicit nil
 func (o *ModelDeployment) SetUpdatedAtNil() {
 	o.UpdatedAt.Set(nil)
@@ -421,6 +423,7 @@ func (o *ModelDeployment) HasUpdatedBy() bool {
 func (o *ModelDeployment) SetUpdatedBy(v string) {
 	o.UpdatedBy.Set(&v)
 }
+
 // SetUpdatedByNil sets the value for UpdatedBy to be an explicit nil
 func (o *ModelDeployment) SetUpdatedByNil() {
 	o.UpdatedBy.Set(nil)
@@ -432,7 +435,7 @@ func (o *ModelDeployment) UnsetUpdatedBy() {
 }
 
 func (o ModelDeployment) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -508,5 +511,3 @@ func (v *NullableModelDeployment) UnmarshalJSON(src []byte) error {
 	v.isSet = true
 	return json.Unmarshal(src, &v.value)
 }
-
-

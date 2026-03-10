@@ -19,9 +19,9 @@ var _ MappedNullable = &PagedResponseModelEvaluationDatasetItemRepresentation{}
 
 // PagedResponseModelEvaluationDatasetItemRepresentation struct for PagedResponseModelEvaluationDatasetItemRepresentation
 type PagedResponseModelEvaluationDatasetItemRepresentation struct {
-	Embedded []EvaluationDatasetItemRepresentation `json:"_embedded"`
-	Page Page `json:"page"`
-	Links map[string]HateoasLink `json:"_links,omitempty"`
+	Embedded             []EvaluationDatasetItemRepresentation `json:"_embedded"`
+	Page                 Page                                  `json:"page"`
+	Links                map[string]HateoasLink                `json:"_links,omitempty"`
 	AdditionalProperties map[string]interface{}
 }
 
@@ -128,7 +128,7 @@ func (o *PagedResponseModelEvaluationDatasetItemRepresentation) SetLinks(v map[s
 }
 
 func (o PagedResponseModelEvaluationDatasetItemRepresentation) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -185,5 +185,3 @@ func (v *NullablePagedResponseModelEvaluationDatasetItemRepresentation) Unmarsha
 	v.isSet = true
 	return json.Unmarshal(src, &v.value)
 }
-
-

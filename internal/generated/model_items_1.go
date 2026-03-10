@@ -17,9 +17,9 @@ import (
 
 // Items1 - struct for Items1
 type Items1 struct {
-	ArrayPropertyOutput *ArrayPropertyOutput
-	BasicProperty *BasicProperty
-	EnumProperty *EnumProperty
+	ArrayPropertyOutput  *ArrayPropertyOutput
+	BasicProperty        *BasicProperty
+	EnumProperty         *EnumProperty
 	ObjectPropertyOutput *ObjectPropertyOutput
 }
 
@@ -50,7 +50,6 @@ func ObjectPropertyOutputAsItems1(v *ObjectPropertyOutput) Items1 {
 		ObjectPropertyOutput: v,
 	}
 }
-
 
 // Unmarshal JSON data into one of the pointers in the struct
 func (dst *Items1) UnmarshalJSON(data []byte) error {
@@ -161,7 +160,7 @@ func (src Items1) MarshalJSON() ([]byte, error) {
 }
 
 // Get the actual instance
-func (obj *Items1) GetActualInstance() (interface{}) {
+func (obj *Items1) GetActualInstance() interface{} {
 	if obj == nil {
 		return nil
 	}
@@ -186,7 +185,7 @@ func (obj *Items1) GetActualInstance() (interface{}) {
 }
 
 // Get the actual instance value
-func (obj Items1) GetActualInstanceValue() (interface{}) {
+func (obj Items1) GetActualInstanceValue() interface{} {
 	if obj.ArrayPropertyOutput != nil {
 		return *obj.ArrayPropertyOutput
 	}
@@ -242,5 +241,3 @@ func (v *NullableItems1) UnmarshalJSON(src []byte) error {
 	v.isSet = true
 	return json.Unmarshal(src, &v.value)
 }
-
-

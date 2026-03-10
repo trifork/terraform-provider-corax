@@ -19,13 +19,12 @@ import (
 	"strings"
 )
 
-
 // CapabilitiesAPIService CapabilitiesAPI service
 type CapabilitiesAPIService service
 
 type CapabilitiesAPICreateCapabilityV1CapabilitiesPostRequest struct {
-	ctx context.Context
-	ApiService *CapabilitiesAPIService
+	ctx         context.Context
+	ApiService  *CapabilitiesAPIService
 	capability1 *Capability1
 }
 
@@ -43,24 +42,25 @@ CreateCapabilityV1CapabilitiesPost Create Capability
 
 Create a new capability
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return CapabilitiesAPICreateCapabilityV1CapabilitiesPostRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@return CapabilitiesAPICreateCapabilityV1CapabilitiesPostRequest
 */
 func (a *CapabilitiesAPIService) CreateCapabilityV1CapabilitiesPost(ctx context.Context) CapabilitiesAPICreateCapabilityV1CapabilitiesPostRequest {
 	return CapabilitiesAPICreateCapabilityV1CapabilitiesPostRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
 // Execute executes the request
-//  @return ResponseCreateCapabilityV1CapabilitiesPost
+//
+//	@return ResponseCreateCapabilityV1CapabilitiesPost
 func (a *CapabilitiesAPIService) CreateCapabilityV1CapabilitiesPostExecute(r CapabilitiesAPICreateCapabilityV1CapabilitiesPostRequest) (*ResponseCreateCapabilityV1CapabilitiesPost, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPost
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *ResponseCreateCapabilityV1CapabilitiesPost
+		localVarHTTPMethod  = http.MethodPost
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *ResponseCreateCapabilityV1CapabilitiesPost
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "CapabilitiesAPIService.CreateCapabilityV1CapabilitiesPost")
@@ -139,8 +139,8 @@ func (a *CapabilitiesAPIService) CreateCapabilityV1CapabilitiesPostExecute(r Cap
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -158,8 +158,8 @@ func (a *CapabilitiesAPIService) CreateCapabilityV1CapabilitiesPostExecute(r Cap
 }
 
 type CapabilitiesAPIDeleteCapabilityV1CapabilitiesCapabilityIdDeleteRequest struct {
-	ctx context.Context
-	ApiService *CapabilitiesAPIService
+	ctx          context.Context
+	ApiService   *CapabilitiesAPIService
 	capabilityId CapabilityId1
 }
 
@@ -172,14 +172,14 @@ DeleteCapabilityV1CapabilitiesCapabilityIdDelete Delete Capability
 
 Delete a capability
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param capabilityId The ID or semantic ID of the capability
- @return CapabilitiesAPIDeleteCapabilityV1CapabilitiesCapabilityIdDeleteRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param capabilityId The ID or semantic ID of the capability
+	@return CapabilitiesAPIDeleteCapabilityV1CapabilitiesCapabilityIdDeleteRequest
 */
 func (a *CapabilitiesAPIService) DeleteCapabilityV1CapabilitiesCapabilityIdDelete(ctx context.Context, capabilityId CapabilityId1) CapabilitiesAPIDeleteCapabilityV1CapabilitiesCapabilityIdDeleteRequest {
 	return CapabilitiesAPIDeleteCapabilityV1CapabilitiesCapabilityIdDeleteRequest{
-		ApiService: a,
-		ctx: ctx,
+		ApiService:   a,
+		ctx:          ctx,
 		capabilityId: capabilityId,
 	}
 }
@@ -187,9 +187,9 @@ func (a *CapabilitiesAPIService) DeleteCapabilityV1CapabilitiesCapabilityIdDelet
 // Execute executes the request
 func (a *CapabilitiesAPIService) DeleteCapabilityV1CapabilitiesCapabilityIdDeleteExecute(r CapabilitiesAPIDeleteCapabilityV1CapabilitiesCapabilityIdDeleteRequest) (*http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodDelete
-		localVarPostBody     interface{}
-		formFiles            []formFile
+		localVarHTTPMethod = http.MethodDelete
+		localVarPostBody   interface{}
+		formFiles          []formFile
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "CapabilitiesAPIService.DeleteCapabilityV1CapabilitiesCapabilityIdDelete")
@@ -264,8 +264,8 @@ func (a *CapabilitiesAPIService) DeleteCapabilityV1CapabilitiesCapabilityIdDelet
 				newErr.error = err.Error()
 				return localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarHTTPResponse, newErr
 	}
@@ -274,11 +274,11 @@ func (a *CapabilitiesAPIService) DeleteCapabilityV1CapabilitiesCapabilityIdDelet
 }
 
 type CapabilitiesAPIExecuteCapabilityV1CapabilitiesCapabilityIdExecutionsPostRequest struct {
-	ctx context.Context
-	ApiService *CapabilitiesAPIService
-	capabilityId CapabilityId1
+	ctx             context.Context
+	ApiService      *CapabilitiesAPIService
+	capabilityId    CapabilityId1
 	executionCreate *ExecutionCreate
-	stream *bool
+	stream          *bool
 	streamTransport *StreamingTransport
 }
 
@@ -308,26 +308,27 @@ ExecuteCapabilityV1CapabilitiesCapabilityIdExecutionsPost Execute Capability
 
 Execute a capability with type-specific payload format
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param capabilityId The ID or semantic ID of the capability
- @return CapabilitiesAPIExecuteCapabilityV1CapabilitiesCapabilityIdExecutionsPostRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param capabilityId The ID or semantic ID of the capability
+	@return CapabilitiesAPIExecuteCapabilityV1CapabilitiesCapabilityIdExecutionsPostRequest
 */
 func (a *CapabilitiesAPIService) ExecuteCapabilityV1CapabilitiesCapabilityIdExecutionsPost(ctx context.Context, capabilityId CapabilityId1) CapabilitiesAPIExecuteCapabilityV1CapabilitiesCapabilityIdExecutionsPostRequest {
 	return CapabilitiesAPIExecuteCapabilityV1CapabilitiesCapabilityIdExecutionsPostRequest{
-		ApiService: a,
-		ctx: ctx,
+		ApiService:   a,
+		ctx:          ctx,
 		capabilityId: capabilityId,
 	}
 }
 
 // Execute executes the request
-//  @return Execution
+//
+//	@return Execution
 func (a *CapabilitiesAPIService) ExecuteCapabilityV1CapabilitiesCapabilityIdExecutionsPostExecute(r CapabilitiesAPIExecuteCapabilityV1CapabilitiesCapabilityIdExecutionsPostRequest) (*Execution, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPost
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *Execution
+		localVarHTTPMethod  = http.MethodPost
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *Execution
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "CapabilitiesAPIService.ExecuteCapabilityV1CapabilitiesCapabilityIdExecutionsPost")
@@ -348,16 +349,16 @@ func (a *CapabilitiesAPIService) ExecuteCapabilityV1CapabilitiesCapabilityIdExec
 	if r.stream != nil {
 		parameterAddToHeaderOrQuery(localVarQueryParams, "stream", r.stream, "form", "")
 	} else {
-        var defaultValue bool = false
-        parameterAddToHeaderOrQuery(localVarQueryParams, "stream", defaultValue, "form", "")
-        r.stream = &defaultValue
+		var defaultValue bool = false
+		parameterAddToHeaderOrQuery(localVarQueryParams, "stream", defaultValue, "form", "")
+		r.stream = &defaultValue
 	}
 	if r.streamTransport != nil {
 		parameterAddToHeaderOrQuery(localVarQueryParams, "stream_transport", r.streamTransport, "form", "")
 	} else {
-        var defaultValue StreamingTransport = "streamablehttp"
-        parameterAddToHeaderOrQuery(localVarQueryParams, "stream_transport", defaultValue, "form", "")
-        r.streamTransport = &defaultValue
+		var defaultValue StreamingTransport = "streamablehttp"
+		parameterAddToHeaderOrQuery(localVarQueryParams, "stream_transport", defaultValue, "form", "")
+		r.streamTransport = &defaultValue
 	}
 	// to determine the Content-Type header
 	localVarHTTPContentTypes := []string{"application/json"}
@@ -421,8 +422,8 @@ func (a *CapabilitiesAPIService) ExecuteCapabilityV1CapabilitiesCapabilityIdExec
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -440,9 +441,9 @@ func (a *CapabilitiesAPIService) ExecuteCapabilityV1CapabilitiesCapabilityIdExec
 }
 
 type CapabilitiesAPIGetCapabilityVersionV1CapabilitiesCapabilityIdVersionsVersionGetRequest struct {
-	ctx context.Context
-	ApiService *CapabilitiesAPIService
-	version int32
+	ctx          context.Context
+	ApiService   *CapabilitiesAPIService
+	version      int32
 	capabilityId CapabilityId1
 }
 
@@ -455,28 +456,29 @@ GetCapabilityVersionV1CapabilitiesCapabilityIdVersionsVersionGet Get Capability 
 
 Get a specific version of a capability
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param version
- @param capabilityId The ID or semantic ID of the capability
- @return CapabilitiesAPIGetCapabilityVersionV1CapabilitiesCapabilityIdVersionsVersionGetRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param version
+	@param capabilityId The ID or semantic ID of the capability
+	@return CapabilitiesAPIGetCapabilityVersionV1CapabilitiesCapabilityIdVersionsVersionGetRequest
 */
 func (a *CapabilitiesAPIService) GetCapabilityVersionV1CapabilitiesCapabilityIdVersionsVersionGet(ctx context.Context, version int32, capabilityId CapabilityId1) CapabilitiesAPIGetCapabilityVersionV1CapabilitiesCapabilityIdVersionsVersionGetRequest {
 	return CapabilitiesAPIGetCapabilityVersionV1CapabilitiesCapabilityIdVersionsVersionGetRequest{
-		ApiService: a,
-		ctx: ctx,
-		version: version,
+		ApiService:   a,
+		ctx:          ctx,
+		version:      version,
 		capabilityId: capabilityId,
 	}
 }
 
 // Execute executes the request
-//  @return CapabilityRepresentation
+//
+//	@return CapabilityRepresentation
 func (a *CapabilitiesAPIService) GetCapabilityVersionV1CapabilitiesCapabilityIdVersionsVersionGetExecute(r CapabilitiesAPIGetCapabilityVersionV1CapabilitiesCapabilityIdVersionsVersionGetRequest) (*CapabilityRepresentation, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *CapabilityRepresentation
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *CapabilityRepresentation
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "CapabilitiesAPIService.GetCapabilityVersionV1CapabilitiesCapabilityIdVersionsVersionGet")
@@ -552,8 +554,8 @@ func (a *CapabilitiesAPIService) GetCapabilityVersionV1CapabilitiesCapabilityIdV
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -571,9 +573,9 @@ func (a *CapabilitiesAPIService) GetCapabilityVersionV1CapabilitiesCapabilityIdV
 }
 
 type CapabilitiesAPIGetExecutionCallbackV1CapabilitiesCapabilityIdExecutionsExecutionIdCallbackGetRequest struct {
-	ctx context.Context
-	ApiService *CapabilitiesAPIService
-	executionId string
+	ctx          context.Context
+	ApiService   *CapabilitiesAPIService
+	executionId  string
 	capabilityId CapabilityId1
 }
 
@@ -586,28 +588,29 @@ GetExecutionCallbackV1CapabilitiesCapabilityIdExecutionsExecutionIdCallbackGet G
 
 Get callback delivery status for a capability execution
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param executionId
- @param capabilityId The ID or semantic ID of the capability
- @return CapabilitiesAPIGetExecutionCallbackV1CapabilitiesCapabilityIdExecutionsExecutionIdCallbackGetRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param executionId
+	@param capabilityId The ID or semantic ID of the capability
+	@return CapabilitiesAPIGetExecutionCallbackV1CapabilitiesCapabilityIdExecutionsExecutionIdCallbackGetRequest
 */
 func (a *CapabilitiesAPIService) GetExecutionCallbackV1CapabilitiesCapabilityIdExecutionsExecutionIdCallbackGet(ctx context.Context, executionId string, capabilityId CapabilityId1) CapabilitiesAPIGetExecutionCallbackV1CapabilitiesCapabilityIdExecutionsExecutionIdCallbackGetRequest {
 	return CapabilitiesAPIGetExecutionCallbackV1CapabilitiesCapabilityIdExecutionsExecutionIdCallbackGetRequest{
-		ApiService: a,
-		ctx: ctx,
-		executionId: executionId,
+		ApiService:   a,
+		ctx:          ctx,
+		executionId:  executionId,
 		capabilityId: capabilityId,
 	}
 }
 
 // Execute executes the request
-//  @return ExecutionCallback
+//
+//	@return ExecutionCallback
 func (a *CapabilitiesAPIService) GetExecutionCallbackV1CapabilitiesCapabilityIdExecutionsExecutionIdCallbackGetExecute(r CapabilitiesAPIGetExecutionCallbackV1CapabilitiesCapabilityIdExecutionsExecutionIdCallbackGetRequest) (*ExecutionCallback, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *ExecutionCallback
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *ExecutionCallback
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "CapabilitiesAPIService.GetExecutionCallbackV1CapabilitiesCapabilityIdExecutionsExecutionIdCallbackGet")
@@ -683,8 +686,8 @@ func (a *CapabilitiesAPIService) GetExecutionCallbackV1CapabilitiesCapabilityIdE
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -702,9 +705,9 @@ func (a *CapabilitiesAPIService) GetExecutionCallbackV1CapabilitiesCapabilityIdE
 }
 
 type CapabilitiesAPIGetExecutionResultV1CapabilitiesCapabilityIdExecutionsExecutionIdResultGetRequest struct {
-	ctx context.Context
-	ApiService *CapabilitiesAPIService
-	executionId string
+	ctx          context.Context
+	ApiService   *CapabilitiesAPIService
+	executionId  string
 	capabilityId CapabilityId1
 }
 
@@ -717,28 +720,29 @@ GetExecutionResultV1CapabilitiesCapabilityIdExecutionsExecutionIdResultGet Get E
 
 Get a capability execution result
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param executionId
- @param capabilityId The ID or semantic ID of the capability
- @return CapabilitiesAPIGetExecutionResultV1CapabilitiesCapabilityIdExecutionsExecutionIdResultGetRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param executionId
+	@param capabilityId The ID or semantic ID of the capability
+	@return CapabilitiesAPIGetExecutionResultV1CapabilitiesCapabilityIdExecutionsExecutionIdResultGetRequest
 */
 func (a *CapabilitiesAPIService) GetExecutionResultV1CapabilitiesCapabilityIdExecutionsExecutionIdResultGet(ctx context.Context, executionId string, capabilityId CapabilityId1) CapabilitiesAPIGetExecutionResultV1CapabilitiesCapabilityIdExecutionsExecutionIdResultGetRequest {
 	return CapabilitiesAPIGetExecutionResultV1CapabilitiesCapabilityIdExecutionsExecutionIdResultGetRequest{
-		ApiService: a,
-		ctx: ctx,
-		executionId: executionId,
+		ApiService:   a,
+		ctx:          ctx,
+		executionId:  executionId,
 		capabilityId: capabilityId,
 	}
 }
 
 // Execute executes the request
-//  @return ExecutionResult
+//
+//	@return ExecutionResult
 func (a *CapabilitiesAPIService) GetExecutionResultV1CapabilitiesCapabilityIdExecutionsExecutionIdResultGetExecute(r CapabilitiesAPIGetExecutionResultV1CapabilitiesCapabilityIdExecutionsExecutionIdResultGetRequest) (*ExecutionResult, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *ExecutionResult
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *ExecutionResult
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "CapabilitiesAPIService.GetExecutionResultV1CapabilitiesCapabilityIdExecutionsExecutionIdResultGet")
@@ -814,8 +818,8 @@ func (a *CapabilitiesAPIService) GetExecutionResultV1CapabilitiesCapabilityIdExe
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -833,9 +837,9 @@ func (a *CapabilitiesAPIService) GetExecutionResultV1CapabilitiesCapabilityIdExe
 }
 
 type CapabilitiesAPIGetExecutionUsageV1CapabilitiesCapabilityIdExecutionsExecutionIdUsageGetRequest struct {
-	ctx context.Context
-	ApiService *CapabilitiesAPIService
-	executionId string
+	ctx          context.Context
+	ApiService   *CapabilitiesAPIService
+	executionId  string
 	capabilityId CapabilityId1
 }
 
@@ -848,28 +852,29 @@ GetExecutionUsageV1CapabilitiesCapabilityIdExecutionsExecutionIdUsageGet Get Exe
 
 Get a capability execution usage
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param executionId
- @param capabilityId The ID or semantic ID of the capability
- @return CapabilitiesAPIGetExecutionUsageV1CapabilitiesCapabilityIdExecutionsExecutionIdUsageGetRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param executionId
+	@param capabilityId The ID or semantic ID of the capability
+	@return CapabilitiesAPIGetExecutionUsageV1CapabilitiesCapabilityIdExecutionsExecutionIdUsageGetRequest
 */
 func (a *CapabilitiesAPIService) GetExecutionUsageV1CapabilitiesCapabilityIdExecutionsExecutionIdUsageGet(ctx context.Context, executionId string, capabilityId CapabilityId1) CapabilitiesAPIGetExecutionUsageV1CapabilitiesCapabilityIdExecutionsExecutionIdUsageGetRequest {
 	return CapabilitiesAPIGetExecutionUsageV1CapabilitiesCapabilityIdExecutionsExecutionIdUsageGetRequest{
-		ApiService: a,
-		ctx: ctx,
-		executionId: executionId,
+		ApiService:   a,
+		ctx:          ctx,
+		executionId:  executionId,
 		capabilityId: capabilityId,
 	}
 }
 
 // Execute executes the request
-//  @return ExecutionUsage
+//
+//	@return ExecutionUsage
 func (a *CapabilitiesAPIService) GetExecutionUsageV1CapabilitiesCapabilityIdExecutionsExecutionIdUsageGetExecute(r CapabilitiesAPIGetExecutionUsageV1CapabilitiesCapabilityIdExecutionsExecutionIdUsageGetRequest) (*ExecutionUsage, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *ExecutionUsage
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *ExecutionUsage
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "CapabilitiesAPIService.GetExecutionUsageV1CapabilitiesCapabilityIdExecutionsExecutionIdUsageGet")
@@ -945,8 +950,8 @@ func (a *CapabilitiesAPIService) GetExecutionUsageV1CapabilitiesCapabilityIdExec
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -964,9 +969,9 @@ func (a *CapabilitiesAPIService) GetExecutionUsageV1CapabilitiesCapabilityIdExec
 }
 
 type CapabilitiesAPIGetExecutionV1CapabilitiesCapabilityIdExecutionsExecutionIdGetRequest struct {
-	ctx context.Context
-	ApiService *CapabilitiesAPIService
-	executionId string
+	ctx          context.Context
+	ApiService   *CapabilitiesAPIService
+	executionId  string
 	capabilityId CapabilityId1
 }
 
@@ -979,28 +984,29 @@ GetExecutionV1CapabilitiesCapabilityIdExecutionsExecutionIdGet Get Execution
 
 Get a capability execution
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param executionId
- @param capabilityId The ID or semantic ID of the capability
- @return CapabilitiesAPIGetExecutionV1CapabilitiesCapabilityIdExecutionsExecutionIdGetRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param executionId
+	@param capabilityId The ID or semantic ID of the capability
+	@return CapabilitiesAPIGetExecutionV1CapabilitiesCapabilityIdExecutionsExecutionIdGetRequest
 */
 func (a *CapabilitiesAPIService) GetExecutionV1CapabilitiesCapabilityIdExecutionsExecutionIdGet(ctx context.Context, executionId string, capabilityId CapabilityId1) CapabilitiesAPIGetExecutionV1CapabilitiesCapabilityIdExecutionsExecutionIdGetRequest {
 	return CapabilitiesAPIGetExecutionV1CapabilitiesCapabilityIdExecutionsExecutionIdGetRequest{
-		ApiService: a,
-		ctx: ctx,
-		executionId: executionId,
+		ApiService:   a,
+		ctx:          ctx,
+		executionId:  executionId,
 		capabilityId: capabilityId,
 	}
 }
 
 // Execute executes the request
-//  @return Execution
+//
+//	@return Execution
 func (a *CapabilitiesAPIService) GetExecutionV1CapabilitiesCapabilityIdExecutionsExecutionIdGetExecute(r CapabilitiesAPIGetExecutionV1CapabilitiesCapabilityIdExecutionsExecutionIdGetRequest) (*Execution, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *Execution
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *Execution
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "CapabilitiesAPIService.GetExecutionV1CapabilitiesCapabilityIdExecutionsExecutionIdGet")
@@ -1076,8 +1082,8 @@ func (a *CapabilitiesAPIService) GetExecutionV1CapabilitiesCapabilityIdExecution
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -1095,12 +1101,12 @@ func (a *CapabilitiesAPIService) GetExecutionV1CapabilitiesCapabilityIdExecution
 }
 
 type CapabilitiesAPIListCapabilitiesV1CapabilitiesGetRequest struct {
-	ctx context.Context
+	ctx        context.Context
 	ApiService *CapabilitiesAPIService
-	page *int32
-	size *int32
-	sort *string
-	filter *string
+	page       *int32
+	size       *int32
+	sort       *string
+	filter     *string
 }
 
 func (r CapabilitiesAPIListCapabilitiesV1CapabilitiesGetRequest) Page(page int32) CapabilitiesAPIListCapabilitiesV1CapabilitiesGetRequest {
@@ -1132,24 +1138,25 @@ ListCapabilitiesV1CapabilitiesGet List Capabilities
 
 List all capabilities
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return CapabilitiesAPIListCapabilitiesV1CapabilitiesGetRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@return CapabilitiesAPIListCapabilitiesV1CapabilitiesGetRequest
 */
 func (a *CapabilitiesAPIService) ListCapabilitiesV1CapabilitiesGet(ctx context.Context) CapabilitiesAPIListCapabilitiesV1CapabilitiesGetRequest {
 	return CapabilitiesAPIListCapabilitiesV1CapabilitiesGetRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
 // Execute executes the request
-//  @return PagedResponseModelCapability
+//
+//	@return PagedResponseModelCapability
 func (a *CapabilitiesAPIService) ListCapabilitiesV1CapabilitiesGetExecute(r CapabilitiesAPIListCapabilitiesV1CapabilitiesGetRequest) (*PagedResponseModelCapability, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *PagedResponseModelCapability
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *PagedResponseModelCapability
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "CapabilitiesAPIService.ListCapabilitiesV1CapabilitiesGet")
@@ -1166,23 +1173,23 @@ func (a *CapabilitiesAPIService) ListCapabilitiesV1CapabilitiesGetExecute(r Capa
 	if r.page != nil {
 		parameterAddToHeaderOrQuery(localVarQueryParams, "page", r.page, "form", "")
 	} else {
-        var defaultValue int32 = 1
-        parameterAddToHeaderOrQuery(localVarQueryParams, "page", defaultValue, "form", "")
-        r.page = &defaultValue
+		var defaultValue int32 = 1
+		parameterAddToHeaderOrQuery(localVarQueryParams, "page", defaultValue, "form", "")
+		r.page = &defaultValue
 	}
 	if r.size != nil {
 		parameterAddToHeaderOrQuery(localVarQueryParams, "size", r.size, "form", "")
 	} else {
-        var defaultValue int32 = 10
-        parameterAddToHeaderOrQuery(localVarQueryParams, "size", defaultValue, "form", "")
-        r.size = &defaultValue
+		var defaultValue int32 = 10
+		parameterAddToHeaderOrQuery(localVarQueryParams, "size", defaultValue, "form", "")
+		r.size = &defaultValue
 	}
 	if r.sort != nil {
 		parameterAddToHeaderOrQuery(localVarQueryParams, "sort", r.sort, "form", "")
 	} else {
-        var defaultValue string = "id"
-        parameterAddToHeaderOrQuery(localVarQueryParams, "sort", defaultValue, "form", "")
-        r.sort = &defaultValue
+		var defaultValue string = "id"
+		parameterAddToHeaderOrQuery(localVarQueryParams, "sort", defaultValue, "form", "")
+		r.sort = &defaultValue
 	}
 	if r.filter != nil {
 		parameterAddToHeaderOrQuery(localVarQueryParams, "filter", r.filter, "form", "")
@@ -1247,8 +1254,8 @@ func (a *CapabilitiesAPIService) ListCapabilitiesV1CapabilitiesGetExecute(r Capa
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -1266,13 +1273,13 @@ func (a *CapabilitiesAPIService) ListCapabilitiesV1CapabilitiesGetExecute(r Capa
 }
 
 type CapabilitiesAPIListCapabilityVersionsV1CapabilitiesCapabilityIdVersionsGetRequest struct {
-	ctx context.Context
-	ApiService *CapabilitiesAPIService
+	ctx          context.Context
+	ApiService   *CapabilitiesAPIService
 	capabilityId CapabilityId1
-	page *int32
-	size *int32
-	sort *string
-	filter *string
+	page         *int32
+	size         *int32
+	sort         *string
+	filter       *string
 }
 
 func (r CapabilitiesAPIListCapabilityVersionsV1CapabilitiesCapabilityIdVersionsGetRequest) Page(page int32) CapabilitiesAPIListCapabilityVersionsV1CapabilitiesCapabilityIdVersionsGetRequest {
@@ -1304,26 +1311,27 @@ ListCapabilityVersionsV1CapabilitiesCapabilityIdVersionsGet List Capability Vers
 
 List all versions of a capability
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param capabilityId The ID or semantic ID of the capability
- @return CapabilitiesAPIListCapabilityVersionsV1CapabilitiesCapabilityIdVersionsGetRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param capabilityId The ID or semantic ID of the capability
+	@return CapabilitiesAPIListCapabilityVersionsV1CapabilitiesCapabilityIdVersionsGetRequest
 */
 func (a *CapabilitiesAPIService) ListCapabilityVersionsV1CapabilitiesCapabilityIdVersionsGet(ctx context.Context, capabilityId CapabilityId1) CapabilitiesAPIListCapabilityVersionsV1CapabilitiesCapabilityIdVersionsGetRequest {
 	return CapabilitiesAPIListCapabilityVersionsV1CapabilitiesCapabilityIdVersionsGetRequest{
-		ApiService: a,
-		ctx: ctx,
+		ApiService:   a,
+		ctx:          ctx,
 		capabilityId: capabilityId,
 	}
 }
 
 // Execute executes the request
-//  @return PagedResponseModelCapabilityVersion
+//
+//	@return PagedResponseModelCapabilityVersion
 func (a *CapabilitiesAPIService) ListCapabilityVersionsV1CapabilitiesCapabilityIdVersionsGetExecute(r CapabilitiesAPIListCapabilityVersionsV1CapabilitiesCapabilityIdVersionsGetRequest) (*PagedResponseModelCapabilityVersion, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *PagedResponseModelCapabilityVersion
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *PagedResponseModelCapabilityVersion
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "CapabilitiesAPIService.ListCapabilityVersionsV1CapabilitiesCapabilityIdVersionsGet")
@@ -1341,23 +1349,23 @@ func (a *CapabilitiesAPIService) ListCapabilityVersionsV1CapabilitiesCapabilityI
 	if r.page != nil {
 		parameterAddToHeaderOrQuery(localVarQueryParams, "page", r.page, "form", "")
 	} else {
-        var defaultValue int32 = 1
-        parameterAddToHeaderOrQuery(localVarQueryParams, "page", defaultValue, "form", "")
-        r.page = &defaultValue
+		var defaultValue int32 = 1
+		parameterAddToHeaderOrQuery(localVarQueryParams, "page", defaultValue, "form", "")
+		r.page = &defaultValue
 	}
 	if r.size != nil {
 		parameterAddToHeaderOrQuery(localVarQueryParams, "size", r.size, "form", "")
 	} else {
-        var defaultValue int32 = 10
-        parameterAddToHeaderOrQuery(localVarQueryParams, "size", defaultValue, "form", "")
-        r.size = &defaultValue
+		var defaultValue int32 = 10
+		parameterAddToHeaderOrQuery(localVarQueryParams, "size", defaultValue, "form", "")
+		r.size = &defaultValue
 	}
 	if r.sort != nil {
 		parameterAddToHeaderOrQuery(localVarQueryParams, "sort", r.sort, "form", "")
 	} else {
-        var defaultValue string = "id"
-        parameterAddToHeaderOrQuery(localVarQueryParams, "sort", defaultValue, "form", "")
-        r.sort = &defaultValue
+		var defaultValue string = "id"
+		parameterAddToHeaderOrQuery(localVarQueryParams, "sort", defaultValue, "form", "")
+		r.sort = &defaultValue
 	}
 	if r.filter != nil {
 		parameterAddToHeaderOrQuery(localVarQueryParams, "filter", r.filter, "form", "")
@@ -1422,8 +1430,8 @@ func (a *CapabilitiesAPIService) ListCapabilityVersionsV1CapabilitiesCapabilityI
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -1441,13 +1449,13 @@ func (a *CapabilitiesAPIService) ListCapabilityVersionsV1CapabilitiesCapabilityI
 }
 
 type CapabilitiesAPIListExecutionsV1CapabilitiesCapabilityIdExecutionsGetRequest struct {
-	ctx context.Context
-	ApiService *CapabilitiesAPIService
+	ctx          context.Context
+	ApiService   *CapabilitiesAPIService
 	capabilityId CapabilityId1
-	page *int32
-	size *int32
-	sort *string
-	filter *string
+	page         *int32
+	size         *int32
+	sort         *string
+	filter       *string
 }
 
 func (r CapabilitiesAPIListExecutionsV1CapabilitiesCapabilityIdExecutionsGetRequest) Page(page int32) CapabilitiesAPIListExecutionsV1CapabilitiesCapabilityIdExecutionsGetRequest {
@@ -1479,26 +1487,27 @@ ListExecutionsV1CapabilitiesCapabilityIdExecutionsGet List Executions
 
 List all capability executions
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param capabilityId The ID or semantic ID of the capability
- @return CapabilitiesAPIListExecutionsV1CapabilitiesCapabilityIdExecutionsGetRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param capabilityId The ID or semantic ID of the capability
+	@return CapabilitiesAPIListExecutionsV1CapabilitiesCapabilityIdExecutionsGetRequest
 */
 func (a *CapabilitiesAPIService) ListExecutionsV1CapabilitiesCapabilityIdExecutionsGet(ctx context.Context, capabilityId CapabilityId1) CapabilitiesAPIListExecutionsV1CapabilitiesCapabilityIdExecutionsGetRequest {
 	return CapabilitiesAPIListExecutionsV1CapabilitiesCapabilityIdExecutionsGetRequest{
-		ApiService: a,
-		ctx: ctx,
+		ApiService:   a,
+		ctx:          ctx,
 		capabilityId: capabilityId,
 	}
 }
 
 // Execute executes the request
-//  @return PagedResponseModelExecution
+//
+//	@return PagedResponseModelExecution
 func (a *CapabilitiesAPIService) ListExecutionsV1CapabilitiesCapabilityIdExecutionsGetExecute(r CapabilitiesAPIListExecutionsV1CapabilitiesCapabilityIdExecutionsGetRequest) (*PagedResponseModelExecution, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *PagedResponseModelExecution
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *PagedResponseModelExecution
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "CapabilitiesAPIService.ListExecutionsV1CapabilitiesCapabilityIdExecutionsGet")
@@ -1516,23 +1525,23 @@ func (a *CapabilitiesAPIService) ListExecutionsV1CapabilitiesCapabilityIdExecuti
 	if r.page != nil {
 		parameterAddToHeaderOrQuery(localVarQueryParams, "page", r.page, "form", "")
 	} else {
-        var defaultValue int32 = 1
-        parameterAddToHeaderOrQuery(localVarQueryParams, "page", defaultValue, "form", "")
-        r.page = &defaultValue
+		var defaultValue int32 = 1
+		parameterAddToHeaderOrQuery(localVarQueryParams, "page", defaultValue, "form", "")
+		r.page = &defaultValue
 	}
 	if r.size != nil {
 		parameterAddToHeaderOrQuery(localVarQueryParams, "size", r.size, "form", "")
 	} else {
-        var defaultValue int32 = 10
-        parameterAddToHeaderOrQuery(localVarQueryParams, "size", defaultValue, "form", "")
-        r.size = &defaultValue
+		var defaultValue int32 = 10
+		parameterAddToHeaderOrQuery(localVarQueryParams, "size", defaultValue, "form", "")
+		r.size = &defaultValue
 	}
 	if r.sort != nil {
 		parameterAddToHeaderOrQuery(localVarQueryParams, "sort", r.sort, "form", "")
 	} else {
-        var defaultValue string = "id"
-        parameterAddToHeaderOrQuery(localVarQueryParams, "sort", defaultValue, "form", "")
-        r.sort = &defaultValue
+		var defaultValue string = "id"
+		parameterAddToHeaderOrQuery(localVarQueryParams, "sort", defaultValue, "form", "")
+		r.sort = &defaultValue
 	}
 	if r.filter != nil {
 		parameterAddToHeaderOrQuery(localVarQueryParams, "filter", r.filter, "form", "")
@@ -1597,8 +1606,8 @@ func (a *CapabilitiesAPIService) ListExecutionsV1CapabilitiesCapabilityIdExecuti
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -1616,10 +1625,10 @@ func (a *CapabilitiesAPIService) ListExecutionsV1CapabilitiesCapabilityIdExecuti
 }
 
 type CapabilitiesAPIProvideFeedbackV1CapabilitiesCapabilityIdExecutionsExecutionIdFeedbackPostRequest struct {
-	ctx context.Context
-	ApiService *CapabilitiesAPIService
-	executionId string
-	capabilityId CapabilityId1
+	ctx            context.Context
+	ApiService     *CapabilitiesAPIService
+	executionId    string
+	capabilityId   CapabilityId1
 	feedbackCreate *FeedbackCreate
 }
 
@@ -1637,28 +1646,29 @@ ProvideFeedbackV1CapabilitiesCapabilityIdExecutionsExecutionIdFeedbackPost Provi
 
 Provide feedback for a capability execution
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param executionId
- @param capabilityId The ID or semantic ID of the capability
- @return CapabilitiesAPIProvideFeedbackV1CapabilitiesCapabilityIdExecutionsExecutionIdFeedbackPostRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param executionId
+	@param capabilityId The ID or semantic ID of the capability
+	@return CapabilitiesAPIProvideFeedbackV1CapabilitiesCapabilityIdExecutionsExecutionIdFeedbackPostRequest
 */
 func (a *CapabilitiesAPIService) ProvideFeedbackV1CapabilitiesCapabilityIdExecutionsExecutionIdFeedbackPost(ctx context.Context, executionId string, capabilityId CapabilityId1) CapabilitiesAPIProvideFeedbackV1CapabilitiesCapabilityIdExecutionsExecutionIdFeedbackPostRequest {
 	return CapabilitiesAPIProvideFeedbackV1CapabilitiesCapabilityIdExecutionsExecutionIdFeedbackPostRequest{
-		ApiService: a,
-		ctx: ctx,
-		executionId: executionId,
+		ApiService:   a,
+		ctx:          ctx,
+		executionId:  executionId,
 		capabilityId: capabilityId,
 	}
 }
 
 // Execute executes the request
-//  @return ExecutionResult
+//
+//	@return ExecutionResult
 func (a *CapabilitiesAPIService) ProvideFeedbackV1CapabilitiesCapabilityIdExecutionsExecutionIdFeedbackPostExecute(r CapabilitiesAPIProvideFeedbackV1CapabilitiesCapabilityIdExecutionsExecutionIdFeedbackPostRequest) (*ExecutionResult, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPost
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *ExecutionResult
+		localVarHTTPMethod  = http.MethodPost
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *ExecutionResult
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "CapabilitiesAPIService.ProvideFeedbackV1CapabilitiesCapabilityIdExecutionsExecutionIdFeedbackPost")
@@ -1739,8 +1749,8 @@ func (a *CapabilitiesAPIService) ProvideFeedbackV1CapabilitiesCapabilityIdExecut
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -1758,8 +1768,8 @@ func (a *CapabilitiesAPIService) ProvideFeedbackV1CapabilitiesCapabilityIdExecut
 }
 
 type CapabilitiesAPIReadCapabilityV1CapabilitiesCapabilityIdGetRequest struct {
-	ctx context.Context
-	ApiService *CapabilitiesAPIService
+	ctx          context.Context
+	ApiService   *CapabilitiesAPIService
 	capabilityId CapabilityId
 }
 
@@ -1772,26 +1782,27 @@ ReadCapabilityV1CapabilitiesCapabilityIdGet Read Capability
 
 Get a single capability
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param capabilityId The ID or semantic ID of the capability
- @return CapabilitiesAPIReadCapabilityV1CapabilitiesCapabilityIdGetRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param capabilityId The ID or semantic ID of the capability
+	@return CapabilitiesAPIReadCapabilityV1CapabilitiesCapabilityIdGetRequest
 */
 func (a *CapabilitiesAPIService) ReadCapabilityV1CapabilitiesCapabilityIdGet(ctx context.Context, capabilityId CapabilityId) CapabilitiesAPIReadCapabilityV1CapabilitiesCapabilityIdGetRequest {
 	return CapabilitiesAPIReadCapabilityV1CapabilitiesCapabilityIdGetRequest{
-		ApiService: a,
-		ctx: ctx,
+		ApiService:   a,
+		ctx:          ctx,
 		capabilityId: capabilityId,
 	}
 }
 
 // Execute executes the request
-//  @return CapabilityRepresentation
+//
+//	@return CapabilityRepresentation
 func (a *CapabilitiesAPIService) ReadCapabilityV1CapabilitiesCapabilityIdGetExecute(r CapabilitiesAPIReadCapabilityV1CapabilitiesCapabilityIdGetRequest) (*CapabilityRepresentation, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *CapabilityRepresentation
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *CapabilityRepresentation
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "CapabilitiesAPIService.ReadCapabilityV1CapabilitiesCapabilityIdGet")
@@ -1866,8 +1877,8 @@ func (a *CapabilitiesAPIService) ReadCapabilityV1CapabilitiesCapabilityIdGetExec
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -1885,9 +1896,9 @@ func (a *CapabilitiesAPIService) ReadCapabilityV1CapabilitiesCapabilityIdGetExec
 }
 
 type CapabilitiesAPISetDefaultCapabilityVersionV1CapabilitiesCapabilityIdDefaultVersionPutRequest struct {
-	ctx context.Context
-	ApiService *CapabilitiesAPIService
-	capabilityId CapabilityId1
+	ctx                                context.Context
+	ApiService                         *CapabilitiesAPIService
+	capabilityId                       CapabilityId1
 	capabilitySetDefaultVersionRequest *CapabilitySetDefaultVersionRequest
 }
 
@@ -1905,26 +1916,27 @@ SetDefaultCapabilityVersionV1CapabilitiesCapabilityIdDefaultVersionPut Set Defau
 
 Set a capability version as the default version
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param capabilityId The ID or semantic ID of the capability
- @return CapabilitiesAPISetDefaultCapabilityVersionV1CapabilitiesCapabilityIdDefaultVersionPutRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param capabilityId The ID or semantic ID of the capability
+	@return CapabilitiesAPISetDefaultCapabilityVersionV1CapabilitiesCapabilityIdDefaultVersionPutRequest
 */
 func (a *CapabilitiesAPIService) SetDefaultCapabilityVersionV1CapabilitiesCapabilityIdDefaultVersionPut(ctx context.Context, capabilityId CapabilityId1) CapabilitiesAPISetDefaultCapabilityVersionV1CapabilitiesCapabilityIdDefaultVersionPutRequest {
 	return CapabilitiesAPISetDefaultCapabilityVersionV1CapabilitiesCapabilityIdDefaultVersionPutRequest{
-		ApiService: a,
-		ctx: ctx,
+		ApiService:   a,
+		ctx:          ctx,
 		capabilityId: capabilityId,
 	}
 }
 
 // Execute executes the request
-//  @return CapabilityRepresentation
+//
+//	@return CapabilityRepresentation
 func (a *CapabilitiesAPIService) SetDefaultCapabilityVersionV1CapabilitiesCapabilityIdDefaultVersionPutExecute(r CapabilitiesAPISetDefaultCapabilityVersionV1CapabilitiesCapabilityIdDefaultVersionPutRequest) (*CapabilityRepresentation, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPut
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *CapabilityRepresentation
+		localVarHTTPMethod  = http.MethodPut
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *CapabilityRepresentation
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "CapabilitiesAPIService.SetDefaultCapabilityVersionV1CapabilitiesCapabilityIdDefaultVersionPut")
@@ -2004,8 +2016,8 @@ func (a *CapabilitiesAPIService) SetDefaultCapabilityVersionV1CapabilitiesCapabi
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -2023,11 +2035,11 @@ func (a *CapabilitiesAPIService) SetDefaultCapabilityVersionV1CapabilitiesCapabi
 }
 
 type CapabilitiesAPIStreamExecutionEventsV1CapabilitiesCapabilityIdExecutionsExecutionIdStreamGetRequest struct {
-	ctx context.Context
-	ApiService *CapabilitiesAPIService
-	executionId string
+	ctx          context.Context
+	ApiService   *CapabilitiesAPIService
+	executionId  string
 	capabilityId CapabilityId1
-	transport *StreamingTransport
+	transport    *StreamingTransport
 }
 
 // Preferred streaming transport. Use &#39;streamablehttp&#39; for newline-delimited JSON chunks or &#39;sse&#39; for Server-Sent Events.
@@ -2045,28 +2057,29 @@ StreamExecutionEventsV1CapabilitiesCapabilityIdExecutionsExecutionIdStreamGet St
 
 Stream incremental updates for a capability execution
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param executionId
- @param capabilityId The ID or semantic ID of the capability
- @return CapabilitiesAPIStreamExecutionEventsV1CapabilitiesCapabilityIdExecutionsExecutionIdStreamGetRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param executionId
+	@param capabilityId The ID or semantic ID of the capability
+	@return CapabilitiesAPIStreamExecutionEventsV1CapabilitiesCapabilityIdExecutionsExecutionIdStreamGetRequest
 */
 func (a *CapabilitiesAPIService) StreamExecutionEventsV1CapabilitiesCapabilityIdExecutionsExecutionIdStreamGet(ctx context.Context, executionId string, capabilityId CapabilityId1) CapabilitiesAPIStreamExecutionEventsV1CapabilitiesCapabilityIdExecutionsExecutionIdStreamGetRequest {
 	return CapabilitiesAPIStreamExecutionEventsV1CapabilitiesCapabilityIdExecutionsExecutionIdStreamGetRequest{
-		ApiService: a,
-		ctx: ctx,
-		executionId: executionId,
+		ApiService:   a,
+		ctx:          ctx,
+		executionId:  executionId,
 		capabilityId: capabilityId,
 	}
 }
 
 // Execute executes the request
-//  @return interface{}
+//
+//	@return interface{}
 func (a *CapabilitiesAPIService) StreamExecutionEventsV1CapabilitiesCapabilityIdExecutionsExecutionIdStreamGetExecute(r CapabilitiesAPIStreamExecutionEventsV1CapabilitiesCapabilityIdExecutionsExecutionIdStreamGetRequest) (interface{}, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  interface{}
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue interface{}
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "CapabilitiesAPIService.StreamExecutionEventsV1CapabilitiesCapabilityIdExecutionsExecutionIdStreamGet")
@@ -2145,8 +2158,8 @@ func (a *CapabilitiesAPIService) StreamExecutionEventsV1CapabilitiesCapabilityId
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -2164,10 +2177,10 @@ func (a *CapabilitiesAPIService) StreamExecutionEventsV1CapabilitiesCapabilityId
 }
 
 type CapabilitiesAPIUpdateCapabilityV1CapabilitiesCapabilityIdPutRequest struct {
-	ctx context.Context
-	ApiService *CapabilitiesAPIService
+	ctx          context.Context
+	ApiService   *CapabilitiesAPIService
 	capabilityId CapabilityId1
-	capability2 *Capability2
+	capability2  *Capability2
 }
 
 func (r CapabilitiesAPIUpdateCapabilityV1CapabilitiesCapabilityIdPutRequest) Capability2(capability2 Capability2) CapabilitiesAPIUpdateCapabilityV1CapabilitiesCapabilityIdPutRequest {
@@ -2184,26 +2197,27 @@ UpdateCapabilityV1CapabilitiesCapabilityIdPut Update Capability
 
 Update a capability
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param capabilityId The ID or semantic ID of the capability
- @return CapabilitiesAPIUpdateCapabilityV1CapabilitiesCapabilityIdPutRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param capabilityId The ID or semantic ID of the capability
+	@return CapabilitiesAPIUpdateCapabilityV1CapabilitiesCapabilityIdPutRequest
 */
 func (a *CapabilitiesAPIService) UpdateCapabilityV1CapabilitiesCapabilityIdPut(ctx context.Context, capabilityId CapabilityId1) CapabilitiesAPIUpdateCapabilityV1CapabilitiesCapabilityIdPutRequest {
 	return CapabilitiesAPIUpdateCapabilityV1CapabilitiesCapabilityIdPutRequest{
-		ApiService: a,
-		ctx: ctx,
+		ApiService:   a,
+		ctx:          ctx,
 		capabilityId: capabilityId,
 	}
 }
 
 // Execute executes the request
-//  @return CapabilityRepresentation
+//
+//	@return CapabilityRepresentation
 func (a *CapabilitiesAPIService) UpdateCapabilityV1CapabilitiesCapabilityIdPutExecute(r CapabilitiesAPIUpdateCapabilityV1CapabilitiesCapabilityIdPutRequest) (*CapabilityRepresentation, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPut
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *CapabilityRepresentation
+		localVarHTTPMethod  = http.MethodPut
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *CapabilityRepresentation
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "CapabilitiesAPIService.UpdateCapabilityV1CapabilitiesCapabilityIdPut")
@@ -2283,8 +2297,8 @@ func (a *CapabilitiesAPIService) UpdateCapabilityV1CapabilitiesCapabilityIdPutEx
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}

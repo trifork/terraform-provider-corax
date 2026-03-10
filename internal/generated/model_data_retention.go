@@ -18,7 +18,7 @@ import (
 // DataRetention - Defines how long execution input and output data should be kept. Specify 'infinite' for indefinite retention or 'timed' with a specific deletion period in hours.
 type DataRetention struct {
 	InfiniteDataRetention *InfiniteDataRetention
-	TimedDataRetention *TimedDataRetention
+	TimedDataRetention    *TimedDataRetention
 }
 
 // InfiniteDataRetentionAsDataRetention is a convenience function that returns InfiniteDataRetention wrapped in DataRetention
@@ -34,7 +34,6 @@ func TimedDataRetentionAsDataRetention(v *TimedDataRetention) DataRetention {
 		TimedDataRetention: v,
 	}
 }
-
 
 // Unmarshal JSON data into one of the pointers in the struct
 func (dst *DataRetention) UnmarshalJSON(data []byte) error {
@@ -101,7 +100,7 @@ func (src DataRetention) MarshalJSON() ([]byte, error) {
 }
 
 // Get the actual instance
-func (obj *DataRetention) GetActualInstance() (interface{}) {
+func (obj *DataRetention) GetActualInstance() interface{} {
 	if obj == nil {
 		return nil
 	}
@@ -118,7 +117,7 @@ func (obj *DataRetention) GetActualInstance() (interface{}) {
 }
 
 // Get the actual instance value
-func (obj DataRetention) GetActualInstanceValue() (interface{}) {
+func (obj DataRetention) GetActualInstanceValue() interface{} {
 	if obj.InfiniteDataRetention != nil {
 		return *obj.InfiniteDataRetention
 	}
@@ -166,5 +165,3 @@ func (v *NullableDataRetention) UnmarshalJSON(src []byte) error {
 	v.isSet = true
 	return json.Unmarshal(src, &v.value)
 }
-
-

@@ -20,23 +20,23 @@ var _ MappedNullable = &Capability{}
 
 // Capability struct for Capability
 type Capability struct {
-	Links map[string]HateoasLink `json:"_links,omitempty"`
-	Name string `json:"name"`
-	IsPublic NullableBool `json:"is_public,omitempty"`
-	Type string `json:"type"`
-	ModelId NullableString `json:"model_id,omitempty"`
-	ModelPoolId NullableString `json:"model_pool_id,omitempty"`
-	Config NullableCapabilityConfig `json:"config,omitempty"`
-	ProjectId NullableString `json:"project_id,omitempty"`
-	SemanticId string `json:"semantic_id"`
-	Id string `json:"id"`
-	CreatedBy string `json:"created_by"`
-	UpdatedBy string `json:"updated_by"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
-	ArchivedAt NullableTime `json:"archived_at,omitempty"`
-	Owner string `json:"owner"`
-	Version *int32 `json:"version,omitempty"`
+	Links                map[string]HateoasLink   `json:"_links,omitempty"`
+	Name                 string                   `json:"name"`
+	IsPublic             NullableBool             `json:"is_public,omitempty"`
+	Type                 string                   `json:"type"`
+	ModelId              NullableString           `json:"model_id,omitempty"`
+	ModelPoolId          NullableString           `json:"model_pool_id,omitempty"`
+	Config               NullableCapabilityConfig `json:"config,omitempty"`
+	ProjectId            NullableString           `json:"project_id,omitempty"`
+	SemanticId           string                   `json:"semantic_id"`
+	Id                   string                   `json:"id"`
+	CreatedBy            string                   `json:"created_by"`
+	UpdatedBy            string                   `json:"updated_by"`
+	CreatedAt            time.Time                `json:"created_at"`
+	UpdatedAt            time.Time                `json:"updated_at"`
+	ArchivedAt           NullableTime             `json:"archived_at,omitempty"`
+	Owner                string                   `json:"owner"`
+	Version              *int32                   `json:"version,omitempty"`
 	AdditionalProperties map[string]interface{}
 }
 
@@ -161,6 +161,7 @@ func (o *Capability) HasIsPublic() bool {
 func (o *Capability) SetIsPublic(v bool) {
 	o.IsPublic.Set(&v)
 }
+
 // SetIsPublicNil sets the value for IsPublic to be an explicit nil
 func (o *Capability) SetIsPublicNil() {
 	o.IsPublic.Set(nil)
@@ -227,6 +228,7 @@ func (o *Capability) HasModelId() bool {
 func (o *Capability) SetModelId(v string) {
 	o.ModelId.Set(&v)
 }
+
 // SetModelIdNil sets the value for ModelId to be an explicit nil
 func (o *Capability) SetModelIdNil() {
 	o.ModelId.Set(nil)
@@ -269,6 +271,7 @@ func (o *Capability) HasModelPoolId() bool {
 func (o *Capability) SetModelPoolId(v string) {
 	o.ModelPoolId.Set(&v)
 }
+
 // SetModelPoolIdNil sets the value for ModelPoolId to be an explicit nil
 func (o *Capability) SetModelPoolIdNil() {
 	o.ModelPoolId.Set(nil)
@@ -311,6 +314,7 @@ func (o *Capability) HasConfig() bool {
 func (o *Capability) SetConfig(v CapabilityConfig) {
 	o.Config.Set(&v)
 }
+
 // SetConfigNil sets the value for Config to be an explicit nil
 func (o *Capability) SetConfigNil() {
 	o.Config.Set(nil)
@@ -353,6 +357,7 @@ func (o *Capability) HasProjectId() bool {
 func (o *Capability) SetProjectId(v string) {
 	o.ProjectId.Set(&v)
 }
+
 // SetProjectIdNil sets the value for ProjectId to be an explicit nil
 func (o *Capability) SetProjectIdNil() {
 	o.ProjectId.Set(nil)
@@ -539,6 +544,7 @@ func (o *Capability) HasArchivedAt() bool {
 func (o *Capability) SetArchivedAt(v time.Time) {
 	o.ArchivedAt.Set(&v)
 }
+
 // SetArchivedAtNil sets the value for ArchivedAt to be an explicit nil
 func (o *Capability) SetArchivedAtNil() {
 	o.ArchivedAt.Set(nil)
@@ -606,7 +612,7 @@ func (o *Capability) SetVersion(v int32) {
 }
 
 func (o Capability) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -691,5 +697,3 @@ func (v *NullableCapability) UnmarshalJSON(src []byte) error {
 	v.isSet = true
 	return json.Unmarshal(src, &v.value)
 }
-
-

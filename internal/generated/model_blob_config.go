@@ -19,9 +19,9 @@ var _ MappedNullable = &BlobConfig{}
 
 // BlobConfig struct for BlobConfig
 type BlobConfig struct {
-	MaxFileSizeMb *int32 `json:"max_file_size_mb,omitempty"`
-	MaxBlobs *int32 `json:"max_blobs,omitempty"`
-	AllowedMimeTypes []string `json:"allowed_mime_types,omitempty"`
+	MaxFileSizeMb        *int32   `json:"max_file_size_mb,omitempty"`
+	MaxBlobs             *int32   `json:"max_blobs,omitempty"`
+	AllowedMimeTypes     []string `json:"allowed_mime_types,omitempty"`
 	AdditionalProperties map[string]interface{}
 }
 
@@ -149,7 +149,7 @@ func (o *BlobConfig) SetAllowedMimeTypes(v []string) {
 }
 
 func (o BlobConfig) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -210,5 +210,3 @@ func (v *NullableBlobConfig) UnmarshalJSON(src []byte) error {
 	v.isSet = true
 	return json.Unmarshal(src, &v.value)
 }
-
-

@@ -19,9 +19,9 @@ var _ MappedNullable = &ArrayPropertyInput{}
 
 // ArrayPropertyInput struct for ArrayPropertyInput
 type ArrayPropertyInput struct {
-	Type string `json:"type"`
-	Description string `json:"description"`
-	Items Items `json:"items"`
+	Type                 string `json:"type"`
+	Description          string `json:"description"`
+	Items                Items  `json:"items"`
 	AdditionalProperties map[string]interface{}
 }
 
@@ -120,7 +120,7 @@ func (o *ArrayPropertyInput) SetItems(v Items) {
 }
 
 func (o ArrayPropertyInput) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -175,5 +175,3 @@ func (v *NullableArrayPropertyInput) UnmarshalJSON(src []byte) error {
 	v.isSet = true
 	return json.Unmarshal(src, &v.value)
 }
-
-

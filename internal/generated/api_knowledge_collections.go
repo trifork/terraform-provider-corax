@@ -16,17 +16,16 @@ import (
 	"io"
 	"net/http"
 	"net/url"
-	"strings"
 	"os"
+	"strings"
 )
-
 
 // KnowledgeCollectionsAPIService KnowledgeCollectionsAPI service
 type KnowledgeCollectionsAPIService service
 
 type KnowledgeCollectionsAPICreateCollectionAsyncV1CollectionsPostRequest struct {
-	ctx context.Context
-	ApiService *KnowledgeCollectionsAPIService
+	ctx              context.Context
+	ApiService       *KnowledgeCollectionsAPIService
 	collectionCreate *CollectionCreate
 }
 
@@ -42,24 +41,25 @@ func (r KnowledgeCollectionsAPICreateCollectionAsyncV1CollectionsPostRequest) Ex
 /*
 CreateCollectionAsyncV1CollectionsPost Create Collection Async
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return KnowledgeCollectionsAPICreateCollectionAsyncV1CollectionsPostRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@return KnowledgeCollectionsAPICreateCollectionAsyncV1CollectionsPostRequest
 */
 func (a *KnowledgeCollectionsAPIService) CreateCollectionAsyncV1CollectionsPost(ctx context.Context) KnowledgeCollectionsAPICreateCollectionAsyncV1CollectionsPostRequest {
 	return KnowledgeCollectionsAPICreateCollectionAsyncV1CollectionsPostRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
 // Execute executes the request
-//  @return Collection
+//
+//	@return Collection
 func (a *KnowledgeCollectionsAPIService) CreateCollectionAsyncV1CollectionsPostExecute(r KnowledgeCollectionsAPICreateCollectionAsyncV1CollectionsPostRequest) (*Collection, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPost
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *Collection
+		localVarHTTPMethod  = http.MethodPost
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *Collection
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "KnowledgeCollectionsAPIService.CreateCollectionAsyncV1CollectionsPost")
@@ -138,8 +138,8 @@ func (a *KnowledgeCollectionsAPIService) CreateCollectionAsyncV1CollectionsPostE
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -157,8 +157,8 @@ func (a *KnowledgeCollectionsAPIService) CreateCollectionAsyncV1CollectionsPostE
 }
 
 type KnowledgeCollectionsAPIDeleteCollectionV1CollectionsCollectionIdDeleteRequest struct {
-	ctx context.Context
-	ApiService *KnowledgeCollectionsAPIService
+	ctx          context.Context
+	ApiService   *KnowledgeCollectionsAPIService
 	collectionId string
 }
 
@@ -169,14 +169,14 @@ func (r KnowledgeCollectionsAPIDeleteCollectionV1CollectionsCollectionIdDeleteRe
 /*
 DeleteCollectionV1CollectionsCollectionIdDelete Delete Collection
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param collectionId
- @return KnowledgeCollectionsAPIDeleteCollectionV1CollectionsCollectionIdDeleteRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param collectionId
+	@return KnowledgeCollectionsAPIDeleteCollectionV1CollectionsCollectionIdDeleteRequest
 */
 func (a *KnowledgeCollectionsAPIService) DeleteCollectionV1CollectionsCollectionIdDelete(ctx context.Context, collectionId string) KnowledgeCollectionsAPIDeleteCollectionV1CollectionsCollectionIdDeleteRequest {
 	return KnowledgeCollectionsAPIDeleteCollectionV1CollectionsCollectionIdDeleteRequest{
-		ApiService: a,
-		ctx: ctx,
+		ApiService:   a,
+		ctx:          ctx,
 		collectionId: collectionId,
 	}
 }
@@ -184,9 +184,9 @@ func (a *KnowledgeCollectionsAPIService) DeleteCollectionV1CollectionsCollection
 // Execute executes the request
 func (a *KnowledgeCollectionsAPIService) DeleteCollectionV1CollectionsCollectionIdDeleteExecute(r KnowledgeCollectionsAPIDeleteCollectionV1CollectionsCollectionIdDeleteRequest) (*http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodDelete
-		localVarPostBody     interface{}
-		formFiles            []formFile
+		localVarHTTPMethod = http.MethodDelete
+		localVarPostBody   interface{}
+		formFiles          []formFile
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "KnowledgeCollectionsAPIService.DeleteCollectionV1CollectionsCollectionIdDelete")
@@ -261,8 +261,8 @@ func (a *KnowledgeCollectionsAPIService) DeleteCollectionV1CollectionsCollection
 				newErr.error = err.Error()
 				return localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarHTTPResponse, newErr
 	}
@@ -271,10 +271,10 @@ func (a *KnowledgeCollectionsAPIService) DeleteCollectionV1CollectionsCollection
 }
 
 type KnowledgeCollectionsAPIDeleteDocumentV1CollectionsCollectionIdDocumentsDocumentIdDeleteRequest struct {
-	ctx context.Context
-	ApiService *KnowledgeCollectionsAPIService
+	ctx          context.Context
+	ApiService   *KnowledgeCollectionsAPIService
 	collectionId string
-	documentId string
+	documentId   string
 }
 
 func (r KnowledgeCollectionsAPIDeleteDocumentV1CollectionsCollectionIdDocumentsDocumentIdDeleteRequest) Execute() (*http.Response, error) {
@@ -284,26 +284,26 @@ func (r KnowledgeCollectionsAPIDeleteDocumentV1CollectionsCollectionIdDocumentsD
 /*
 DeleteDocumentV1CollectionsCollectionIdDocumentsDocumentIdDelete Delete Document
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param collectionId
- @param documentId
- @return KnowledgeCollectionsAPIDeleteDocumentV1CollectionsCollectionIdDocumentsDocumentIdDeleteRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param collectionId
+	@param documentId
+	@return KnowledgeCollectionsAPIDeleteDocumentV1CollectionsCollectionIdDocumentsDocumentIdDeleteRequest
 */
 func (a *KnowledgeCollectionsAPIService) DeleteDocumentV1CollectionsCollectionIdDocumentsDocumentIdDelete(ctx context.Context, collectionId string, documentId string) KnowledgeCollectionsAPIDeleteDocumentV1CollectionsCollectionIdDocumentsDocumentIdDeleteRequest {
 	return KnowledgeCollectionsAPIDeleteDocumentV1CollectionsCollectionIdDocumentsDocumentIdDeleteRequest{
-		ApiService: a,
-		ctx: ctx,
+		ApiService:   a,
+		ctx:          ctx,
 		collectionId: collectionId,
-		documentId: documentId,
+		documentId:   documentId,
 	}
 }
 
 // Execute executes the request
 func (a *KnowledgeCollectionsAPIService) DeleteDocumentV1CollectionsCollectionIdDocumentsDocumentIdDeleteExecute(r KnowledgeCollectionsAPIDeleteDocumentV1CollectionsCollectionIdDocumentsDocumentIdDeleteRequest) (*http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodDelete
-		localVarPostBody     interface{}
-		formFiles            []formFile
+		localVarHTTPMethod = http.MethodDelete
+		localVarPostBody   interface{}
+		formFiles          []formFile
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "KnowledgeCollectionsAPIService.DeleteDocumentV1CollectionsCollectionIdDocumentsDocumentIdDelete")
@@ -379,8 +379,8 @@ func (a *KnowledgeCollectionsAPIService) DeleteDocumentV1CollectionsCollectionId
 				newErr.error = err.Error()
 				return localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarHTTPResponse, newErr
 	}
@@ -389,10 +389,10 @@ func (a *KnowledgeCollectionsAPIService) DeleteDocumentV1CollectionsCollectionId
 }
 
 type KnowledgeCollectionsAPIEmbedDocumentsToCollectionAsyncV1CollectionsCollectionIdEmbedPostRequest struct {
-	ctx context.Context
-	ApiService *KnowledgeCollectionsAPIService
+	ctx          context.Context
+	ApiService   *KnowledgeCollectionsAPIService
 	collectionId string
-	files []*os.File
+	files        []*os.File
 }
 
 func (r KnowledgeCollectionsAPIEmbedDocumentsToCollectionAsyncV1CollectionsCollectionIdEmbedPostRequest) Files(files []*os.File) KnowledgeCollectionsAPIEmbedDocumentsToCollectionAsyncV1CollectionsCollectionIdEmbedPostRequest {
@@ -410,38 +410,42 @@ EmbedDocumentsToCollectionAsyncV1CollectionsCollectionIdEmbedPost Embed Document
 Embed multiple documents to a specific collection asynchronously with HATEOAS links.
 
 Args:
-    request (Request): The FastAPI request object for building HATEOAS links.
-    collection_id (uuid.UUID): The ID of the collection to embed documents to.
-    files (List[UploadFile]): A list of files to be embedded.
-    service (AsyncCollectionService): The collection service.
-    user (User): The current authenticated user.
+
+	request (Request): The FastAPI request object for building HATEOAS links.
+	collection_id (uuid.UUID): The ID of the collection to embed documents to.
+	files (List[UploadFile]): A list of files to be embedded.
+	service (AsyncCollectionService): The collection service.
+	user (User): The current authenticated user.
 
 Returns:
-    DocumentEmbeddingResponse: A response with HATEOAS links and embedding status.
+
+	DocumentEmbeddingResponse: A response with HATEOAS links and embedding status.
 
 Raises:
-    HTTPException: If the collection is not found or if there's an error during embedding.
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param collectionId
- @return KnowledgeCollectionsAPIEmbedDocumentsToCollectionAsyncV1CollectionsCollectionIdEmbedPostRequest
+	   HTTPException: If the collection is not found or if there's an error during embedding.
+
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param collectionId
+	@return KnowledgeCollectionsAPIEmbedDocumentsToCollectionAsyncV1CollectionsCollectionIdEmbedPostRequest
 */
 func (a *KnowledgeCollectionsAPIService) EmbedDocumentsToCollectionAsyncV1CollectionsCollectionIdEmbedPost(ctx context.Context, collectionId string) KnowledgeCollectionsAPIEmbedDocumentsToCollectionAsyncV1CollectionsCollectionIdEmbedPostRequest {
 	return KnowledgeCollectionsAPIEmbedDocumentsToCollectionAsyncV1CollectionsCollectionIdEmbedPostRequest{
-		ApiService: a,
-		ctx: ctx,
+		ApiService:   a,
+		ctx:          ctx,
 		collectionId: collectionId,
 	}
 }
 
 // Execute executes the request
-//  @return DocumentEmbeddingResponse
+//
+//	@return DocumentEmbeddingResponse
 func (a *KnowledgeCollectionsAPIService) EmbedDocumentsToCollectionAsyncV1CollectionsCollectionIdEmbedPostExecute(r KnowledgeCollectionsAPIEmbedDocumentsToCollectionAsyncV1CollectionsCollectionIdEmbedPostRequest) (*DocumentEmbeddingResponse, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPost
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *DocumentEmbeddingResponse
+		localVarHTTPMethod  = http.MethodPost
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *DocumentEmbeddingResponse
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "KnowledgeCollectionsAPIService.EmbedDocumentsToCollectionAsyncV1CollectionsCollectionIdEmbedPost")
@@ -477,8 +481,8 @@ func (a *KnowledgeCollectionsAPIService) EmbedDocumentsToCollectionAsyncV1Collec
 		localVarHeaderParams["Accept"] = localVarHTTPHeaderAccept
 	}
 	var filesLocalVarFormFileName string
-	var filesLocalVarFileName     string
-	var filesLocalVarFileBytes    []byte
+	var filesLocalVarFileName string
+	var filesLocalVarFileBytes []byte
 
 	filesLocalVarFormFileName = "files"
 	filesLocalVarFile := r.files
@@ -537,8 +541,8 @@ func (a *KnowledgeCollectionsAPIService) EmbedDocumentsToCollectionAsyncV1Collec
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -556,8 +560,8 @@ func (a *KnowledgeCollectionsAPIService) EmbedDocumentsToCollectionAsyncV1Collec
 }
 
 type KnowledgeCollectionsAPIReadCollectionAsyncV1CollectionsCollectionIdGetRequest struct {
-	ctx context.Context
-	ApiService *KnowledgeCollectionsAPIService
+	ctx          context.Context
+	ApiService   *KnowledgeCollectionsAPIService
 	collectionId string
 }
 
@@ -568,26 +572,27 @@ func (r KnowledgeCollectionsAPIReadCollectionAsyncV1CollectionsCollectionIdGetRe
 /*
 ReadCollectionAsyncV1CollectionsCollectionIdGet Read Collection Async
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param collectionId
- @return KnowledgeCollectionsAPIReadCollectionAsyncV1CollectionsCollectionIdGetRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param collectionId
+	@return KnowledgeCollectionsAPIReadCollectionAsyncV1CollectionsCollectionIdGetRequest
 */
 func (a *KnowledgeCollectionsAPIService) ReadCollectionAsyncV1CollectionsCollectionIdGet(ctx context.Context, collectionId string) KnowledgeCollectionsAPIReadCollectionAsyncV1CollectionsCollectionIdGetRequest {
 	return KnowledgeCollectionsAPIReadCollectionAsyncV1CollectionsCollectionIdGetRequest{
-		ApiService: a,
-		ctx: ctx,
+		ApiService:   a,
+		ctx:          ctx,
 		collectionId: collectionId,
 	}
 }
 
 // Execute executes the request
-//  @return Collection
+//
+//	@return Collection
 func (a *KnowledgeCollectionsAPIService) ReadCollectionAsyncV1CollectionsCollectionIdGetExecute(r KnowledgeCollectionsAPIReadCollectionAsyncV1CollectionsCollectionIdGetRequest) (*Collection, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *Collection
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *Collection
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "KnowledgeCollectionsAPIService.ReadCollectionAsyncV1CollectionsCollectionIdGet")
@@ -662,8 +667,8 @@ func (a *KnowledgeCollectionsAPIService) ReadCollectionAsyncV1CollectionsCollect
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -681,13 +686,13 @@ func (a *KnowledgeCollectionsAPIService) ReadCollectionAsyncV1CollectionsCollect
 }
 
 type KnowledgeCollectionsAPIReadCollectionDocumentsAsyncV1CollectionsCollectionIdDocumentsGetRequest struct {
-	ctx context.Context
-	ApiService *KnowledgeCollectionsAPIService
+	ctx          context.Context
+	ApiService   *KnowledgeCollectionsAPIService
 	collectionId string
-	page *int32
-	size *int32
-	sort *string
-	filter *string
+	page         *int32
+	size         *int32
+	sort         *string
+	filter       *string
 }
 
 func (r KnowledgeCollectionsAPIReadCollectionDocumentsAsyncV1CollectionsCollectionIdDocumentsGetRequest) Page(page int32) KnowledgeCollectionsAPIReadCollectionDocumentsAsyncV1CollectionsCollectionIdDocumentsGetRequest {
@@ -717,26 +722,27 @@ func (r KnowledgeCollectionsAPIReadCollectionDocumentsAsyncV1CollectionsCollecti
 /*
 ReadCollectionDocumentsAsyncV1CollectionsCollectionIdDocumentsGet Read Collection Documents Async
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param collectionId
- @return KnowledgeCollectionsAPIReadCollectionDocumentsAsyncV1CollectionsCollectionIdDocumentsGetRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param collectionId
+	@return KnowledgeCollectionsAPIReadCollectionDocumentsAsyncV1CollectionsCollectionIdDocumentsGetRequest
 */
 func (a *KnowledgeCollectionsAPIService) ReadCollectionDocumentsAsyncV1CollectionsCollectionIdDocumentsGet(ctx context.Context, collectionId string) KnowledgeCollectionsAPIReadCollectionDocumentsAsyncV1CollectionsCollectionIdDocumentsGetRequest {
 	return KnowledgeCollectionsAPIReadCollectionDocumentsAsyncV1CollectionsCollectionIdDocumentsGetRequest{
-		ApiService: a,
-		ctx: ctx,
+		ApiService:   a,
+		ctx:          ctx,
 		collectionId: collectionId,
 	}
 }
 
 // Execute executes the request
-//  @return PagedResponseModelDocument
+//
+//	@return PagedResponseModelDocument
 func (a *KnowledgeCollectionsAPIService) ReadCollectionDocumentsAsyncV1CollectionsCollectionIdDocumentsGetExecute(r KnowledgeCollectionsAPIReadCollectionDocumentsAsyncV1CollectionsCollectionIdDocumentsGetRequest) (*PagedResponseModelDocument, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *PagedResponseModelDocument
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *PagedResponseModelDocument
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "KnowledgeCollectionsAPIService.ReadCollectionDocumentsAsyncV1CollectionsCollectionIdDocumentsGet")
@@ -754,23 +760,23 @@ func (a *KnowledgeCollectionsAPIService) ReadCollectionDocumentsAsyncV1Collectio
 	if r.page != nil {
 		parameterAddToHeaderOrQuery(localVarQueryParams, "page", r.page, "form", "")
 	} else {
-        var defaultValue int32 = 1
-        parameterAddToHeaderOrQuery(localVarQueryParams, "page", defaultValue, "form", "")
-        r.page = &defaultValue
+		var defaultValue int32 = 1
+		parameterAddToHeaderOrQuery(localVarQueryParams, "page", defaultValue, "form", "")
+		r.page = &defaultValue
 	}
 	if r.size != nil {
 		parameterAddToHeaderOrQuery(localVarQueryParams, "size", r.size, "form", "")
 	} else {
-        var defaultValue int32 = 10
-        parameterAddToHeaderOrQuery(localVarQueryParams, "size", defaultValue, "form", "")
-        r.size = &defaultValue
+		var defaultValue int32 = 10
+		parameterAddToHeaderOrQuery(localVarQueryParams, "size", defaultValue, "form", "")
+		r.size = &defaultValue
 	}
 	if r.sort != nil {
 		parameterAddToHeaderOrQuery(localVarQueryParams, "sort", r.sort, "form", "")
 	} else {
-        var defaultValue string = "id"
-        parameterAddToHeaderOrQuery(localVarQueryParams, "sort", defaultValue, "form", "")
-        r.sort = &defaultValue
+		var defaultValue string = "id"
+		parameterAddToHeaderOrQuery(localVarQueryParams, "sort", defaultValue, "form", "")
+		r.sort = &defaultValue
 	}
 	if r.filter != nil {
 		parameterAddToHeaderOrQuery(localVarQueryParams, "filter", r.filter, "form", "")
@@ -835,8 +841,8 @@ func (a *KnowledgeCollectionsAPIService) ReadCollectionDocumentsAsyncV1Collectio
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -854,12 +860,12 @@ func (a *KnowledgeCollectionsAPIService) ReadCollectionDocumentsAsyncV1Collectio
 }
 
 type KnowledgeCollectionsAPIReadCollectionsAsyncV1CollectionsGetRequest struct {
-	ctx context.Context
+	ctx        context.Context
 	ApiService *KnowledgeCollectionsAPIService
-	page *int32
-	size *int32
-	sort *string
-	filter *string
+	page       *int32
+	size       *int32
+	sort       *string
+	filter     *string
 }
 
 func (r KnowledgeCollectionsAPIReadCollectionsAsyncV1CollectionsGetRequest) Page(page int32) KnowledgeCollectionsAPIReadCollectionsAsyncV1CollectionsGetRequest {
@@ -889,24 +895,25 @@ func (r KnowledgeCollectionsAPIReadCollectionsAsyncV1CollectionsGetRequest) Exec
 /*
 ReadCollectionsAsyncV1CollectionsGet Read Collections Async
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return KnowledgeCollectionsAPIReadCollectionsAsyncV1CollectionsGetRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@return KnowledgeCollectionsAPIReadCollectionsAsyncV1CollectionsGetRequest
 */
 func (a *KnowledgeCollectionsAPIService) ReadCollectionsAsyncV1CollectionsGet(ctx context.Context) KnowledgeCollectionsAPIReadCollectionsAsyncV1CollectionsGetRequest {
 	return KnowledgeCollectionsAPIReadCollectionsAsyncV1CollectionsGetRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
 // Execute executes the request
-//  @return PagedResponseModelCollection
+//
+//	@return PagedResponseModelCollection
 func (a *KnowledgeCollectionsAPIService) ReadCollectionsAsyncV1CollectionsGetExecute(r KnowledgeCollectionsAPIReadCollectionsAsyncV1CollectionsGetRequest) (*PagedResponseModelCollection, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *PagedResponseModelCollection
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *PagedResponseModelCollection
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "KnowledgeCollectionsAPIService.ReadCollectionsAsyncV1CollectionsGet")
@@ -923,23 +930,23 @@ func (a *KnowledgeCollectionsAPIService) ReadCollectionsAsyncV1CollectionsGetExe
 	if r.page != nil {
 		parameterAddToHeaderOrQuery(localVarQueryParams, "page", r.page, "form", "")
 	} else {
-        var defaultValue int32 = 1
-        parameterAddToHeaderOrQuery(localVarQueryParams, "page", defaultValue, "form", "")
-        r.page = &defaultValue
+		var defaultValue int32 = 1
+		parameterAddToHeaderOrQuery(localVarQueryParams, "page", defaultValue, "form", "")
+		r.page = &defaultValue
 	}
 	if r.size != nil {
 		parameterAddToHeaderOrQuery(localVarQueryParams, "size", r.size, "form", "")
 	} else {
-        var defaultValue int32 = 10
-        parameterAddToHeaderOrQuery(localVarQueryParams, "size", defaultValue, "form", "")
-        r.size = &defaultValue
+		var defaultValue int32 = 10
+		parameterAddToHeaderOrQuery(localVarQueryParams, "size", defaultValue, "form", "")
+		r.size = &defaultValue
 	}
 	if r.sort != nil {
 		parameterAddToHeaderOrQuery(localVarQueryParams, "sort", r.sort, "form", "")
 	} else {
-        var defaultValue string = "id"
-        parameterAddToHeaderOrQuery(localVarQueryParams, "sort", defaultValue, "form", "")
-        r.sort = &defaultValue
+		var defaultValue string = "id"
+		parameterAddToHeaderOrQuery(localVarQueryParams, "sort", defaultValue, "form", "")
+		r.sort = &defaultValue
 	}
 	if r.filter != nil {
 		parameterAddToHeaderOrQuery(localVarQueryParams, "filter", r.filter, "form", "")
@@ -1004,8 +1011,8 @@ func (a *KnowledgeCollectionsAPIService) ReadCollectionsAsyncV1CollectionsGetExe
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -1023,9 +1030,9 @@ func (a *KnowledgeCollectionsAPIService) ReadCollectionsAsyncV1CollectionsGetExe
 }
 
 type KnowledgeCollectionsAPIUpdateCollectionAsyncV1CollectionsCollectionIdPutRequest struct {
-	ctx context.Context
-	ApiService *KnowledgeCollectionsAPIService
-	collectionId string
+	ctx              context.Context
+	ApiService       *KnowledgeCollectionsAPIService
+	collectionId     string
 	collectionUpdate *CollectionUpdate
 }
 
@@ -1041,26 +1048,27 @@ func (r KnowledgeCollectionsAPIUpdateCollectionAsyncV1CollectionsCollectionIdPut
 /*
 UpdateCollectionAsyncV1CollectionsCollectionIdPut Update Collection Async
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param collectionId
- @return KnowledgeCollectionsAPIUpdateCollectionAsyncV1CollectionsCollectionIdPutRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param collectionId
+	@return KnowledgeCollectionsAPIUpdateCollectionAsyncV1CollectionsCollectionIdPutRequest
 */
 func (a *KnowledgeCollectionsAPIService) UpdateCollectionAsyncV1CollectionsCollectionIdPut(ctx context.Context, collectionId string) KnowledgeCollectionsAPIUpdateCollectionAsyncV1CollectionsCollectionIdPutRequest {
 	return KnowledgeCollectionsAPIUpdateCollectionAsyncV1CollectionsCollectionIdPutRequest{
-		ApiService: a,
-		ctx: ctx,
+		ApiService:   a,
+		ctx:          ctx,
 		collectionId: collectionId,
 	}
 }
 
 // Execute executes the request
-//  @return Collection
+//
+//	@return Collection
 func (a *KnowledgeCollectionsAPIService) UpdateCollectionAsyncV1CollectionsCollectionIdPutExecute(r KnowledgeCollectionsAPIUpdateCollectionAsyncV1CollectionsCollectionIdPutRequest) (*Collection, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPut
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *Collection
+		localVarHTTPMethod  = http.MethodPut
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *Collection
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "KnowledgeCollectionsAPIService.UpdateCollectionAsyncV1CollectionsCollectionIdPut")
@@ -1140,8 +1148,8 @@ func (a *KnowledgeCollectionsAPIService) UpdateCollectionAsyncV1CollectionsColle
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}

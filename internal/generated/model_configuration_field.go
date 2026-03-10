@@ -19,18 +19,18 @@ var _ MappedNullable = &ConfigurationField{}
 
 // ConfigurationField struct for ConfigurationField
 type ConfigurationField struct {
-	Name string `json:"name"`
-	Label string `json:"label"`
-	Type FieldType `json:"type"`
-	Required bool `json:"required"`
-	Default NullableDefault `json:"default,omitempty"`
-	Description NullableString `json:"description,omitempty"`
-	Placeholder NullableString `json:"placeholder,omitempty"`
-	Order *int32 `json:"order,omitempty"`
-	Pattern NullableString `json:"pattern,omitempty"`
-	Max NullableMax `json:"max,omitempty"`
-	Min NullableMin `json:"min,omitempty"`
-	Step NullableStep `json:"step,omitempty"`
+	Name                 string          `json:"name"`
+	Label                string          `json:"label"`
+	Type                 FieldType       `json:"type"`
+	Required             bool            `json:"required"`
+	Default              NullableDefault `json:"default,omitempty"`
+	Description          NullableString  `json:"description,omitempty"`
+	Placeholder          NullableString  `json:"placeholder,omitempty"`
+	Order                *int32          `json:"order,omitempty"`
+	Pattern              NullableString  `json:"pattern,omitempty"`
+	Max                  NullableMax     `json:"max,omitempty"`
+	Min                  NullableMin     `json:"min,omitempty"`
+	Step                 NullableStep    `json:"step,omitempty"`
 	AdditionalProperties map[string]interface{}
 }
 
@@ -189,6 +189,7 @@ func (o *ConfigurationField) HasDefault() bool {
 func (o *ConfigurationField) SetDefault(v Default) {
 	o.Default.Set(&v)
 }
+
 // SetDefaultNil sets the value for Default to be an explicit nil
 func (o *ConfigurationField) SetDefaultNil() {
 	o.Default.Set(nil)
@@ -231,6 +232,7 @@ func (o *ConfigurationField) HasDescription() bool {
 func (o *ConfigurationField) SetDescription(v string) {
 	o.Description.Set(&v)
 }
+
 // SetDescriptionNil sets the value for Description to be an explicit nil
 func (o *ConfigurationField) SetDescriptionNil() {
 	o.Description.Set(nil)
@@ -273,6 +275,7 @@ func (o *ConfigurationField) HasPlaceholder() bool {
 func (o *ConfigurationField) SetPlaceholder(v string) {
 	o.Placeholder.Set(&v)
 }
+
 // SetPlaceholderNil sets the value for Placeholder to be an explicit nil
 func (o *ConfigurationField) SetPlaceholderNil() {
 	o.Placeholder.Set(nil)
@@ -347,6 +350,7 @@ func (o *ConfigurationField) HasPattern() bool {
 func (o *ConfigurationField) SetPattern(v string) {
 	o.Pattern.Set(&v)
 }
+
 // SetPatternNil sets the value for Pattern to be an explicit nil
 func (o *ConfigurationField) SetPatternNil() {
 	o.Pattern.Set(nil)
@@ -389,6 +393,7 @@ func (o *ConfigurationField) HasMax() bool {
 func (o *ConfigurationField) SetMax(v Max) {
 	o.Max.Set(&v)
 }
+
 // SetMaxNil sets the value for Max to be an explicit nil
 func (o *ConfigurationField) SetMaxNil() {
 	o.Max.Set(nil)
@@ -431,6 +436,7 @@ func (o *ConfigurationField) HasMin() bool {
 func (o *ConfigurationField) SetMin(v Min) {
 	o.Min.Set(&v)
 }
+
 // SetMinNil sets the value for Min to be an explicit nil
 func (o *ConfigurationField) SetMinNil() {
 	o.Min.Set(nil)
@@ -473,6 +479,7 @@ func (o *ConfigurationField) HasStep() bool {
 func (o *ConfigurationField) SetStep(v Step) {
 	o.Step.Set(&v)
 }
+
 // SetStepNil sets the value for Step to be an explicit nil
 func (o *ConfigurationField) SetStepNil() {
 	o.Step.Set(nil)
@@ -484,7 +491,7 @@ func (o *ConfigurationField) UnsetStep() {
 }
 
 func (o ConfigurationField) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -564,5 +571,3 @@ func (v *NullableConfigurationField) UnmarshalJSON(src []byte) error {
 	v.isSet = true
 	return json.Unmarshal(src, &v.value)
 }
-
-

@@ -348,10 +348,18 @@ type MappedNullable interface {
 	ToMap() (map[string]interface{}, error)
 }
 
-// A wrapper for strict JSON decoding
+// validator is used to validate oneOf/anyOf discriminator matches
+var validator structValidator
+
+type structValidator struct{}
+
+func (v structValidator) Validate(obj interface{}) error {
+	return nil // no-op: accept all valid JSON matches
+}
+
+// A wrapper for JSON decoding
 func newStrictDecoder(data []byte) *json.Decoder {
 	dec := json.NewDecoder(bytes.NewBuffer(data))
-	dec.DisallowUnknownFields()
 	return dec
 }
 

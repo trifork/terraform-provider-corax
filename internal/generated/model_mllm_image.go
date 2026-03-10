@@ -19,11 +19,11 @@ var _ MappedNullable = &MLLMImage{}
 
 // MLLMImage struct for MLLMImage
 type MLLMImage struct {
-	Url string `json:"url"`
-	Local NullableBool `json:"local,omitempty"`
-	Filename NullableString `json:"filename,omitempty"`
-	MimeType NullableString `json:"mimeType,omitempty"`
-	DataBase64 NullableString `json:"dataBase64,omitempty"`
+	Url                  string         `json:"url"`
+	Local                NullableBool   `json:"local,omitempty"`
+	Filename             NullableString `json:"filename,omitempty"`
+	MimeType             NullableString `json:"mimeType,omitempty"`
+	DataBase64           NullableString `json:"dataBase64,omitempty"`
 	AdditionalProperties map[string]interface{}
 }
 
@@ -103,6 +103,7 @@ func (o *MLLMImage) HasLocal() bool {
 func (o *MLLMImage) SetLocal(v bool) {
 	o.Local.Set(&v)
 }
+
 // SetLocalNil sets the value for Local to be an explicit nil
 func (o *MLLMImage) SetLocalNil() {
 	o.Local.Set(nil)
@@ -145,6 +146,7 @@ func (o *MLLMImage) HasFilename() bool {
 func (o *MLLMImage) SetFilename(v string) {
 	o.Filename.Set(&v)
 }
+
 // SetFilenameNil sets the value for Filename to be an explicit nil
 func (o *MLLMImage) SetFilenameNil() {
 	o.Filename.Set(nil)
@@ -187,6 +189,7 @@ func (o *MLLMImage) HasMimeType() bool {
 func (o *MLLMImage) SetMimeType(v string) {
 	o.MimeType.Set(&v)
 }
+
 // SetMimeTypeNil sets the value for MimeType to be an explicit nil
 func (o *MLLMImage) SetMimeTypeNil() {
 	o.MimeType.Set(nil)
@@ -229,6 +232,7 @@ func (o *MLLMImage) HasDataBase64() bool {
 func (o *MLLMImage) SetDataBase64(v string) {
 	o.DataBase64.Set(&v)
 }
+
 // SetDataBase64Nil sets the value for DataBase64 to be an explicit nil
 func (o *MLLMImage) SetDataBase64Nil() {
 	o.DataBase64.Set(nil)
@@ -240,7 +244,7 @@ func (o *MLLMImage) UnsetDataBase64() {
 }
 
 func (o MLLMImage) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -305,5 +309,3 @@ func (v *NullableMLLMImage) UnmarshalJSON(src []byte) error {
 	v.isSet = true
 	return json.Unmarshal(src, &v.value)
 }
-
-

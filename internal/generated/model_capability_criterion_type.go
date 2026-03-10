@@ -20,15 +20,15 @@ type CapabilityCriterionType string
 
 // List of CapabilityCriterionType
 const (
-	CORRECTNESS CapabilityCriterionType = "correctness"
-	ANSWER_RELEVANCY CapabilityCriterionType = "answer_relevancy"
+	CORRECTNESS         CapabilityCriterionType = "correctness"
+	ANSWER_RELEVANCY    CapabilityCriterionType = "answer_relevancy"
 	SEMANTIC_SIMILARITY CapabilityCriterionType = "semantic_similarity"
-	TIME_THRESHOLD CapabilityCriterionType = "time_threshold"
-	BLEU CapabilityCriterionType = "bleu"
-	ROUGE CapabilityCriterionType = "rouge"
-	LEVENSHTEIN CapabilityCriterionType = "levenshtein"
-	CONTAINS CapabilityCriterionType = "contains"
-	CUSTOM_G_EVAL CapabilityCriterionType = "custom_g_eval"
+	TIME_THRESHOLD      CapabilityCriterionType = "time_threshold"
+	BLEU                CapabilityCriterionType = "bleu"
+	ROUGE               CapabilityCriterionType = "rouge"
+	LEVENSHTEIN         CapabilityCriterionType = "levenshtein"
+	CONTAINS            CapabilityCriterionType = "contains"
+	CUSTOM_G_EVAL       CapabilityCriterionType = "custom_g_eval"
 )
 
 // All allowed values of CapabilityCriterionType enum
@@ -122,4 +122,3 @@ func (v *NullableCapabilityCriterionType) UnmarshalJSON(src []byte) error {
 	v.isSet = true
 	return json.Unmarshal(src, &v.value)
 }
-

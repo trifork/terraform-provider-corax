@@ -19,13 +19,12 @@ import (
 	"strings"
 )
 
-
 // ConversationsAPIService ConversationsAPI service
 type ConversationsAPIService service
 
 type ConversationsAPIDeleteConversationV1ConversationsConversationIdDeleteRequest struct {
-	ctx context.Context
-	ApiService *ConversationsAPIService
+	ctx            context.Context
+	ApiService     *ConversationsAPIService
 	conversationId string
 }
 
@@ -38,14 +37,14 @@ DeleteConversationV1ConversationsConversationIdDelete Delete Conversation
 
 Delete a conversation
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param conversationId
- @return ConversationsAPIDeleteConversationV1ConversationsConversationIdDeleteRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param conversationId
+	@return ConversationsAPIDeleteConversationV1ConversationsConversationIdDeleteRequest
 */
 func (a *ConversationsAPIService) DeleteConversationV1ConversationsConversationIdDelete(ctx context.Context, conversationId string) ConversationsAPIDeleteConversationV1ConversationsConversationIdDeleteRequest {
 	return ConversationsAPIDeleteConversationV1ConversationsConversationIdDeleteRequest{
-		ApiService: a,
-		ctx: ctx,
+		ApiService:     a,
+		ctx:            ctx,
 		conversationId: conversationId,
 	}
 }
@@ -53,9 +52,9 @@ func (a *ConversationsAPIService) DeleteConversationV1ConversationsConversationI
 // Execute executes the request
 func (a *ConversationsAPIService) DeleteConversationV1ConversationsConversationIdDeleteExecute(r ConversationsAPIDeleteConversationV1ConversationsConversationIdDeleteRequest) (*http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodDelete
-		localVarPostBody     interface{}
-		formFiles            []formFile
+		localVarHTTPMethod = http.MethodDelete
+		localVarPostBody   interface{}
+		formFiles          []formFile
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "ConversationsAPIService.DeleteConversationV1ConversationsConversationIdDelete")
@@ -130,8 +129,8 @@ func (a *ConversationsAPIService) DeleteConversationV1ConversationsConversationI
 				newErr.error = err.Error()
 				return localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarHTTPResponse, newErr
 	}
@@ -140,12 +139,12 @@ func (a *ConversationsAPIService) DeleteConversationV1ConversationsConversationI
 }
 
 type ConversationsAPIGetConversationsV1ConversationsGetRequest struct {
-	ctx context.Context
+	ctx        context.Context
 	ApiService *ConversationsAPIService
-	page *int32
-	size *int32
-	sort *string
-	filter *string
+	page       *int32
+	size       *int32
+	sort       *string
+	filter     *string
 }
 
 func (r ConversationsAPIGetConversationsV1ConversationsGetRequest) Page(page int32) ConversationsAPIGetConversationsV1ConversationsGetRequest {
@@ -177,24 +176,25 @@ GetConversationsV1ConversationsGet Get Conversations
 
 Get paginated conversations for the authenticated user.
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return ConversationsAPIGetConversationsV1ConversationsGetRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@return ConversationsAPIGetConversationsV1ConversationsGetRequest
 */
 func (a *ConversationsAPIService) GetConversationsV1ConversationsGet(ctx context.Context) ConversationsAPIGetConversationsV1ConversationsGetRequest {
 	return ConversationsAPIGetConversationsV1ConversationsGetRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
 // Execute executes the request
-//  @return PagedResponseModelChatConversation
+//
+//	@return PagedResponseModelChatConversation
 func (a *ConversationsAPIService) GetConversationsV1ConversationsGetExecute(r ConversationsAPIGetConversationsV1ConversationsGetRequest) (*PagedResponseModelChatConversation, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *PagedResponseModelChatConversation
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *PagedResponseModelChatConversation
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "ConversationsAPIService.GetConversationsV1ConversationsGet")
@@ -211,23 +211,23 @@ func (a *ConversationsAPIService) GetConversationsV1ConversationsGetExecute(r Co
 	if r.page != nil {
 		parameterAddToHeaderOrQuery(localVarQueryParams, "page", r.page, "form", "")
 	} else {
-        var defaultValue int32 = 1
-        parameterAddToHeaderOrQuery(localVarQueryParams, "page", defaultValue, "form", "")
-        r.page = &defaultValue
+		var defaultValue int32 = 1
+		parameterAddToHeaderOrQuery(localVarQueryParams, "page", defaultValue, "form", "")
+		r.page = &defaultValue
 	}
 	if r.size != nil {
 		parameterAddToHeaderOrQuery(localVarQueryParams, "size", r.size, "form", "")
 	} else {
-        var defaultValue int32 = 10
-        parameterAddToHeaderOrQuery(localVarQueryParams, "size", defaultValue, "form", "")
-        r.size = &defaultValue
+		var defaultValue int32 = 10
+		parameterAddToHeaderOrQuery(localVarQueryParams, "size", defaultValue, "form", "")
+		r.size = &defaultValue
 	}
 	if r.sort != nil {
 		parameterAddToHeaderOrQuery(localVarQueryParams, "sort", r.sort, "form", "")
 	} else {
-        var defaultValue string = "id"
-        parameterAddToHeaderOrQuery(localVarQueryParams, "sort", defaultValue, "form", "")
-        r.sort = &defaultValue
+		var defaultValue string = "id"
+		parameterAddToHeaderOrQuery(localVarQueryParams, "sort", defaultValue, "form", "")
+		r.sort = &defaultValue
 	}
 	if r.filter != nil {
 		parameterAddToHeaderOrQuery(localVarQueryParams, "filter", r.filter, "form", "")
@@ -292,8 +292,8 @@ func (a *ConversationsAPIService) GetConversationsV1ConversationsGetExecute(r Co
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -311,8 +311,8 @@ func (a *ConversationsAPIService) GetConversationsV1ConversationsGetExecute(r Co
 }
 
 type ConversationsAPIReadConversationV1ConversationsConversationIdGetRequest struct {
-	ctx context.Context
-	ApiService *ConversationsAPIService
+	ctx            context.Context
+	ApiService     *ConversationsAPIService
 	conversationId string
 }
 
@@ -325,26 +325,27 @@ ReadConversationV1ConversationsConversationIdGet Read Conversation
 
 Get details of a specific conversation.
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param conversationId
- @return ConversationsAPIReadConversationV1ConversationsConversationIdGetRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param conversationId
+	@return ConversationsAPIReadConversationV1ConversationsConversationIdGetRequest
 */
 func (a *ConversationsAPIService) ReadConversationV1ConversationsConversationIdGet(ctx context.Context, conversationId string) ConversationsAPIReadConversationV1ConversationsConversationIdGetRequest {
 	return ConversationsAPIReadConversationV1ConversationsConversationIdGetRequest{
-		ApiService: a,
-		ctx: ctx,
+		ApiService:     a,
+		ctx:            ctx,
 		conversationId: conversationId,
 	}
 }
 
 // Execute executes the request
-//  @return ChatConversation
+//
+//	@return ChatConversation
 func (a *ConversationsAPIService) ReadConversationV1ConversationsConversationIdGetExecute(r ConversationsAPIReadConversationV1ConversationsConversationIdGetRequest) (*ChatConversation, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *ChatConversation
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *ChatConversation
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "ConversationsAPIService.ReadConversationV1ConversationsConversationIdGet")
@@ -419,8 +420,8 @@ func (a *ConversationsAPIService) ReadConversationV1ConversationsConversationIdG
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}

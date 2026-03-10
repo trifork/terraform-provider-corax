@@ -22,7 +22,7 @@ type OpenAILikeProviderValidationRequest struct {
 	// Provider configuration including credentials
 	Configuration OpenAILikeConfiguration `json:"configuration"`
 	// Provider type
-	ProviderType string `json:"provider_type"`
+	ProviderType         string `json:"provider_type"`
 	AdditionalProperties map[string]interface{}
 }
 
@@ -96,7 +96,7 @@ func (o *OpenAILikeProviderValidationRequest) SetProviderType(v string) {
 }
 
 func (o OpenAILikeProviderValidationRequest) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -150,5 +150,3 @@ func (v *NullableOpenAILikeProviderValidationRequest) UnmarshalJSON(src []byte) 
 	v.isSet = true
 	return json.Unmarshal(src, &v.value)
 }
-
-

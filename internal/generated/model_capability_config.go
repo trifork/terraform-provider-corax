@@ -19,16 +19,16 @@ var _ MappedNullable = &CapabilityConfig{}
 
 // CapabilityConfig struct for CapabilityConfig
 type CapabilityConfig struct {
-	Temperature NullableFloat32 `json:"temperature,omitempty"`
-	CustomParameters map[string]interface{} `json:"custom_parameters,omitempty"`
-	SttLanguageHintMode NullableString `json:"stt_language_hint_mode,omitempty"`
-	SttChunkingMaxSizeMb NullableInt32 `json:"stt_chunking_max_size_mb,omitempty"`
-	SttChunkingMaxDurationSeconds NullableInt32 `json:"stt_chunking_max_duration_seconds,omitempty"`
-	BlobConfig NullableBlobConfig `json:"blob_config,omitempty"`
-	DataRetention *DataRetention `json:"data_retention,omitempty"`
+	Temperature                   NullableFloat32        `json:"temperature,omitempty"`
+	CustomParameters              map[string]interface{} `json:"custom_parameters,omitempty"`
+	SttLanguageHintMode           NullableString         `json:"stt_language_hint_mode,omitempty"`
+	SttChunkingMaxSizeMb          NullableInt32          `json:"stt_chunking_max_size_mb,omitempty"`
+	SttChunkingMaxDurationSeconds NullableInt32          `json:"stt_chunking_max_duration_seconds,omitempty"`
+	BlobConfig                    NullableBlobConfig     `json:"blob_config,omitempty"`
+	DataRetention                 *DataRetention         `json:"data_retention,omitempty"`
 	// Whether content (prompts, completion data, variables) should be recorded in observability systems. Will be automatically set to False when using timed data retention.
-	ContentTracing *bool `json:"content_tracing,omitempty"`
-	McpServerIds []string `json:"mcp_server_ids,omitempty"`
+	ContentTracing       *bool    `json:"content_tracing,omitempty"`
+	McpServerIds         []string `json:"mcp_server_ids,omitempty"`
 	AdditionalProperties map[string]interface{}
 }
 
@@ -87,6 +87,7 @@ func (o *CapabilityConfig) HasTemperature() bool {
 func (o *CapabilityConfig) SetTemperature(v float32) {
 	o.Temperature.Set(&v)
 }
+
 // SetTemperatureNil sets the value for Temperature to be an explicit nil
 func (o *CapabilityConfig) SetTemperatureNil() {
 	o.Temperature.Set(nil)
@@ -162,6 +163,7 @@ func (o *CapabilityConfig) HasSttLanguageHintMode() bool {
 func (o *CapabilityConfig) SetSttLanguageHintMode(v string) {
 	o.SttLanguageHintMode.Set(&v)
 }
+
 // SetSttLanguageHintModeNil sets the value for SttLanguageHintMode to be an explicit nil
 func (o *CapabilityConfig) SetSttLanguageHintModeNil() {
 	o.SttLanguageHintMode.Set(nil)
@@ -204,6 +206,7 @@ func (o *CapabilityConfig) HasSttChunkingMaxSizeMb() bool {
 func (o *CapabilityConfig) SetSttChunkingMaxSizeMb(v int32) {
 	o.SttChunkingMaxSizeMb.Set(&v)
 }
+
 // SetSttChunkingMaxSizeMbNil sets the value for SttChunkingMaxSizeMb to be an explicit nil
 func (o *CapabilityConfig) SetSttChunkingMaxSizeMbNil() {
 	o.SttChunkingMaxSizeMb.Set(nil)
@@ -246,6 +249,7 @@ func (o *CapabilityConfig) HasSttChunkingMaxDurationSeconds() bool {
 func (o *CapabilityConfig) SetSttChunkingMaxDurationSeconds(v int32) {
 	o.SttChunkingMaxDurationSeconds.Set(&v)
 }
+
 // SetSttChunkingMaxDurationSecondsNil sets the value for SttChunkingMaxDurationSeconds to be an explicit nil
 func (o *CapabilityConfig) SetSttChunkingMaxDurationSecondsNil() {
 	o.SttChunkingMaxDurationSeconds.Set(nil)
@@ -288,6 +292,7 @@ func (o *CapabilityConfig) HasBlobConfig() bool {
 func (o *CapabilityConfig) SetBlobConfig(v BlobConfig) {
 	o.BlobConfig.Set(&v)
 }
+
 // SetBlobConfigNil sets the value for BlobConfig to be an explicit nil
 func (o *CapabilityConfig) SetBlobConfigNil() {
 	o.BlobConfig.Set(nil)
@@ -396,7 +401,7 @@ func (o *CapabilityConfig) SetMcpServerIds(v []string) {
 }
 
 func (o CapabilityConfig) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -475,5 +480,3 @@ func (v *NullableCapabilityConfig) UnmarshalJSON(src []byte) error {
 	v.isSet = true
 	return json.Unmarshal(src, &v.value)
 }
-
-

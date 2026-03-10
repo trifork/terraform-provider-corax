@@ -20,18 +20,18 @@ var _ MappedNullable = &Collection{}
 
 // Collection struct for Collection
 type Collection struct {
-	Links map[string]HateoasLink `json:"_links,omitempty"`
-	Name string `json:"name"`
-	Description NullableString `json:"description,omitempty"`
-	IsPublic *bool `json:"is_public,omitempty"`
-	ProjectId NullableString `json:"project_id,omitempty"`
-	Id string `json:"id"`
-	CreatedBy string `json:"created_by"`
-	UpdatedBy string `json:"updated_by"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
-	Owner string `json:"owner"`
-	DocumentsCount *int32 `json:"documents_count,omitempty"`
+	Links                map[string]HateoasLink `json:"_links,omitempty"`
+	Name                 string                 `json:"name"`
+	Description          NullableString         `json:"description,omitempty"`
+	IsPublic             *bool                  `json:"is_public,omitempty"`
+	ProjectId            NullableString         `json:"project_id,omitempty"`
+	Id                   string                 `json:"id"`
+	CreatedBy            string                 `json:"created_by"`
+	UpdatedBy            string                 `json:"updated_by"`
+	CreatedAt            time.Time              `json:"created_at"`
+	UpdatedAt            time.Time              `json:"updated_at"`
+	Owner                string                 `json:"owner"`
+	DocumentsCount       *int32                 `json:"documents_count,omitempty"`
 	AdditionalProperties map[string]interface{}
 }
 
@@ -158,6 +158,7 @@ func (o *Collection) HasDescription() bool {
 func (o *Collection) SetDescription(v string) {
 	o.Description.Set(&v)
 }
+
 // SetDescriptionNil sets the value for Description to be an explicit nil
 func (o *Collection) SetDescriptionNil() {
 	o.Description.Set(nil)
@@ -232,6 +233,7 @@ func (o *Collection) HasProjectId() bool {
 func (o *Collection) SetProjectId(v string) {
 	o.ProjectId.Set(&v)
 }
+
 // SetProjectIdNil sets the value for ProjectId to be an explicit nil
 func (o *Collection) SetProjectIdNil() {
 	o.ProjectId.Set(nil)
@@ -419,7 +421,7 @@ func (o *Collection) SetDocumentsCount(v int32) {
 }
 
 func (o Collection) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -493,5 +495,3 @@ func (v *NullableCollection) UnmarshalJSON(src []byte) error {
 	v.isSet = true
 	return json.Unmarshal(src, &v.value)
 }
-
-

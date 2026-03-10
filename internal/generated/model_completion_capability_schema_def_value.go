@@ -17,9 +17,9 @@ import (
 
 // CompletionCapabilitySchemaDefValue - struct for CompletionCapabilitySchemaDefValue
 type CompletionCapabilitySchemaDefValue struct {
-	ArrayPropertyOutput *ArrayPropertyOutput
-	BasicProperty *BasicProperty
-	EnumProperty *EnumProperty
+	ArrayPropertyOutput  *ArrayPropertyOutput
+	BasicProperty        *BasicProperty
+	EnumProperty         *EnumProperty
 	ObjectPropertyOutput *ObjectPropertyOutput
 }
 
@@ -50,7 +50,6 @@ func ObjectPropertyOutputAsCompletionCapabilitySchemaDefValue(v *ObjectPropertyO
 		ObjectPropertyOutput: v,
 	}
 }
-
 
 // Unmarshal JSON data into one of the pointers in the struct
 func (dst *CompletionCapabilitySchemaDefValue) UnmarshalJSON(data []byte) error {
@@ -161,7 +160,7 @@ func (src CompletionCapabilitySchemaDefValue) MarshalJSON() ([]byte, error) {
 }
 
 // Get the actual instance
-func (obj *CompletionCapabilitySchemaDefValue) GetActualInstance() (interface{}) {
+func (obj *CompletionCapabilitySchemaDefValue) GetActualInstance() interface{} {
 	if obj == nil {
 		return nil
 	}
@@ -186,7 +185,7 @@ func (obj *CompletionCapabilitySchemaDefValue) GetActualInstance() (interface{})
 }
 
 // Get the actual instance value
-func (obj CompletionCapabilitySchemaDefValue) GetActualInstanceValue() (interface{}) {
+func (obj CompletionCapabilitySchemaDefValue) GetActualInstanceValue() interface{} {
 	if obj.ArrayPropertyOutput != nil {
 		return *obj.ArrayPropertyOutput
 	}
@@ -242,5 +241,3 @@ func (v *NullableCompletionCapabilitySchemaDefValue) UnmarshalJSON(src []byte) e
 	v.isSet = true
 	return json.Unmarshal(src, &v.value)
 }
-
-

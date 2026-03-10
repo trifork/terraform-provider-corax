@@ -19,9 +19,9 @@ var _ MappedNullable = &PagedResponseModelModelProviderType{}
 
 // PagedResponseModelModelProviderType struct for PagedResponseModelModelProviderType
 type PagedResponseModelModelProviderType struct {
-	Embedded []ModelProviderType `json:"_embedded"`
-	Page Page `json:"page"`
-	Links map[string]HateoasLink `json:"_links,omitempty"`
+	Embedded             []ModelProviderType    `json:"_embedded"`
+	Page                 Page                   `json:"page"`
+	Links                map[string]HateoasLink `json:"_links,omitempty"`
 	AdditionalProperties map[string]interface{}
 }
 
@@ -128,7 +128,7 @@ func (o *PagedResponseModelModelProviderType) SetLinks(v map[string]HateoasLink)
 }
 
 func (o PagedResponseModelModelProviderType) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -185,5 +185,3 @@ func (v *NullablePagedResponseModelModelProviderType) UnmarshalJSON(src []byte) 
 	v.isSet = true
 	return json.Unmarshal(src, &v.value)
 }
-
-

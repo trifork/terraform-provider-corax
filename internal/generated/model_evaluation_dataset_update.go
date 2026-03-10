@@ -20,13 +20,13 @@ var _ MappedNullable = &EvaluationDatasetUpdate{}
 // EvaluationDatasetUpdate struct for EvaluationDatasetUpdate
 type EvaluationDatasetUpdate struct {
 	// Name of the dataset
-	Name string `json:"name"`
+	Name      string         `json:"name"`
 	ProjectId NullableString `json:"project_id,omitempty"`
-	IsPublic NullableBool `json:"is_public,omitempty"`
+	IsPublic  NullableBool   `json:"is_public,omitempty"`
 	// Configuration for the dataset
 	Configuration EvaluationDatasetConfigurationBase `json:"configuration"`
 	// ID of the dataset to be updated
-	Id string `json:"id"`
+	Id                   string `json:"id"`
 	AdditionalProperties map[string]interface{}
 }
 
@@ -108,6 +108,7 @@ func (o *EvaluationDatasetUpdate) HasProjectId() bool {
 func (o *EvaluationDatasetUpdate) SetProjectId(v string) {
 	o.ProjectId.Set(&v)
 }
+
 // SetProjectIdNil sets the value for ProjectId to be an explicit nil
 func (o *EvaluationDatasetUpdate) SetProjectIdNil() {
 	o.ProjectId.Set(nil)
@@ -150,6 +151,7 @@ func (o *EvaluationDatasetUpdate) HasIsPublic() bool {
 func (o *EvaluationDatasetUpdate) SetIsPublic(v bool) {
 	o.IsPublic.Set(&v)
 }
+
 // SetIsPublicNil sets the value for IsPublic to be an explicit nil
 func (o *EvaluationDatasetUpdate) SetIsPublicNil() {
 	o.IsPublic.Set(nil)
@@ -209,7 +211,7 @@ func (o *EvaluationDatasetUpdate) SetId(v string) {
 }
 
 func (o EvaluationDatasetUpdate) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -270,5 +272,3 @@ func (v *NullableEvaluationDatasetUpdate) UnmarshalJSON(src []byte) error {
 	v.isSet = true
 	return json.Unmarshal(src, &v.value)
 }
-
-

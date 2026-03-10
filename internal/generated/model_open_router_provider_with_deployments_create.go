@@ -26,7 +26,7 @@ type OpenRouterProviderWithDeploymentsCreate struct {
 	// Provider type
 	ProviderType string `json:"provider_type"`
 	// Deployments to create
-	Deployments []DeploymentCreate `json:"deployments"`
+	Deployments          []DeploymentCreate `json:"deployments"`
 	AdditionalProperties map[string]interface{}
 }
 
@@ -150,7 +150,7 @@ func (o *OpenRouterProviderWithDeploymentsCreate) SetDeployments(v []DeploymentC
 }
 
 func (o OpenRouterProviderWithDeploymentsCreate) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -206,5 +206,3 @@ func (v *NullableOpenRouterProviderWithDeploymentsCreate) UnmarshalJSON(src []by
 	v.isSet = true
 	return json.Unmarshal(src, &v.value)
 }
-
-

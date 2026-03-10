@@ -20,24 +20,24 @@ var _ MappedNullable = &Document{}
 
 // Document struct for Document
 type Document struct {
-	Links map[string]HateoasLink `json:"_links,omitempty"`
-	Filename string `json:"filename"`
-	OriginalFilename NullableString `json:"original_filename,omitempty"`
-	FileType NullableString `json:"file_type,omitempty"`
-	MimeType NullableString `json:"mime_type,omitempty"`
-	FileSize NullableInt32 `json:"file_size,omitempty"`
-	Source NullableString `json:"source,omitempty"`
-	Owner NullableString `json:"owner,omitempty"`
-	IsPublic *bool `json:"is_public,omitempty"`
-	Language NullableString `json:"language,omitempty"`
-	Checksum NullableString `json:"checksum,omitempty"`
-	DocumentMetadata map[string]interface{} `json:"document_metadata,omitempty"`
-	Id string `json:"id"`
-	CollectionId string `json:"collection_id"`
-	DateAdded time.Time `json:"date_added"`
-	LastUpdated time.Time `json:"last_updated"`
-	LastAccessed NullableTime `json:"last_accessed,omitempty"`
-	Version int32 `json:"version"`
+	Links                map[string]HateoasLink `json:"_links,omitempty"`
+	Filename             string                 `json:"filename"`
+	OriginalFilename     NullableString         `json:"original_filename,omitempty"`
+	FileType             NullableString         `json:"file_type,omitempty"`
+	MimeType             NullableString         `json:"mime_type,omitempty"`
+	FileSize             NullableInt32          `json:"file_size,omitempty"`
+	Source               NullableString         `json:"source,omitempty"`
+	Owner                NullableString         `json:"owner,omitempty"`
+	IsPublic             *bool                  `json:"is_public,omitempty"`
+	Language             NullableString         `json:"language,omitempty"`
+	Checksum             NullableString         `json:"checksum,omitempty"`
+	DocumentMetadata     map[string]interface{} `json:"document_metadata,omitempty"`
+	Id                   string                 `json:"id"`
+	CollectionId         string                 `json:"collection_id"`
+	DateAdded            time.Time              `json:"date_added"`
+	LastUpdated          time.Time              `json:"last_updated"`
+	LastAccessed         NullableTime           `json:"last_accessed,omitempty"`
+	Version              int32                  `json:"version"`
 	AdditionalProperties map[string]interface{}
 }
 
@@ -159,6 +159,7 @@ func (o *Document) HasOriginalFilename() bool {
 func (o *Document) SetOriginalFilename(v string) {
 	o.OriginalFilename.Set(&v)
 }
+
 // SetOriginalFilenameNil sets the value for OriginalFilename to be an explicit nil
 func (o *Document) SetOriginalFilenameNil() {
 	o.OriginalFilename.Set(nil)
@@ -201,6 +202,7 @@ func (o *Document) HasFileType() bool {
 func (o *Document) SetFileType(v string) {
 	o.FileType.Set(&v)
 }
+
 // SetFileTypeNil sets the value for FileType to be an explicit nil
 func (o *Document) SetFileTypeNil() {
 	o.FileType.Set(nil)
@@ -243,6 +245,7 @@ func (o *Document) HasMimeType() bool {
 func (o *Document) SetMimeType(v string) {
 	o.MimeType.Set(&v)
 }
+
 // SetMimeTypeNil sets the value for MimeType to be an explicit nil
 func (o *Document) SetMimeTypeNil() {
 	o.MimeType.Set(nil)
@@ -285,6 +288,7 @@ func (o *Document) HasFileSize() bool {
 func (o *Document) SetFileSize(v int32) {
 	o.FileSize.Set(&v)
 }
+
 // SetFileSizeNil sets the value for FileSize to be an explicit nil
 func (o *Document) SetFileSizeNil() {
 	o.FileSize.Set(nil)
@@ -327,6 +331,7 @@ func (o *Document) HasSource() bool {
 func (o *Document) SetSource(v string) {
 	o.Source.Set(&v)
 }
+
 // SetSourceNil sets the value for Source to be an explicit nil
 func (o *Document) SetSourceNil() {
 	o.Source.Set(nil)
@@ -369,6 +374,7 @@ func (o *Document) HasOwner() bool {
 func (o *Document) SetOwner(v string) {
 	o.Owner.Set(&v)
 }
+
 // SetOwnerNil sets the value for Owner to be an explicit nil
 func (o *Document) SetOwnerNil() {
 	o.Owner.Set(nil)
@@ -443,6 +449,7 @@ func (o *Document) HasLanguage() bool {
 func (o *Document) SetLanguage(v string) {
 	o.Language.Set(&v)
 }
+
 // SetLanguageNil sets the value for Language to be an explicit nil
 func (o *Document) SetLanguageNil() {
 	o.Language.Set(nil)
@@ -485,6 +492,7 @@ func (o *Document) HasChecksum() bool {
 func (o *Document) SetChecksum(v string) {
 	o.Checksum.Set(&v)
 }
+
 // SetChecksumNil sets the value for Checksum to be an explicit nil
 func (o *Document) SetChecksumNil() {
 	o.Checksum.Set(nil)
@@ -656,6 +664,7 @@ func (o *Document) HasLastAccessed() bool {
 func (o *Document) SetLastAccessed(v time.Time) {
 	o.LastAccessed.Set(&v)
 }
+
 // SetLastAccessedNil sets the value for LastAccessed to be an explicit nil
 func (o *Document) SetLastAccessedNil() {
 	o.LastAccessed.Set(nil)
@@ -691,7 +700,7 @@ func (o *Document) SetVersion(v int32) {
 }
 
 func (o Document) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -785,5 +794,3 @@ func (v *NullableDocument) UnmarshalJSON(src []byte) error {
 	v.isSet = true
 	return json.Unmarshal(src, &v.value)
 }
-
-

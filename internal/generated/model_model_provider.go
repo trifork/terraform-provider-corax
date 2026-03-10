@@ -20,15 +20,15 @@ var _ MappedNullable = &ModelProvider{}
 
 // ModelProvider struct for ModelProvider
 type ModelProvider struct {
-	Links map[string]HateoasLink `json:"_links,omitempty"`
-	Name string `json:"name"`
-	ProviderType string `json:"provider_type"`
-	Configuration map[string]interface{} `json:"configuration"`
-	Id string `json:"id"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt NullableTime `json:"updated_at,omitempty"`
-	CreatedBy string `json:"created_by"`
-	UpdatedBy NullableString `json:"updated_by,omitempty"`
+	Links                map[string]HateoasLink `json:"_links,omitempty"`
+	Name                 string                 `json:"name"`
+	ProviderType         string                 `json:"provider_type"`
+	Configuration        map[string]interface{} `json:"configuration"`
+	Id                   string                 `json:"id"`
+	CreatedAt            time.Time              `json:"created_at"`
+	UpdatedAt            NullableTime           `json:"updated_at,omitempty"`
+	CreatedBy            string                 `json:"created_by"`
+	UpdatedBy            NullableString         `json:"updated_by,omitempty"`
 	AdditionalProperties map[string]interface{}
 }
 
@@ -242,6 +242,7 @@ func (o *ModelProvider) HasUpdatedAt() bool {
 func (o *ModelProvider) SetUpdatedAt(v time.Time) {
 	o.UpdatedAt.Set(&v)
 }
+
 // SetUpdatedAtNil sets the value for UpdatedAt to be an explicit nil
 func (o *ModelProvider) SetUpdatedAtNil() {
 	o.UpdatedAt.Set(nil)
@@ -308,6 +309,7 @@ func (o *ModelProvider) HasUpdatedBy() bool {
 func (o *ModelProvider) SetUpdatedBy(v string) {
 	o.UpdatedBy.Set(&v)
 }
+
 // SetUpdatedByNil sets the value for UpdatedBy to be an explicit nil
 func (o *ModelProvider) SetUpdatedByNil() {
 	o.UpdatedBy.Set(nil)
@@ -319,7 +321,7 @@ func (o *ModelProvider) UnsetUpdatedBy() {
 }
 
 func (o ModelProvider) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -386,5 +388,3 @@ func (v *NullableModelProvider) UnmarshalJSON(src []byte) error {
 	v.isSet = true
 	return json.Unmarshal(src, &v.value)
 }
-
-

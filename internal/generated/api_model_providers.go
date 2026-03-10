@@ -19,13 +19,12 @@ import (
 	"strings"
 )
 
-
 // ModelProvidersAPIService ModelProvidersAPI service
 type ModelProvidersAPIService service
 
 type ModelProvidersAPICreateModelProviderV1ModelProvidersPostRequest struct {
-	ctx context.Context
-	ApiService *ModelProvidersAPIService
+	ctx                 context.Context
+	ApiService          *ModelProvidersAPIService
 	modelProviderCreate *ModelProviderCreate
 }
 
@@ -43,24 +42,25 @@ CreateModelProviderV1ModelProvidersPost Create Model Provider
 
 Create a new model provider.
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return ModelProvidersAPICreateModelProviderV1ModelProvidersPostRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@return ModelProvidersAPICreateModelProviderV1ModelProvidersPostRequest
 */
 func (a *ModelProvidersAPIService) CreateModelProviderV1ModelProvidersPost(ctx context.Context) ModelProvidersAPICreateModelProviderV1ModelProvidersPostRequest {
 	return ModelProvidersAPICreateModelProviderV1ModelProvidersPostRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
 // Execute executes the request
-//  @return ModelProvider
+//
+//	@return ModelProvider
 func (a *ModelProvidersAPIService) CreateModelProviderV1ModelProvidersPostExecute(r ModelProvidersAPICreateModelProviderV1ModelProvidersPostRequest) (*ModelProvider, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPost
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *ModelProvider
+		localVarHTTPMethod  = http.MethodPost
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *ModelProvider
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "ModelProvidersAPIService.CreateModelProviderV1ModelProvidersPost")
@@ -139,8 +139,8 @@ func (a *ModelProvidersAPIService) CreateModelProviderV1ModelProvidersPostExecut
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -158,9 +158,9 @@ func (a *ModelProvidersAPIService) CreateModelProviderV1ModelProvidersPostExecut
 }
 
 type ModelProvidersAPICreateModelProviderWithDeploymentsV1ModelProvidersWithDeploymentsPostRequest struct {
-	ctx context.Context
+	ctx        context.Context
 	ApiService *ModelProvidersAPIService
-	data *Data
+	data       *Data
 }
 
 func (r ModelProvidersAPICreateModelProviderWithDeploymentsV1ModelProvidersWithDeploymentsPostRequest) Data(data Data) ModelProvidersAPICreateModelProviderWithDeploymentsV1ModelProvidersWithDeploymentsPostRequest {
@@ -180,24 +180,25 @@ Create a model provider with multiple deployments in a single transaction.
 This endpoint creates a provider and all specified deployments atomically.
 If any deployment fails to create, the entire operation is rolled back.
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return ModelProvidersAPICreateModelProviderWithDeploymentsV1ModelProvidersWithDeploymentsPostRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@return ModelProvidersAPICreateModelProviderWithDeploymentsV1ModelProvidersWithDeploymentsPostRequest
 */
 func (a *ModelProvidersAPIService) CreateModelProviderWithDeploymentsV1ModelProvidersWithDeploymentsPost(ctx context.Context) ModelProvidersAPICreateModelProviderWithDeploymentsV1ModelProvidersWithDeploymentsPostRequest {
 	return ModelProvidersAPICreateModelProviderWithDeploymentsV1ModelProvidersWithDeploymentsPostRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
 // Execute executes the request
-//  @return ModelProvider
+//
+//	@return ModelProvider
 func (a *ModelProvidersAPIService) CreateModelProviderWithDeploymentsV1ModelProvidersWithDeploymentsPostExecute(r ModelProvidersAPICreateModelProviderWithDeploymentsV1ModelProvidersWithDeploymentsPostRequest) (*ModelProvider, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPost
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *ModelProvider
+		localVarHTTPMethod  = http.MethodPost
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *ModelProvider
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "ModelProvidersAPIService.CreateModelProviderWithDeploymentsV1ModelProvidersWithDeploymentsPost")
@@ -276,8 +277,8 @@ func (a *ModelProvidersAPIService) CreateModelProviderWithDeploymentsV1ModelProv
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -295,7 +296,7 @@ func (a *ModelProvidersAPIService) CreateModelProviderWithDeploymentsV1ModelProv
 }
 
 type ModelProvidersAPIDeleteModelProviderV1ModelProvidersProviderIdDeleteRequest struct {
-	ctx context.Context
+	ctx        context.Context
 	ApiService *ModelProvidersAPIService
 	providerId string
 }
@@ -309,14 +310,14 @@ DeleteModelProviderV1ModelProvidersProviderIdDelete Delete Model Provider
 
 Delete a model provider.
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param providerId
- @return ModelProvidersAPIDeleteModelProviderV1ModelProvidersProviderIdDeleteRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param providerId
+	@return ModelProvidersAPIDeleteModelProviderV1ModelProvidersProviderIdDeleteRequest
 */
 func (a *ModelProvidersAPIService) DeleteModelProviderV1ModelProvidersProviderIdDelete(ctx context.Context, providerId string) ModelProvidersAPIDeleteModelProviderV1ModelProvidersProviderIdDeleteRequest {
 	return ModelProvidersAPIDeleteModelProviderV1ModelProvidersProviderIdDeleteRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 		providerId: providerId,
 	}
 }
@@ -324,9 +325,9 @@ func (a *ModelProvidersAPIService) DeleteModelProviderV1ModelProvidersProviderId
 // Execute executes the request
 func (a *ModelProvidersAPIService) DeleteModelProviderV1ModelProvidersProviderIdDeleteExecute(r ModelProvidersAPIDeleteModelProviderV1ModelProvidersProviderIdDeleteRequest) (*http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodDelete
-		localVarPostBody     interface{}
-		formFiles            []formFile
+		localVarHTTPMethod = http.MethodDelete
+		localVarPostBody   interface{}
+		formFiles          []formFile
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "ModelProvidersAPIService.DeleteModelProviderV1ModelProvidersProviderIdDelete")
@@ -401,8 +402,8 @@ func (a *ModelProvidersAPIService) DeleteModelProviderV1ModelProvidersProviderId
 				newErr.error = err.Error()
 				return localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarHTTPResponse, newErr
 	}
@@ -411,7 +412,7 @@ func (a *ModelProvidersAPIService) DeleteModelProviderV1ModelProvidersProviderId
 }
 
 type ModelProvidersAPIGetModelProviderV1ModelProvidersProviderIdGetRequest struct {
-	ctx context.Context
+	ctx        context.Context
 	ApiService *ModelProvidersAPIService
 	providerId string
 }
@@ -425,26 +426,27 @@ GetModelProviderV1ModelProvidersProviderIdGet Get Model Provider
 
 Get a specific model provider by ID.
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param providerId
- @return ModelProvidersAPIGetModelProviderV1ModelProvidersProviderIdGetRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param providerId
+	@return ModelProvidersAPIGetModelProviderV1ModelProvidersProviderIdGetRequest
 */
 func (a *ModelProvidersAPIService) GetModelProviderV1ModelProvidersProviderIdGet(ctx context.Context, providerId string) ModelProvidersAPIGetModelProviderV1ModelProvidersProviderIdGetRequest {
 	return ModelProvidersAPIGetModelProviderV1ModelProvidersProviderIdGetRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 		providerId: providerId,
 	}
 }
 
 // Execute executes the request
-//  @return ModelProvider
+//
+//	@return ModelProvider
 func (a *ModelProvidersAPIService) GetModelProviderV1ModelProvidersProviderIdGetExecute(r ModelProvidersAPIGetModelProviderV1ModelProvidersProviderIdGetRequest) (*ModelProvider, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *ModelProvider
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *ModelProvider
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "ModelProvidersAPIService.GetModelProviderV1ModelProvidersProviderIdGet")
@@ -519,8 +521,8 @@ func (a *ModelProvidersAPIService) GetModelProviderV1ModelProvidersProviderIdGet
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -538,7 +540,7 @@ func (a *ModelProvidersAPIService) GetModelProviderV1ModelProvidersProviderIdGet
 }
 
 type ModelProvidersAPIGetProviderHealthV1ModelProvidersProviderIdHealthGetRequest struct {
-	ctx context.Context
+	ctx        context.Context
 	ApiService *ModelProvidersAPIService
 	providerId string
 }
@@ -552,26 +554,27 @@ GetProviderHealthV1ModelProvidersProviderIdHealthGet Get Provider Health
 
 Get the cached health status for a model provider.
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param providerId
- @return ModelProvidersAPIGetProviderHealthV1ModelProvidersProviderIdHealthGetRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param providerId
+	@return ModelProvidersAPIGetProviderHealthV1ModelProvidersProviderIdHealthGetRequest
 */
 func (a *ModelProvidersAPIService) GetProviderHealthV1ModelProvidersProviderIdHealthGet(ctx context.Context, providerId string) ModelProvidersAPIGetProviderHealthV1ModelProvidersProviderIdHealthGetRequest {
 	return ModelProvidersAPIGetProviderHealthV1ModelProvidersProviderIdHealthGetRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 		providerId: providerId,
 	}
 }
 
 // Execute executes the request
-//  @return ProviderHealthResponse
+//
+//	@return ProviderHealthResponse
 func (a *ModelProvidersAPIService) GetProviderHealthV1ModelProvidersProviderIdHealthGetExecute(r ModelProvidersAPIGetProviderHealthV1ModelProvidersProviderIdHealthGetRequest) (*ProviderHealthResponse, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *ProviderHealthResponse
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *ProviderHealthResponse
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "ModelProvidersAPIService.GetProviderHealthV1ModelProvidersProviderIdHealthGet")
@@ -646,8 +649,8 @@ func (a *ModelProvidersAPIService) GetProviderHealthV1ModelProvidersProviderIdHe
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -665,7 +668,7 @@ func (a *ModelProvidersAPIService) GetProviderHealthV1ModelProvidersProviderIdHe
 }
 
 type ModelProvidersAPIListAvailableModelsV1ModelProvidersProviderIdAvailableModelsGetRequest struct {
-	ctx context.Context
+	ctx        context.Context
 	ApiService *ModelProvidersAPIService
 	providerId string
 }
@@ -679,26 +682,27 @@ ListAvailableModelsV1ModelProvidersProviderIdAvailableModelsGet List Available M
 
 List models available from a provider using its stored credentials.
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param providerId
- @return ModelProvidersAPIListAvailableModelsV1ModelProvidersProviderIdAvailableModelsGetRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param providerId
+	@return ModelProvidersAPIListAvailableModelsV1ModelProvidersProviderIdAvailableModelsGetRequest
 */
 func (a *ModelProvidersAPIService) ListAvailableModelsV1ModelProvidersProviderIdAvailableModelsGet(ctx context.Context, providerId string) ModelProvidersAPIListAvailableModelsV1ModelProvidersProviderIdAvailableModelsGetRequest {
 	return ModelProvidersAPIListAvailableModelsV1ModelProvidersProviderIdAvailableModelsGetRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 		providerId: providerId,
 	}
 }
 
 // Execute executes the request
-//  @return ProviderValidationResponse
+//
+//	@return ProviderValidationResponse
 func (a *ModelProvidersAPIService) ListAvailableModelsV1ModelProvidersProviderIdAvailableModelsGetExecute(r ModelProvidersAPIListAvailableModelsV1ModelProvidersProviderIdAvailableModelsGetRequest) (*ProviderValidationResponse, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *ProviderValidationResponse
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *ProviderValidationResponse
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "ModelProvidersAPIService.ListAvailableModelsV1ModelProvidersProviderIdAvailableModelsGet")
@@ -773,8 +777,8 @@ func (a *ModelProvidersAPIService) ListAvailableModelsV1ModelProvidersProviderId
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -792,12 +796,12 @@ func (a *ModelProvidersAPIService) ListAvailableModelsV1ModelProvidersProviderId
 }
 
 type ModelProvidersAPIListModelProvidersV1ModelProvidersGetRequest struct {
-	ctx context.Context
+	ctx        context.Context
 	ApiService *ModelProvidersAPIService
-	page *int32
-	size *int32
-	sort *string
-	filter *string
+	page       *int32
+	size       *int32
+	sort       *string
+	filter     *string
 }
 
 func (r ModelProvidersAPIListModelProvidersV1ModelProvidersGetRequest) Page(page int32) ModelProvidersAPIListModelProvidersV1ModelProvidersGetRequest {
@@ -829,24 +833,25 @@ ListModelProvidersV1ModelProvidersGet List Model Providers
 
 List all model providers with pagination.
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return ModelProvidersAPIListModelProvidersV1ModelProvidersGetRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@return ModelProvidersAPIListModelProvidersV1ModelProvidersGetRequest
 */
 func (a *ModelProvidersAPIService) ListModelProvidersV1ModelProvidersGet(ctx context.Context) ModelProvidersAPIListModelProvidersV1ModelProvidersGetRequest {
 	return ModelProvidersAPIListModelProvidersV1ModelProvidersGetRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
 // Execute executes the request
-//  @return PagedResponseModelModelProvider
+//
+//	@return PagedResponseModelModelProvider
 func (a *ModelProvidersAPIService) ListModelProvidersV1ModelProvidersGetExecute(r ModelProvidersAPIListModelProvidersV1ModelProvidersGetRequest) (*PagedResponseModelModelProvider, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *PagedResponseModelModelProvider
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *PagedResponseModelModelProvider
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "ModelProvidersAPIService.ListModelProvidersV1ModelProvidersGet")
@@ -863,23 +868,23 @@ func (a *ModelProvidersAPIService) ListModelProvidersV1ModelProvidersGetExecute(
 	if r.page != nil {
 		parameterAddToHeaderOrQuery(localVarQueryParams, "page", r.page, "form", "")
 	} else {
-        var defaultValue int32 = 1
-        parameterAddToHeaderOrQuery(localVarQueryParams, "page", defaultValue, "form", "")
-        r.page = &defaultValue
+		var defaultValue int32 = 1
+		parameterAddToHeaderOrQuery(localVarQueryParams, "page", defaultValue, "form", "")
+		r.page = &defaultValue
 	}
 	if r.size != nil {
 		parameterAddToHeaderOrQuery(localVarQueryParams, "size", r.size, "form", "")
 	} else {
-        var defaultValue int32 = 10
-        parameterAddToHeaderOrQuery(localVarQueryParams, "size", defaultValue, "form", "")
-        r.size = &defaultValue
+		var defaultValue int32 = 10
+		parameterAddToHeaderOrQuery(localVarQueryParams, "size", defaultValue, "form", "")
+		r.size = &defaultValue
 	}
 	if r.sort != nil {
 		parameterAddToHeaderOrQuery(localVarQueryParams, "sort", r.sort, "form", "")
 	} else {
-        var defaultValue string = "id"
-        parameterAddToHeaderOrQuery(localVarQueryParams, "sort", defaultValue, "form", "")
-        r.sort = &defaultValue
+		var defaultValue string = "id"
+		parameterAddToHeaderOrQuery(localVarQueryParams, "sort", defaultValue, "form", "")
+		r.sort = &defaultValue
 	}
 	if r.filter != nil {
 		parameterAddToHeaderOrQuery(localVarQueryParams, "filter", r.filter, "form", "")
@@ -944,8 +949,8 @@ func (a *ModelProvidersAPIService) ListModelProvidersV1ModelProvidersGetExecute(
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -963,7 +968,7 @@ func (a *ModelProvidersAPIService) ListModelProvidersV1ModelProvidersGetExecute(
 }
 
 type ModelProvidersAPITriggerProviderHealthCheckV1ModelProvidersProviderIdHealthCheckPostRequest struct {
-	ctx context.Context
+	ctx        context.Context
 	ApiService *ModelProvidersAPIService
 	providerId string
 }
@@ -977,26 +982,27 @@ TriggerProviderHealthCheckV1ModelProvidersProviderIdHealthCheckPost Trigger Prov
 
 Trigger an immediate health check for a model provider.
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param providerId
- @return ModelProvidersAPITriggerProviderHealthCheckV1ModelProvidersProviderIdHealthCheckPostRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param providerId
+	@return ModelProvidersAPITriggerProviderHealthCheckV1ModelProvidersProviderIdHealthCheckPostRequest
 */
 func (a *ModelProvidersAPIService) TriggerProviderHealthCheckV1ModelProvidersProviderIdHealthCheckPost(ctx context.Context, providerId string) ModelProvidersAPITriggerProviderHealthCheckV1ModelProvidersProviderIdHealthCheckPostRequest {
 	return ModelProvidersAPITriggerProviderHealthCheckV1ModelProvidersProviderIdHealthCheckPostRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 		providerId: providerId,
 	}
 }
 
 // Execute executes the request
-//  @return ProviderHealthResponse
+//
+//	@return ProviderHealthResponse
 func (a *ModelProvidersAPIService) TriggerProviderHealthCheckV1ModelProvidersProviderIdHealthCheckPostExecute(r ModelProvidersAPITriggerProviderHealthCheckV1ModelProvidersProviderIdHealthCheckPostRequest) (*ProviderHealthResponse, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPost
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *ProviderHealthResponse
+		localVarHTTPMethod  = http.MethodPost
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *ProviderHealthResponse
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "ModelProvidersAPIService.TriggerProviderHealthCheckV1ModelProvidersProviderIdHealthCheckPost")
@@ -1071,8 +1077,8 @@ func (a *ModelProvidersAPIService) TriggerProviderHealthCheckV1ModelProvidersPro
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -1090,9 +1096,9 @@ func (a *ModelProvidersAPIService) TriggerProviderHealthCheckV1ModelProvidersPro
 }
 
 type ModelProvidersAPIUpdateModelProviderV1ModelProvidersProviderIdPutRequest struct {
-	ctx context.Context
-	ApiService *ModelProvidersAPIService
-	providerId string
+	ctx                 context.Context
+	ApiService          *ModelProvidersAPIService
+	providerId          string
 	modelProviderUpdate *ModelProviderUpdate
 }
 
@@ -1110,26 +1116,27 @@ UpdateModelProviderV1ModelProvidersProviderIdPut Update Model Provider
 
 Update a model provider.
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param providerId
- @return ModelProvidersAPIUpdateModelProviderV1ModelProvidersProviderIdPutRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param providerId
+	@return ModelProvidersAPIUpdateModelProviderV1ModelProvidersProviderIdPutRequest
 */
 func (a *ModelProvidersAPIService) UpdateModelProviderV1ModelProvidersProviderIdPut(ctx context.Context, providerId string) ModelProvidersAPIUpdateModelProviderV1ModelProvidersProviderIdPutRequest {
 	return ModelProvidersAPIUpdateModelProviderV1ModelProvidersProviderIdPutRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 		providerId: providerId,
 	}
 }
 
 // Execute executes the request
-//  @return ModelProvider
+//
+//	@return ModelProvider
 func (a *ModelProvidersAPIService) UpdateModelProviderV1ModelProvidersProviderIdPutExecute(r ModelProvidersAPIUpdateModelProviderV1ModelProvidersProviderIdPutRequest) (*ModelProvider, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPut
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *ModelProvider
+		localVarHTTPMethod  = http.MethodPut
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *ModelProvider
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "ModelProvidersAPIService.UpdateModelProviderV1ModelProvidersProviderIdPut")
@@ -1209,8 +1216,8 @@ func (a *ModelProvidersAPIService) UpdateModelProviderV1ModelProvidersProviderId
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}

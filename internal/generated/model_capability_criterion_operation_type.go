@@ -20,9 +20,9 @@ type CapabilityCriterionOperationType string
 
 // List of CapabilityCriterionOperationType
 const (
-	GENERAL CapabilityCriterionOperationType = "general"
+	GENERAL    CapabilityCriterionOperationType = "general"
 	GENERATION CapabilityCriterionOperationType = "generation"
-	RETRIEVAL CapabilityCriterionOperationType = "retrieval"
+	RETRIEVAL  CapabilityCriterionOperationType = "retrieval"
 )
 
 // All allowed values of CapabilityCriterionOperationType enum
@@ -110,4 +110,3 @@ func (v *NullableCapabilityCriterionOperationType) UnmarshalJSON(src []byte) err
 	v.isSet = true
 	return json.Unmarshal(src, &v.value)
 }
-

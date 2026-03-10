@@ -19,11 +19,11 @@ var _ MappedNullable = &EvaluationExecutionData{}
 
 // EvaluationExecutionData struct for EvaluationExecutionData
 type EvaluationExecutionData struct {
-	Input string `json:"input"`
-	ExpectedOutput NullableString `json:"expected_output"`
-	ActualOutput NullableString `json:"actual_output"`
-	Sources []string `json:"sources,omitempty"`
-	TimeInMillis NullableInt32 `json:"time_in_millis,omitempty"`
+	Input                string         `json:"input"`
+	ExpectedOutput       NullableString `json:"expected_output"`
+	ActualOutput         NullableString `json:"actual_output"`
+	Sources              []string       `json:"sources,omitempty"`
+	TimeInMillis         NullableInt32  `json:"time_in_millis,omitempty"`
 	AdditionalProperties map[string]interface{}
 }
 
@@ -190,6 +190,7 @@ func (o *EvaluationExecutionData) HasTimeInMillis() bool {
 func (o *EvaluationExecutionData) SetTimeInMillis(v int32) {
 	o.TimeInMillis.Set(&v)
 }
+
 // SetTimeInMillisNil sets the value for TimeInMillis to be an explicit nil
 func (o *EvaluationExecutionData) SetTimeInMillisNil() {
 	o.TimeInMillis.Set(nil)
@@ -201,7 +202,7 @@ func (o *EvaluationExecutionData) UnsetTimeInMillis() {
 }
 
 func (o EvaluationExecutionData) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -262,5 +263,3 @@ func (v *NullableEvaluationExecutionData) UnmarshalJSON(src []byte) error {
 	v.isSet = true
 	return json.Unmarshal(src, &v.value)
 }
-
-

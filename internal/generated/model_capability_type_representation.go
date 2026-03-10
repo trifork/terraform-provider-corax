@@ -19,13 +19,13 @@ var _ MappedNullable = &CapabilityTypeRepresentation{}
 
 // CapabilityTypeRepresentation struct for CapabilityTypeRepresentation
 type CapabilityTypeRepresentation struct {
-	Links map[string]HateoasLink `json:"_links,omitempty"`
-	Id string `json:"id"`
-	Name string `json:"name"`
-	DefaultModelDeploymentId NullableString `json:"default_model_deployment_id,omitempty"`
-	ModelPoolId NullableString `json:"model_pool_id,omitempty"`
-	Embedded map[string]interface{} `json:"_embedded,omitempty"`
-	AdditionalProperties map[string]interface{}
+	Links                    map[string]HateoasLink `json:"_links,omitempty"`
+	Id                       string                 `json:"id"`
+	Name                     string                 `json:"name"`
+	DefaultModelDeploymentId NullableString         `json:"default_model_deployment_id,omitempty"`
+	ModelPoolId              NullableString         `json:"model_pool_id,omitempty"`
+	Embedded                 map[string]interface{} `json:"_embedded,omitempty"`
+	AdditionalProperties     map[string]interface{}
 }
 
 type _CapabilityTypeRepresentation CapabilityTypeRepresentation
@@ -162,6 +162,7 @@ func (o *CapabilityTypeRepresentation) HasDefaultModelDeploymentId() bool {
 func (o *CapabilityTypeRepresentation) SetDefaultModelDeploymentId(v string) {
 	o.DefaultModelDeploymentId.Set(&v)
 }
+
 // SetDefaultModelDeploymentIdNil sets the value for DefaultModelDeploymentId to be an explicit nil
 func (o *CapabilityTypeRepresentation) SetDefaultModelDeploymentIdNil() {
 	o.DefaultModelDeploymentId.Set(nil)
@@ -204,6 +205,7 @@ func (o *CapabilityTypeRepresentation) HasModelPoolId() bool {
 func (o *CapabilityTypeRepresentation) SetModelPoolId(v string) {
 	o.ModelPoolId.Set(&v)
 }
+
 // SetModelPoolIdNil sets the value for ModelPoolId to be an explicit nil
 func (o *CapabilityTypeRepresentation) SetModelPoolIdNil() {
 	o.ModelPoolId.Set(nil)
@@ -248,7 +250,7 @@ func (o *CapabilityTypeRepresentation) SetEmbedded(v map[string]interface{}) {
 }
 
 func (o CapabilityTypeRepresentation) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -314,5 +316,3 @@ func (v *NullableCapabilityTypeRepresentation) UnmarshalJSON(src []byte) error {
 	v.isSet = true
 	return json.Unmarshal(src, &v.value)
 }
-
-

@@ -19,9 +19,9 @@ var _ MappedNullable = &ExecutionCreate{}
 
 // ExecutionCreate struct for ExecutionCreate
 type ExecutionCreate struct {
-	Payload interface{} `json:"payload,omitempty"`
-	Version NullableInt32 `json:"version,omitempty"`
-	CallbackUrl NullableString `json:"callback_url,omitempty"`
+	Payload              interface{}    `json:"payload,omitempty"`
+	Version              NullableInt32  `json:"version,omitempty"`
+	CallbackUrl          NullableString `json:"callback_url,omitempty"`
 	AdditionalProperties map[string]interface{}
 }
 
@@ -109,6 +109,7 @@ func (o *ExecutionCreate) HasVersion() bool {
 func (o *ExecutionCreate) SetVersion(v int32) {
 	o.Version.Set(&v)
 }
+
 // SetVersionNil sets the value for Version to be an explicit nil
 func (o *ExecutionCreate) SetVersionNil() {
 	o.Version.Set(nil)
@@ -151,6 +152,7 @@ func (o *ExecutionCreate) HasCallbackUrl() bool {
 func (o *ExecutionCreate) SetCallbackUrl(v string) {
 	o.CallbackUrl.Set(&v)
 }
+
 // SetCallbackUrlNil sets the value for CallbackUrl to be an explicit nil
 func (o *ExecutionCreate) SetCallbackUrlNil() {
 	o.CallbackUrl.Set(nil)
@@ -162,7 +164,7 @@ func (o *ExecutionCreate) UnsetCallbackUrl() {
 }
 
 func (o ExecutionCreate) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -223,5 +225,3 @@ func (v *NullableExecutionCreate) UnmarshalJSON(src []byte) error {
 	v.isSet = true
 	return json.Unmarshal(src, &v.value)
 }
-
-

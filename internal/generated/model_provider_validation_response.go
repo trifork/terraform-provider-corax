@@ -20,7 +20,7 @@ var _ MappedNullable = &ProviderValidationResponse{}
 // ProviderValidationResponse Response from provider validation.
 type ProviderValidationResponse struct {
 	// Whether credentials are valid
-	Valid bool `json:"valid"`
+	Valid        bool           `json:"valid"`
 	ErrorMessage NullableString `json:"error_message,omitempty"`
 	// Available models
 	Models []AvailableModel `json:"models,omitempty"`
@@ -109,6 +109,7 @@ func (o *ProviderValidationResponse) HasErrorMessage() bool {
 func (o *ProviderValidationResponse) SetErrorMessage(v string) {
 	o.ErrorMessage.Set(&v)
 }
+
 // SetErrorMessageNil sets the value for ErrorMessage to be an explicit nil
 func (o *ProviderValidationResponse) SetErrorMessageNil() {
 	o.ErrorMessage.Set(nil)
@@ -184,7 +185,7 @@ func (o *ProviderValidationResponse) SetSupportsModelListing(v bool) {
 }
 
 func (o ProviderValidationResponse) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -246,5 +247,3 @@ func (v *NullableProviderValidationResponse) UnmarshalJSON(src []byte) error {
 	v.isSet = true
 	return json.Unmarshal(src, &v.value)
 }
-
-

@@ -24,11 +24,11 @@ type EvaluationDatasetItemRepresentation struct {
 	// Input for the dataset item
 	Input map[string]string `json:"input"`
 	// Output for the dataset item
-	Output map[string]interface{} `json:"output"`
-	Sources []string `json:"sources,omitempty"`
+	Output  map[string]interface{} `json:"output"`
+	Sources []string               `json:"sources,omitempty"`
 	// ID of the dataset item
-	Id string `json:"id"`
-	CreatedAt NullableTime `json:"created_at,omitempty"`
+	Id                   string       `json:"id"`
+	CreatedAt            NullableTime `json:"created_at,omitempty"`
 	AdditionalProperties map[string]interface{}
 }
 
@@ -224,6 +224,7 @@ func (o *EvaluationDatasetItemRepresentation) HasCreatedAt() bool {
 func (o *EvaluationDatasetItemRepresentation) SetCreatedAt(v time.Time) {
 	o.CreatedAt.Set(&v)
 }
+
 // SetCreatedAtNil sets the value for CreatedAt to be an explicit nil
 func (o *EvaluationDatasetItemRepresentation) SetCreatedAtNil() {
 	o.CreatedAt.Set(nil)
@@ -235,7 +236,7 @@ func (o *EvaluationDatasetItemRepresentation) UnsetCreatedAt() {
 }
 
 func (o EvaluationDatasetItemRepresentation) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -299,5 +300,3 @@ func (v *NullableEvaluationDatasetItemRepresentation) UnmarshalJSON(src []byte) 
 	v.isSet = true
 	return json.Unmarshal(src, &v.value)
 }
-
-

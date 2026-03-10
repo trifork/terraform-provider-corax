@@ -15,27 +15,26 @@ import (
 	"fmt"
 )
 
-
 // Request struct for Request
 type Request struct {
-	AnthropicProviderValidationRequest *AnthropicProviderValidationRequest
-	AzureAiProviderValidationRequest *AzureAiProviderValidationRequest
-	AzureProviderValidationRequest *AzureProviderValidationRequest
+	AnthropicProviderValidationRequest   *AnthropicProviderValidationRequest
+	AzureAiProviderValidationRequest     *AzureAiProviderValidationRequest
+	AzureProviderValidationRequest       *AzureProviderValidationRequest
 	AzureSpeechProviderValidationRequest *AzureSpeechProviderValidationRequest
-	BedrockProviderValidationRequest *BedrockProviderValidationRequest
-	GeminiProviderValidationRequest *GeminiProviderValidationRequest
-	MistralProviderValidationRequest *MistralProviderValidationRequest
-	OllamaProviderValidationRequest *OllamaProviderValidationRequest
-	OpenAILikeProviderValidationRequest *OpenAILikeProviderValidationRequest
-	OpenAIProviderValidationRequest *OpenAIProviderValidationRequest
-	OpenRouterProviderValidationRequest *OpenRouterProviderValidationRequest
+	BedrockProviderValidationRequest     *BedrockProviderValidationRequest
+	GeminiProviderValidationRequest      *GeminiProviderValidationRequest
+	MistralProviderValidationRequest     *MistralProviderValidationRequest
+	OllamaProviderValidationRequest      *OllamaProviderValidationRequest
+	OpenAILikeProviderValidationRequest  *OpenAILikeProviderValidationRequest
+	OpenAIProviderValidationRequest      *OpenAIProviderValidationRequest
+	OpenRouterProviderValidationRequest  *OpenRouterProviderValidationRequest
 }
 
 // Unmarshal JSON data into any of the pointers in the struct
 func (dst *Request) UnmarshalJSON(data []byte) error {
 	var err error
 	// try to unmarshal JSON data into AnthropicProviderValidationRequest
-	err = json.Unmarshal(data, &dst.AnthropicProviderValidationRequest);
+	err = json.Unmarshal(data, &dst.AnthropicProviderValidationRequest)
 	if err == nil {
 		jsonAnthropicProviderValidationRequest, _ := json.Marshal(dst.AnthropicProviderValidationRequest)
 		if string(jsonAnthropicProviderValidationRequest) == "{}" { // empty struct
@@ -48,7 +47,7 @@ func (dst *Request) UnmarshalJSON(data []byte) error {
 	}
 
 	// try to unmarshal JSON data into AzureAiProviderValidationRequest
-	err = json.Unmarshal(data, &dst.AzureAiProviderValidationRequest);
+	err = json.Unmarshal(data, &dst.AzureAiProviderValidationRequest)
 	if err == nil {
 		jsonAzureAiProviderValidationRequest, _ := json.Marshal(dst.AzureAiProviderValidationRequest)
 		if string(jsonAzureAiProviderValidationRequest) == "{}" { // empty struct
@@ -61,7 +60,7 @@ func (dst *Request) UnmarshalJSON(data []byte) error {
 	}
 
 	// try to unmarshal JSON data into AzureProviderValidationRequest
-	err = json.Unmarshal(data, &dst.AzureProviderValidationRequest);
+	err = json.Unmarshal(data, &dst.AzureProviderValidationRequest)
 	if err == nil {
 		jsonAzureProviderValidationRequest, _ := json.Marshal(dst.AzureProviderValidationRequest)
 		if string(jsonAzureProviderValidationRequest) == "{}" { // empty struct
@@ -74,7 +73,7 @@ func (dst *Request) UnmarshalJSON(data []byte) error {
 	}
 
 	// try to unmarshal JSON data into AzureSpeechProviderValidationRequest
-	err = json.Unmarshal(data, &dst.AzureSpeechProviderValidationRequest);
+	err = json.Unmarshal(data, &dst.AzureSpeechProviderValidationRequest)
 	if err == nil {
 		jsonAzureSpeechProviderValidationRequest, _ := json.Marshal(dst.AzureSpeechProviderValidationRequest)
 		if string(jsonAzureSpeechProviderValidationRequest) == "{}" { // empty struct
@@ -87,7 +86,7 @@ func (dst *Request) UnmarshalJSON(data []byte) error {
 	}
 
 	// try to unmarshal JSON data into BedrockProviderValidationRequest
-	err = json.Unmarshal(data, &dst.BedrockProviderValidationRequest);
+	err = json.Unmarshal(data, &dst.BedrockProviderValidationRequest)
 	if err == nil {
 		jsonBedrockProviderValidationRequest, _ := json.Marshal(dst.BedrockProviderValidationRequest)
 		if string(jsonBedrockProviderValidationRequest) == "{}" { // empty struct
@@ -100,7 +99,7 @@ func (dst *Request) UnmarshalJSON(data []byte) error {
 	}
 
 	// try to unmarshal JSON data into GeminiProviderValidationRequest
-	err = json.Unmarshal(data, &dst.GeminiProviderValidationRequest);
+	err = json.Unmarshal(data, &dst.GeminiProviderValidationRequest)
 	if err == nil {
 		jsonGeminiProviderValidationRequest, _ := json.Marshal(dst.GeminiProviderValidationRequest)
 		if string(jsonGeminiProviderValidationRequest) == "{}" { // empty struct
@@ -113,7 +112,7 @@ func (dst *Request) UnmarshalJSON(data []byte) error {
 	}
 
 	// try to unmarshal JSON data into MistralProviderValidationRequest
-	err = json.Unmarshal(data, &dst.MistralProviderValidationRequest);
+	err = json.Unmarshal(data, &dst.MistralProviderValidationRequest)
 	if err == nil {
 		jsonMistralProviderValidationRequest, _ := json.Marshal(dst.MistralProviderValidationRequest)
 		if string(jsonMistralProviderValidationRequest) == "{}" { // empty struct
@@ -126,7 +125,7 @@ func (dst *Request) UnmarshalJSON(data []byte) error {
 	}
 
 	// try to unmarshal JSON data into OllamaProviderValidationRequest
-	err = json.Unmarshal(data, &dst.OllamaProviderValidationRequest);
+	err = json.Unmarshal(data, &dst.OllamaProviderValidationRequest)
 	if err == nil {
 		jsonOllamaProviderValidationRequest, _ := json.Marshal(dst.OllamaProviderValidationRequest)
 		if string(jsonOllamaProviderValidationRequest) == "{}" { // empty struct
@@ -139,7 +138,7 @@ func (dst *Request) UnmarshalJSON(data []byte) error {
 	}
 
 	// try to unmarshal JSON data into OpenAILikeProviderValidationRequest
-	err = json.Unmarshal(data, &dst.OpenAILikeProviderValidationRequest);
+	err = json.Unmarshal(data, &dst.OpenAILikeProviderValidationRequest)
 	if err == nil {
 		jsonOpenAILikeProviderValidationRequest, _ := json.Marshal(dst.OpenAILikeProviderValidationRequest)
 		if string(jsonOpenAILikeProviderValidationRequest) == "{}" { // empty struct
@@ -152,7 +151,7 @@ func (dst *Request) UnmarshalJSON(data []byte) error {
 	}
 
 	// try to unmarshal JSON data into OpenAIProviderValidationRequest
-	err = json.Unmarshal(data, &dst.OpenAIProviderValidationRequest);
+	err = json.Unmarshal(data, &dst.OpenAIProviderValidationRequest)
 	if err == nil {
 		jsonOpenAIProviderValidationRequest, _ := json.Marshal(dst.OpenAIProviderValidationRequest)
 		if string(jsonOpenAIProviderValidationRequest) == "{}" { // empty struct
@@ -165,7 +164,7 @@ func (dst *Request) UnmarshalJSON(data []byte) error {
 	}
 
 	// try to unmarshal JSON data into OpenRouterProviderValidationRequest
-	err = json.Unmarshal(data, &dst.OpenRouterProviderValidationRequest);
+	err = json.Unmarshal(data, &dst.OpenRouterProviderValidationRequest)
 	if err == nil {
 		jsonOpenRouterProviderValidationRequest, _ := json.Marshal(dst.OpenRouterProviderValidationRequest)
 		if string(jsonOpenRouterProviderValidationRequest) == "{}" { // empty struct
@@ -229,7 +228,6 @@ func (src Request) MarshalJSON() ([]byte, error) {
 	return nil, nil // no data in anyOf schemas
 }
 
-
 type NullableRequest struct {
 	value *Request
 	isSet bool
@@ -265,5 +263,3 @@ func (v *NullableRequest) UnmarshalJSON(src []byte) error {
 	v.isSet = true
 	return json.Unmarshal(src, &v.value)
 }
-
-

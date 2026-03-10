@@ -21,7 +21,7 @@ var _ MappedNullable = &CapabilityEvaluationConfiguration{}
 type CapabilityEvaluationConfiguration struct {
 	Description NullableString `json:"description,omitempty"`
 	// Percentage of criteria that need to be successful for the evaluation to be considered successful. Defaults to 1.0 (100%)
-	SuccessThreshold *float32 `json:"success_threshold,omitempty"`
+	SuccessThreshold     *float32 `json:"success_threshold,omitempty"`
 	AdditionalProperties map[string]interface{}
 }
 
@@ -80,6 +80,7 @@ func (o *CapabilityEvaluationConfiguration) HasDescription() bool {
 func (o *CapabilityEvaluationConfiguration) SetDescription(v string) {
 	o.Description.Set(&v)
 }
+
 // SetDescriptionNil sets the value for Description to be an explicit nil
 func (o *CapabilityEvaluationConfiguration) SetDescriptionNil() {
 	o.Description.Set(nil)
@@ -123,7 +124,7 @@ func (o *CapabilityEvaluationConfiguration) SetSuccessThreshold(v float32) {
 }
 
 func (o CapabilityEvaluationConfiguration) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -181,5 +182,3 @@ func (v *NullableCapabilityEvaluationConfiguration) UnmarshalJSON(src []byte) er
 	v.isSet = true
 	return json.Unmarshal(src, &v.value)
 }
-
-

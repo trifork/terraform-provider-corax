@@ -19,16 +19,16 @@ var _ MappedNullable = &ExtractionCapabilityCreate{}
 
 // ExtractionCapabilityCreate struct for ExtractionCapabilityCreate
 type ExtractionCapabilityCreate struct {
-	Name string `json:"name"`
-	IsPublic NullableBool `json:"is_public,omitempty"`
-	Type string `json:"type"`
-	ModelId NullableString `json:"model_id,omitempty"`
-	ModelPoolId NullableString `json:"model_pool_id,omitempty"`
-	Config NullableCapabilityConfig `json:"config,omitempty"`
-	ProjectId NullableString `json:"project_id,omitempty"`
-	SemanticId NullableString `json:"semantic_id,omitempty" validate:"regexp=^[a-z0-9]+(?:-[a-z0-9]+)*$"`
-	SystemPrompt NullableString `json:"system_prompt,omitempty"`
-	OutputType *string `json:"output_type,omitempty"`
+	Name                 string                   `json:"name"`
+	IsPublic             NullableBool             `json:"is_public,omitempty"`
+	Type                 string                   `json:"type"`
+	ModelId              NullableString           `json:"model_id,omitempty"`
+	ModelPoolId          NullableString           `json:"model_pool_id,omitempty"`
+	Config               NullableCapabilityConfig `json:"config,omitempty"`
+	ProjectId            NullableString           `json:"project_id,omitempty"`
+	SemanticId           NullableString           `json:"semantic_id,omitempty" validate:"regexp=^[a-z0-9]+(?:-[a-z0-9]+)*$"`
+	SystemPrompt         NullableString           `json:"system_prompt,omitempty"`
+	OutputType           *string                  `json:"output_type,omitempty"`
 	AdditionalProperties map[string]interface{}
 }
 
@@ -113,6 +113,7 @@ func (o *ExtractionCapabilityCreate) HasIsPublic() bool {
 func (o *ExtractionCapabilityCreate) SetIsPublic(v bool) {
 	o.IsPublic.Set(&v)
 }
+
 // SetIsPublicNil sets the value for IsPublic to be an explicit nil
 func (o *ExtractionCapabilityCreate) SetIsPublicNil() {
 	o.IsPublic.Set(nil)
@@ -179,6 +180,7 @@ func (o *ExtractionCapabilityCreate) HasModelId() bool {
 func (o *ExtractionCapabilityCreate) SetModelId(v string) {
 	o.ModelId.Set(&v)
 }
+
 // SetModelIdNil sets the value for ModelId to be an explicit nil
 func (o *ExtractionCapabilityCreate) SetModelIdNil() {
 	o.ModelId.Set(nil)
@@ -221,6 +223,7 @@ func (o *ExtractionCapabilityCreate) HasModelPoolId() bool {
 func (o *ExtractionCapabilityCreate) SetModelPoolId(v string) {
 	o.ModelPoolId.Set(&v)
 }
+
 // SetModelPoolIdNil sets the value for ModelPoolId to be an explicit nil
 func (o *ExtractionCapabilityCreate) SetModelPoolIdNil() {
 	o.ModelPoolId.Set(nil)
@@ -263,6 +266,7 @@ func (o *ExtractionCapabilityCreate) HasConfig() bool {
 func (o *ExtractionCapabilityCreate) SetConfig(v CapabilityConfig) {
 	o.Config.Set(&v)
 }
+
 // SetConfigNil sets the value for Config to be an explicit nil
 func (o *ExtractionCapabilityCreate) SetConfigNil() {
 	o.Config.Set(nil)
@@ -305,6 +309,7 @@ func (o *ExtractionCapabilityCreate) HasProjectId() bool {
 func (o *ExtractionCapabilityCreate) SetProjectId(v string) {
 	o.ProjectId.Set(&v)
 }
+
 // SetProjectIdNil sets the value for ProjectId to be an explicit nil
 func (o *ExtractionCapabilityCreate) SetProjectIdNil() {
 	o.ProjectId.Set(nil)
@@ -347,6 +352,7 @@ func (o *ExtractionCapabilityCreate) HasSemanticId() bool {
 func (o *ExtractionCapabilityCreate) SetSemanticId(v string) {
 	o.SemanticId.Set(&v)
 }
+
 // SetSemanticIdNil sets the value for SemanticId to be an explicit nil
 func (o *ExtractionCapabilityCreate) SetSemanticIdNil() {
 	o.SemanticId.Set(nil)
@@ -389,6 +395,7 @@ func (o *ExtractionCapabilityCreate) HasSystemPrompt() bool {
 func (o *ExtractionCapabilityCreate) SetSystemPrompt(v string) {
 	o.SystemPrompt.Set(&v)
 }
+
 // SetSystemPromptNil sets the value for SystemPrompt to be an explicit nil
 func (o *ExtractionCapabilityCreate) SetSystemPromptNil() {
 	o.SystemPrompt.Set(nil)
@@ -432,7 +439,7 @@ func (o *ExtractionCapabilityCreate) SetOutputType(v string) {
 }
 
 func (o ExtractionCapabilityCreate) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -510,5 +517,3 @@ func (v *NullableExtractionCapabilityCreate) UnmarshalJSON(src []byte) error {
 	v.isSet = true
 	return json.Unmarshal(src, &v.value)
 }
-
-

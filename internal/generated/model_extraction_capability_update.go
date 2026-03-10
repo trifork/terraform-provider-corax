@@ -19,17 +19,17 @@ var _ MappedNullable = &ExtractionCapabilityUpdate{}
 
 // ExtractionCapabilityUpdate struct for ExtractionCapabilityUpdate
 type ExtractionCapabilityUpdate struct {
-	Name string `json:"name"`
-	IsPublic NullableBool `json:"is_public,omitempty"`
-	Type string `json:"type"`
-	ModelId NullableString `json:"model_id,omitempty"`
-	ModelPoolId NullableString `json:"model_pool_id,omitempty"`
-	Config NullableCapabilityConfig `json:"config,omitempty"`
-	ProjectId NullableString `json:"project_id,omitempty"`
-	SemanticId NullableString `json:"semantic_id,omitempty" validate:"regexp=^[a-z0-9]+(?:-[a-z0-9]+)*$"`
-	SystemPrompt NullableString `json:"system_prompt,omitempty"`
-	OutputType *string `json:"output_type,omitempty"`
-	SetAsDefault NullableBool `json:"set_as_default,omitempty"`
+	Name                 string                   `json:"name"`
+	IsPublic             NullableBool             `json:"is_public,omitempty"`
+	Type                 string                   `json:"type"`
+	ModelId              NullableString           `json:"model_id,omitempty"`
+	ModelPoolId          NullableString           `json:"model_pool_id,omitempty"`
+	Config               NullableCapabilityConfig `json:"config,omitempty"`
+	ProjectId            NullableString           `json:"project_id,omitempty"`
+	SemanticId           NullableString           `json:"semantic_id,omitempty" validate:"regexp=^[a-z0-9]+(?:-[a-z0-9]+)*$"`
+	SystemPrompt         NullableString           `json:"system_prompt,omitempty"`
+	OutputType           *string                  `json:"output_type,omitempty"`
+	SetAsDefault         NullableBool             `json:"set_as_default,omitempty"`
 	AdditionalProperties map[string]interface{}
 }
 
@@ -114,6 +114,7 @@ func (o *ExtractionCapabilityUpdate) HasIsPublic() bool {
 func (o *ExtractionCapabilityUpdate) SetIsPublic(v bool) {
 	o.IsPublic.Set(&v)
 }
+
 // SetIsPublicNil sets the value for IsPublic to be an explicit nil
 func (o *ExtractionCapabilityUpdate) SetIsPublicNil() {
 	o.IsPublic.Set(nil)
@@ -180,6 +181,7 @@ func (o *ExtractionCapabilityUpdate) HasModelId() bool {
 func (o *ExtractionCapabilityUpdate) SetModelId(v string) {
 	o.ModelId.Set(&v)
 }
+
 // SetModelIdNil sets the value for ModelId to be an explicit nil
 func (o *ExtractionCapabilityUpdate) SetModelIdNil() {
 	o.ModelId.Set(nil)
@@ -222,6 +224,7 @@ func (o *ExtractionCapabilityUpdate) HasModelPoolId() bool {
 func (o *ExtractionCapabilityUpdate) SetModelPoolId(v string) {
 	o.ModelPoolId.Set(&v)
 }
+
 // SetModelPoolIdNil sets the value for ModelPoolId to be an explicit nil
 func (o *ExtractionCapabilityUpdate) SetModelPoolIdNil() {
 	o.ModelPoolId.Set(nil)
@@ -264,6 +267,7 @@ func (o *ExtractionCapabilityUpdate) HasConfig() bool {
 func (o *ExtractionCapabilityUpdate) SetConfig(v CapabilityConfig) {
 	o.Config.Set(&v)
 }
+
 // SetConfigNil sets the value for Config to be an explicit nil
 func (o *ExtractionCapabilityUpdate) SetConfigNil() {
 	o.Config.Set(nil)
@@ -306,6 +310,7 @@ func (o *ExtractionCapabilityUpdate) HasProjectId() bool {
 func (o *ExtractionCapabilityUpdate) SetProjectId(v string) {
 	o.ProjectId.Set(&v)
 }
+
 // SetProjectIdNil sets the value for ProjectId to be an explicit nil
 func (o *ExtractionCapabilityUpdate) SetProjectIdNil() {
 	o.ProjectId.Set(nil)
@@ -348,6 +353,7 @@ func (o *ExtractionCapabilityUpdate) HasSemanticId() bool {
 func (o *ExtractionCapabilityUpdate) SetSemanticId(v string) {
 	o.SemanticId.Set(&v)
 }
+
 // SetSemanticIdNil sets the value for SemanticId to be an explicit nil
 func (o *ExtractionCapabilityUpdate) SetSemanticIdNil() {
 	o.SemanticId.Set(nil)
@@ -390,6 +396,7 @@ func (o *ExtractionCapabilityUpdate) HasSystemPrompt() bool {
 func (o *ExtractionCapabilityUpdate) SetSystemPrompt(v string) {
 	o.SystemPrompt.Set(&v)
 }
+
 // SetSystemPromptNil sets the value for SystemPrompt to be an explicit nil
 func (o *ExtractionCapabilityUpdate) SetSystemPromptNil() {
 	o.SystemPrompt.Set(nil)
@@ -464,6 +471,7 @@ func (o *ExtractionCapabilityUpdate) HasSetAsDefault() bool {
 func (o *ExtractionCapabilityUpdate) SetSetAsDefault(v bool) {
 	o.SetAsDefault.Set(&v)
 }
+
 // SetSetAsDefaultNil sets the value for SetAsDefault to be an explicit nil
 func (o *ExtractionCapabilityUpdate) SetSetAsDefaultNil() {
 	o.SetAsDefault.Set(nil)
@@ -475,7 +483,7 @@ func (o *ExtractionCapabilityUpdate) UnsetSetAsDefault() {
 }
 
 func (o ExtractionCapabilityUpdate) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -556,5 +564,3 @@ func (v *NullableExtractionCapabilityUpdate) UnmarshalJSON(src []byte) error {
 	v.isSet = true
 	return json.Unmarshal(src, &v.value)
 }
-
-

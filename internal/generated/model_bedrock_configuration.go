@@ -19,9 +19,9 @@ var _ MappedNullable = &BedrockConfiguration{}
 
 // BedrockConfiguration Configuration for AWS Bedrock provider.
 type BedrockConfiguration struct {
-	AwsAccessKeyId string `json:"aws_access_key_id"`
-	AwsSecretAccessKey string `json:"aws_secret_access_key"`
-	AwsRegionName string `json:"aws_region_name"`
+	AwsAccessKeyId       string `json:"aws_access_key_id"`
+	AwsSecretAccessKey   string `json:"aws_secret_access_key"`
+	AwsRegionName        string `json:"aws_region_name"`
 	AdditionalProperties map[string]interface{}
 }
 
@@ -120,7 +120,7 @@ func (o *BedrockConfiguration) SetAwsRegionName(v string) {
 }
 
 func (o BedrockConfiguration) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -175,5 +175,3 @@ func (v *NullableBedrockConfiguration) UnmarshalJSON(src []byte) error {
 	v.isSet = true
 	return json.Unmarshal(src, &v.value)
 }
-
-

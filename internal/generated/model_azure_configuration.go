@@ -19,8 +19,8 @@ var _ MappedNullable = &AzureConfiguration{}
 
 // AzureConfiguration Configuration for Azure OpenAI provider.
 type AzureConfiguration struct {
-	ApiKey string `json:"api_key"`
-	ApiEndpoint string `json:"api_endpoint"`
+	ApiKey               string `json:"api_key"`
+	ApiEndpoint          string `json:"api_endpoint"`
 	AdditionalProperties map[string]interface{}
 }
 
@@ -94,7 +94,7 @@ func (o *AzureConfiguration) SetApiEndpoint(v string) {
 }
 
 func (o AzureConfiguration) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -148,5 +148,3 @@ func (v *NullableAzureConfiguration) UnmarshalJSON(src []byte) error {
 	v.isSet = true
 	return json.Unmarshal(src, &v.value)
 }
-
-

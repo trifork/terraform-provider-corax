@@ -21,14 +21,14 @@ type HTTPMethod string
 // List of HTTPMethod
 const (
 	CONNECT HTTPMethod = "CONNECT"
-	DELETE HTTPMethod = "DELETE"
-	GET HTTPMethod = "GET"
-	HEAD HTTPMethod = "HEAD"
+	DELETE  HTTPMethod = "DELETE"
+	GET     HTTPMethod = "GET"
+	HEAD    HTTPMethod = "HEAD"
 	OPTIONS HTTPMethod = "OPTIONS"
-	PATCH HTTPMethod = "PATCH"
-	POST HTTPMethod = "POST"
-	PUT HTTPMethod = "PUT"
-	TRACE HTTPMethod = "TRACE"
+	PATCH   HTTPMethod = "PATCH"
+	POST    HTTPMethod = "POST"
+	PUT     HTTPMethod = "PUT"
+	TRACE   HTTPMethod = "TRACE"
 )
 
 // All allowed values of HTTPMethod enum
@@ -122,4 +122,3 @@ func (v *NullableHTTPMethod) UnmarshalJSON(src []byte) error {
 	v.isSet = true
 	return json.Unmarshal(src, &v.value)
 }
-

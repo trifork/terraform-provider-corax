@@ -19,13 +19,12 @@ import (
 	"strings"
 )
 
-
 // APIKeysAPIService APIKeysAPI service
 type APIKeysAPIService service
 
 type APIKeysAPICreateApiKeyV1ApiKeysPostRequest struct {
-	ctx context.Context
-	ApiService *APIKeysAPIService
+	ctx          context.Context
+	ApiService   *APIKeysAPIService
 	apiKeyCreate *ApiKeyCreate
 }
 
@@ -43,24 +42,25 @@ CreateApiKeyV1ApiKeysPost Create Api Key
 
 Create a new API key
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return APIKeysAPICreateApiKeyV1ApiKeysPostRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@return APIKeysAPICreateApiKeyV1ApiKeysPostRequest
 */
 func (a *APIKeysAPIService) CreateApiKeyV1ApiKeysPost(ctx context.Context) APIKeysAPICreateApiKeyV1ApiKeysPostRequest {
 	return APIKeysAPICreateApiKeyV1ApiKeysPostRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
 // Execute executes the request
-//  @return ApiKey
+//
+//	@return ApiKey
 func (a *APIKeysAPIService) CreateApiKeyV1ApiKeysPostExecute(r APIKeysAPICreateApiKeyV1ApiKeysPostRequest) (*ApiKey, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPost
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *ApiKey
+		localVarHTTPMethod  = http.MethodPost
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *ApiKey
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "APIKeysAPIService.CreateApiKeyV1ApiKeysPost")
@@ -139,8 +139,8 @@ func (a *APIKeysAPIService) CreateApiKeyV1ApiKeysPostExecute(r APIKeysAPICreateA
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -158,9 +158,9 @@ func (a *APIKeysAPIService) CreateApiKeyV1ApiKeysPostExecute(r APIKeysAPICreateA
 }
 
 type APIKeysAPIDeleteApiKeyV1ApiKeysKeyIdDeleteRequest struct {
-	ctx context.Context
+	ctx        context.Context
 	ApiService *APIKeysAPIService
-	keyId string
+	keyId      string
 }
 
 func (r APIKeysAPIDeleteApiKeyV1ApiKeysKeyIdDeleteRequest) Execute() (*http.Response, error) {
@@ -172,24 +172,24 @@ DeleteApiKeyV1ApiKeysKeyIdDelete Delete Api Key
 
 Delete an API key
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param keyId
- @return APIKeysAPIDeleteApiKeyV1ApiKeysKeyIdDeleteRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param keyId
+	@return APIKeysAPIDeleteApiKeyV1ApiKeysKeyIdDeleteRequest
 */
 func (a *APIKeysAPIService) DeleteApiKeyV1ApiKeysKeyIdDelete(ctx context.Context, keyId string) APIKeysAPIDeleteApiKeyV1ApiKeysKeyIdDeleteRequest {
 	return APIKeysAPIDeleteApiKeyV1ApiKeysKeyIdDeleteRequest{
 		ApiService: a,
-		ctx: ctx,
-		keyId: keyId,
+		ctx:        ctx,
+		keyId:      keyId,
 	}
 }
 
 // Execute executes the request
 func (a *APIKeysAPIService) DeleteApiKeyV1ApiKeysKeyIdDeleteExecute(r APIKeysAPIDeleteApiKeyV1ApiKeysKeyIdDeleteRequest) (*http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodDelete
-		localVarPostBody     interface{}
-		formFiles            []formFile
+		localVarHTTPMethod = http.MethodDelete
+		localVarPostBody   interface{}
+		formFiles          []formFile
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "APIKeysAPIService.DeleteApiKeyV1ApiKeysKeyIdDelete")
@@ -264,8 +264,8 @@ func (a *APIKeysAPIService) DeleteApiKeyV1ApiKeysKeyIdDeleteExecute(r APIKeysAPI
 				newErr.error = err.Error()
 				return localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarHTTPResponse, newErr
 	}
@@ -274,12 +274,12 @@ func (a *APIKeysAPIService) DeleteApiKeyV1ApiKeysKeyIdDeleteExecute(r APIKeysAPI
 }
 
 type APIKeysAPIGetApiKeysV1ApiKeysGetRequest struct {
-	ctx context.Context
+	ctx        context.Context
 	ApiService *APIKeysAPIService
-	page *int32
-	size *int32
-	sort *string
-	filter *string
+	page       *int32
+	size       *int32
+	sort       *string
+	filter     *string
 }
 
 func (r APIKeysAPIGetApiKeysV1ApiKeysGetRequest) Page(page int32) APIKeysAPIGetApiKeysV1ApiKeysGetRequest {
@@ -313,24 +313,25 @@ GetApiKeysV1ApiKeysGet Get Api Keys
 
 Get all API keys for user
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return APIKeysAPIGetApiKeysV1ApiKeysGetRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@return APIKeysAPIGetApiKeysV1ApiKeysGetRequest
 */
 func (a *APIKeysAPIService) GetApiKeysV1ApiKeysGet(ctx context.Context) APIKeysAPIGetApiKeysV1ApiKeysGetRequest {
 	return APIKeysAPIGetApiKeysV1ApiKeysGetRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
 // Execute executes the request
-//  @return PagedResponseModelApiKey
+//
+//	@return PagedResponseModelApiKey
 func (a *APIKeysAPIService) GetApiKeysV1ApiKeysGetExecute(r APIKeysAPIGetApiKeysV1ApiKeysGetRequest) (*PagedResponseModelApiKey, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *PagedResponseModelApiKey
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *PagedResponseModelApiKey
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "APIKeysAPIService.GetApiKeysV1ApiKeysGet")
@@ -347,23 +348,23 @@ func (a *APIKeysAPIService) GetApiKeysV1ApiKeysGetExecute(r APIKeysAPIGetApiKeys
 	if r.page != nil {
 		parameterAddToHeaderOrQuery(localVarQueryParams, "page", r.page, "form", "")
 	} else {
-        var defaultValue int32 = 1
-        parameterAddToHeaderOrQuery(localVarQueryParams, "page", defaultValue, "form", "")
-        r.page = &defaultValue
+		var defaultValue int32 = 1
+		parameterAddToHeaderOrQuery(localVarQueryParams, "page", defaultValue, "form", "")
+		r.page = &defaultValue
 	}
 	if r.size != nil {
 		parameterAddToHeaderOrQuery(localVarQueryParams, "size", r.size, "form", "")
 	} else {
-        var defaultValue int32 = 10
-        parameterAddToHeaderOrQuery(localVarQueryParams, "size", defaultValue, "form", "")
-        r.size = &defaultValue
+		var defaultValue int32 = 10
+		parameterAddToHeaderOrQuery(localVarQueryParams, "size", defaultValue, "form", "")
+		r.size = &defaultValue
 	}
 	if r.sort != nil {
 		parameterAddToHeaderOrQuery(localVarQueryParams, "sort", r.sort, "form", "")
 	} else {
-        var defaultValue string = "id"
-        parameterAddToHeaderOrQuery(localVarQueryParams, "sort", defaultValue, "form", "")
-        r.sort = &defaultValue
+		var defaultValue string = "id"
+		parameterAddToHeaderOrQuery(localVarQueryParams, "sort", defaultValue, "form", "")
+		r.sort = &defaultValue
 	}
 	if r.filter != nil {
 		parameterAddToHeaderOrQuery(localVarQueryParams, "filter", r.filter, "form", "")
@@ -428,8 +429,8 @@ func (a *APIKeysAPIService) GetApiKeysV1ApiKeysGetExecute(r APIKeysAPIGetApiKeys
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}

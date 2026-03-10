@@ -19,17 +19,17 @@ var _ MappedNullable = &ChatCapabilityCreate{}
 
 // ChatCapabilityCreate struct for ChatCapabilityCreate
 type ChatCapabilityCreate struct {
-	Name string `json:"name"`
-	IsPublic NullableBool `json:"is_public,omitempty"`
-	Type string `json:"type"`
-	ModelId NullableString `json:"model_id,omitempty"`
-	ModelPoolId NullableString `json:"model_pool_id,omitempty"`
-	Config NullableCapabilityConfig `json:"config,omitempty"`
-	ProjectId NullableString `json:"project_id,omitempty"`
-	SemanticId NullableString `json:"semantic_id,omitempty" validate:"regexp=^[a-z0-9]+(?:-[a-z0-9]+)*$"`
-	SystemPrompt string `json:"system_prompt"`
-	Variables []string `json:"variables,omitempty"`
-	CollectionIds []string `json:"collection_ids,omitempty"`
+	Name                 string                   `json:"name"`
+	IsPublic             NullableBool             `json:"is_public,omitempty"`
+	Type                 string                   `json:"type"`
+	ModelId              NullableString           `json:"model_id,omitempty"`
+	ModelPoolId          NullableString           `json:"model_pool_id,omitempty"`
+	Config               NullableCapabilityConfig `json:"config,omitempty"`
+	ProjectId            NullableString           `json:"project_id,omitempty"`
+	SemanticId           NullableString           `json:"semantic_id,omitempty" validate:"regexp=^[a-z0-9]+(?:-[a-z0-9]+)*$"`
+	SystemPrompt         string                   `json:"system_prompt"`
+	Variables            []string                 `json:"variables,omitempty"`
+	CollectionIds        []string                 `json:"collection_ids,omitempty"`
 	AdditionalProperties map[string]interface{}
 }
 
@@ -111,6 +111,7 @@ func (o *ChatCapabilityCreate) HasIsPublic() bool {
 func (o *ChatCapabilityCreate) SetIsPublic(v bool) {
 	o.IsPublic.Set(&v)
 }
+
 // SetIsPublicNil sets the value for IsPublic to be an explicit nil
 func (o *ChatCapabilityCreate) SetIsPublicNil() {
 	o.IsPublic.Set(nil)
@@ -177,6 +178,7 @@ func (o *ChatCapabilityCreate) HasModelId() bool {
 func (o *ChatCapabilityCreate) SetModelId(v string) {
 	o.ModelId.Set(&v)
 }
+
 // SetModelIdNil sets the value for ModelId to be an explicit nil
 func (o *ChatCapabilityCreate) SetModelIdNil() {
 	o.ModelId.Set(nil)
@@ -219,6 +221,7 @@ func (o *ChatCapabilityCreate) HasModelPoolId() bool {
 func (o *ChatCapabilityCreate) SetModelPoolId(v string) {
 	o.ModelPoolId.Set(&v)
 }
+
 // SetModelPoolIdNil sets the value for ModelPoolId to be an explicit nil
 func (o *ChatCapabilityCreate) SetModelPoolIdNil() {
 	o.ModelPoolId.Set(nil)
@@ -261,6 +264,7 @@ func (o *ChatCapabilityCreate) HasConfig() bool {
 func (o *ChatCapabilityCreate) SetConfig(v CapabilityConfig) {
 	o.Config.Set(&v)
 }
+
 // SetConfigNil sets the value for Config to be an explicit nil
 func (o *ChatCapabilityCreate) SetConfigNil() {
 	o.Config.Set(nil)
@@ -303,6 +307,7 @@ func (o *ChatCapabilityCreate) HasProjectId() bool {
 func (o *ChatCapabilityCreate) SetProjectId(v string) {
 	o.ProjectId.Set(&v)
 }
+
 // SetProjectIdNil sets the value for ProjectId to be an explicit nil
 func (o *ChatCapabilityCreate) SetProjectIdNil() {
 	o.ProjectId.Set(nil)
@@ -345,6 +350,7 @@ func (o *ChatCapabilityCreate) HasSemanticId() bool {
 func (o *ChatCapabilityCreate) SetSemanticId(v string) {
 	o.SemanticId.Set(&v)
 }
+
 // SetSemanticIdNil sets the value for SemanticId to be an explicit nil
 func (o *ChatCapabilityCreate) SetSemanticIdNil() {
 	o.SemanticId.Set(nil)
@@ -446,7 +452,7 @@ func (o *ChatCapabilityCreate) SetCollectionIds(v []string) {
 }
 
 func (o ChatCapabilityCreate) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -525,5 +531,3 @@ func (v *NullableChatCapabilityCreate) UnmarshalJSON(src []byte) error {
 	v.isSet = true
 	return json.Unmarshal(src, &v.value)
 }
-
-

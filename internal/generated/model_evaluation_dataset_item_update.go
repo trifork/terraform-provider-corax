@@ -22,10 +22,10 @@ type EvaluationDatasetItemUpdate struct {
 	// Input for the dataset item
 	Input map[string]string `json:"input"`
 	// Output for the dataset item
-	Output map[string]interface{} `json:"output"`
-	Sources []string `json:"sources,omitempty"`
+	Output  map[string]interface{} `json:"output"`
+	Sources []string               `json:"sources,omitempty"`
 	// ID of the dataset item
-	Id string `json:"id"`
+	Id                   string `json:"id"`
 	AdditionalProperties map[string]interface{}
 }
 
@@ -157,7 +157,7 @@ func (o *EvaluationDatasetItemUpdate) SetId(v string) {
 }
 
 func (o EvaluationDatasetItemUpdate) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -215,5 +215,3 @@ func (v *NullableEvaluationDatasetItemUpdate) UnmarshalJSON(src []byte) error {
 	v.isSet = true
 	return json.Unmarshal(src, &v.value)
 }
-
-

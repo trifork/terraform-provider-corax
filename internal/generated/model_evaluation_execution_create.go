@@ -20,7 +20,7 @@ var _ MappedNullable = &EvaluationExecutionCreate{}
 // EvaluationExecutionCreate struct for EvaluationExecutionCreate
 type EvaluationExecutionCreate struct {
 	// ID of the evaluation to be executed
-	EvaluationId string `json:"evaluation_id"`
+	EvaluationId         string `json:"evaluation_id"`
 	AdditionalProperties map[string]interface{}
 }
 
@@ -69,7 +69,7 @@ func (o *EvaluationExecutionCreate) SetEvaluationId(v string) {
 }
 
 func (o EvaluationExecutionCreate) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -122,5 +122,3 @@ func (v *NullableEvaluationExecutionCreate) UnmarshalJSON(src []byte) error {
 	v.isSet = true
 	return json.Unmarshal(src, &v.value)
 }
-
-

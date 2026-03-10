@@ -20,27 +20,27 @@ var _ MappedNullable = &CapabilityRepresentation{}
 
 // CapabilityRepresentation struct for CapabilityRepresentation
 type CapabilityRepresentation struct {
-	Links map[string]HateoasLink `json:"_links,omitempty"`
-	Name string `json:"name"`
-	IsPublic NullableBool `json:"is_public,omitempty"`
-	Type string `json:"type"`
-	ModelId NullableString `json:"model_id,omitempty"`
-	ModelPoolId NullableString `json:"model_pool_id,omitempty"`
-	Config NullableCapabilityConfig `json:"config,omitempty"`
-	ProjectId NullableString `json:"project_id,omitempty"`
-	SemanticId string `json:"semantic_id"`
-	Id string `json:"id"`
-	CreatedBy string `json:"created_by"`
-	UpdatedBy string `json:"updated_by"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
-	ArchivedAt NullableTime `json:"archived_at,omitempty"`
-	Owner string `json:"owner"`
-	Version *int32 `json:"version,omitempty"`
-	Input map[string]interface{} `json:"input"`
-	Output map[string]interface{} `json:"output"`
-	Configuration map[string]interface{} `json:"configuration"`
-	IsDefaultVersion bool `json:"is_default_version"`
+	Links                map[string]HateoasLink   `json:"_links,omitempty"`
+	Name                 string                   `json:"name"`
+	IsPublic             NullableBool             `json:"is_public,omitempty"`
+	Type                 string                   `json:"type"`
+	ModelId              NullableString           `json:"model_id,omitempty"`
+	ModelPoolId          NullableString           `json:"model_pool_id,omitempty"`
+	Config               NullableCapabilityConfig `json:"config,omitempty"`
+	ProjectId            NullableString           `json:"project_id,omitempty"`
+	SemanticId           string                   `json:"semantic_id"`
+	Id                   string                   `json:"id"`
+	CreatedBy            string                   `json:"created_by"`
+	UpdatedBy            string                   `json:"updated_by"`
+	CreatedAt            time.Time                `json:"created_at"`
+	UpdatedAt            time.Time                `json:"updated_at"`
+	ArchivedAt           NullableTime             `json:"archived_at,omitempty"`
+	Owner                string                   `json:"owner"`
+	Version              *int32                   `json:"version,omitempty"`
+	Input                map[string]interface{}   `json:"input"`
+	Output               map[string]interface{}   `json:"output"`
+	Configuration        map[string]interface{}   `json:"configuration"`
+	IsDefaultVersion     bool                     `json:"is_default_version"`
 	AdditionalProperties map[string]interface{}
 }
 
@@ -169,6 +169,7 @@ func (o *CapabilityRepresentation) HasIsPublic() bool {
 func (o *CapabilityRepresentation) SetIsPublic(v bool) {
 	o.IsPublic.Set(&v)
 }
+
 // SetIsPublicNil sets the value for IsPublic to be an explicit nil
 func (o *CapabilityRepresentation) SetIsPublicNil() {
 	o.IsPublic.Set(nil)
@@ -235,6 +236,7 @@ func (o *CapabilityRepresentation) HasModelId() bool {
 func (o *CapabilityRepresentation) SetModelId(v string) {
 	o.ModelId.Set(&v)
 }
+
 // SetModelIdNil sets the value for ModelId to be an explicit nil
 func (o *CapabilityRepresentation) SetModelIdNil() {
 	o.ModelId.Set(nil)
@@ -277,6 +279,7 @@ func (o *CapabilityRepresentation) HasModelPoolId() bool {
 func (o *CapabilityRepresentation) SetModelPoolId(v string) {
 	o.ModelPoolId.Set(&v)
 }
+
 // SetModelPoolIdNil sets the value for ModelPoolId to be an explicit nil
 func (o *CapabilityRepresentation) SetModelPoolIdNil() {
 	o.ModelPoolId.Set(nil)
@@ -319,6 +322,7 @@ func (o *CapabilityRepresentation) HasConfig() bool {
 func (o *CapabilityRepresentation) SetConfig(v CapabilityConfig) {
 	o.Config.Set(&v)
 }
+
 // SetConfigNil sets the value for Config to be an explicit nil
 func (o *CapabilityRepresentation) SetConfigNil() {
 	o.Config.Set(nil)
@@ -361,6 +365,7 @@ func (o *CapabilityRepresentation) HasProjectId() bool {
 func (o *CapabilityRepresentation) SetProjectId(v string) {
 	o.ProjectId.Set(&v)
 }
+
 // SetProjectIdNil sets the value for ProjectId to be an explicit nil
 func (o *CapabilityRepresentation) SetProjectIdNil() {
 	o.ProjectId.Set(nil)
@@ -547,6 +552,7 @@ func (o *CapabilityRepresentation) HasArchivedAt() bool {
 func (o *CapabilityRepresentation) SetArchivedAt(v time.Time) {
 	o.ArchivedAt.Set(&v)
 }
+
 // SetArchivedAtNil sets the value for ArchivedAt to be an explicit nil
 func (o *CapabilityRepresentation) SetArchivedAtNil() {
 	o.ArchivedAt.Set(nil)
@@ -710,7 +716,7 @@ func (o *CapabilityRepresentation) SetIsDefaultVersion(v bool) {
 }
 
 func (o CapabilityRepresentation) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -799,5 +805,3 @@ func (v *NullableCapabilityRepresentation) UnmarshalJSON(src []byte) error {
 	v.isSet = true
 	return json.Unmarshal(src, &v.value)
 }
-
-

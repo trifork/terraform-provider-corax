@@ -20,18 +20,18 @@ var _ MappedNullable = &ApiKey{}
 
 // ApiKey struct for ApiKey
 type ApiKey struct {
-	Links map[string]HateoasLink `json:"_links,omitempty"`
-	Id string `json:"id"`
-	Prefix *string `json:"prefix,omitempty"`
-	Key string `json:"key"`
-	Name string `json:"name"`
-	ExpiresAt NullableTime `json:"expires_at,omitempty"`
-	CreatedBy string `json:"created_by"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt NullableTime `json:"updated_at,omitempty"`
-	IsActive *bool `json:"is_active,omitempty"`
-	LastUsedAt NullableTime `json:"last_used_at,omitempty"`
-	UsageCount *int32 `json:"usage_count,omitempty"`
+	Links                map[string]HateoasLink `json:"_links,omitempty"`
+	Id                   string                 `json:"id"`
+	Prefix               *string                `json:"prefix,omitempty"`
+	Key                  string                 `json:"key"`
+	Name                 string                 `json:"name"`
+	ExpiresAt            NullableTime           `json:"expires_at,omitempty"`
+	CreatedBy            string                 `json:"created_by"`
+	CreatedAt            time.Time              `json:"created_at"`
+	UpdatedAt            NullableTime           `json:"updated_at,omitempty"`
+	IsActive             *bool                  `json:"is_active,omitempty"`
+	LastUsedAt           NullableTime           `json:"last_used_at,omitempty"`
+	UsageCount           *int32                 `json:"usage_count,omitempty"`
 	AdditionalProperties map[string]interface{}
 }
 
@@ -240,6 +240,7 @@ func (o *ApiKey) HasExpiresAt() bool {
 func (o *ApiKey) SetExpiresAt(v time.Time) {
 	o.ExpiresAt.Set(&v)
 }
+
 // SetExpiresAtNil sets the value for ExpiresAt to be an explicit nil
 func (o *ApiKey) SetExpiresAtNil() {
 	o.ExpiresAt.Set(nil)
@@ -330,6 +331,7 @@ func (o *ApiKey) HasUpdatedAt() bool {
 func (o *ApiKey) SetUpdatedAt(v time.Time) {
 	o.UpdatedAt.Set(&v)
 }
+
 // SetUpdatedAtNil sets the value for UpdatedAt to be an explicit nil
 func (o *ApiKey) SetUpdatedAtNil() {
 	o.UpdatedAt.Set(nil)
@@ -404,6 +406,7 @@ func (o *ApiKey) HasLastUsedAt() bool {
 func (o *ApiKey) SetLastUsedAt(v time.Time) {
 	o.LastUsedAt.Set(&v)
 }
+
 // SetLastUsedAtNil sets the value for LastUsedAt to be an explicit nil
 func (o *ApiKey) SetLastUsedAtNil() {
 	o.LastUsedAt.Set(nil)
@@ -447,7 +450,7 @@ func (o *ApiKey) SetUsageCount(v int32) {
 }
 
 func (o ApiKey) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -525,5 +528,3 @@ func (v *NullableApiKey) UnmarshalJSON(src []byte) error {
 	v.isSet = true
 	return json.Unmarshal(src, &v.value)
 }
-
-

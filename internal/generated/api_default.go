@@ -18,12 +18,11 @@ import (
 	"net/url"
 )
 
-
 // DefaultAPIService DefaultAPI service
 type DefaultAPIService service
 
 type DefaultAPIGetFeaturesFeaturesGetRequest struct {
-	ctx context.Context
+	ctx        context.Context
 	ApiService *DefaultAPIService
 }
 
@@ -36,24 +35,25 @@ GetFeaturesFeaturesGet Get Features
 
 Return enabled feature flags for frontend consumption.
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return DefaultAPIGetFeaturesFeaturesGetRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@return DefaultAPIGetFeaturesFeaturesGetRequest
 */
 func (a *DefaultAPIService) GetFeaturesFeaturesGet(ctx context.Context) DefaultAPIGetFeaturesFeaturesGetRequest {
 	return DefaultAPIGetFeaturesFeaturesGetRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
 // Execute executes the request
-//  @return map[string]bool
+//
+//	@return map[string]bool
 func (a *DefaultAPIService) GetFeaturesFeaturesGetExecute(r DefaultAPIGetFeaturesFeaturesGetRequest) (map[string]bool, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  map[string]bool
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue map[string]bool
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "DefaultAPIService.GetFeaturesFeaturesGet")
@@ -122,7 +122,7 @@ func (a *DefaultAPIService) GetFeaturesFeaturesGetExecute(r DefaultAPIGetFeature
 }
 
 type DefaultAPIHealthcheckGetRequest struct {
-	ctx context.Context
+	ctx        context.Context
 	ApiService *DefaultAPIService
 }
 
@@ -133,24 +133,25 @@ func (r DefaultAPIHealthcheckGetRequest) Execute() (interface{}, *http.Response,
 /*
 HealthcheckGet Healthcheck
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return DefaultAPIHealthcheckGetRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@return DefaultAPIHealthcheckGetRequest
 */
 func (a *DefaultAPIService) HealthcheckGet(ctx context.Context) DefaultAPIHealthcheckGetRequest {
 	return DefaultAPIHealthcheckGetRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
 // Execute executes the request
-//  @return interface{}
+//
+//	@return interface{}
 func (a *DefaultAPIService) HealthcheckGetExecute(r DefaultAPIHealthcheckGetRequest) (interface{}, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  interface{}
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue interface{}
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "DefaultAPIService.HealthcheckGet")

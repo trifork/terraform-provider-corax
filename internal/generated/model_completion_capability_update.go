@@ -19,20 +19,20 @@ var _ MappedNullable = &CompletionCapabilityUpdate{}
 
 // CompletionCapabilityUpdate struct for CompletionCapabilityUpdate
 type CompletionCapabilityUpdate struct {
-	Name string `json:"name"`
-	IsPublic NullableBool `json:"is_public,omitempty"`
-	Type string `json:"type"`
-	ModelId NullableString `json:"model_id,omitempty"`
-	ModelPoolId NullableString `json:"model_pool_id,omitempty"`
-	Config NullableCapabilityConfig `json:"config,omitempty"`
-	ProjectId NullableString `json:"project_id,omitempty"`
-	SemanticId NullableString `json:"semantic_id,omitempty" validate:"regexp=^[a-z0-9]+(?:-[a-z0-9]+)*$"`
-	SystemPrompt NullableString `json:"system_prompt,omitempty"`
-	CompletionPrompt NullableString `json:"completion_prompt,omitempty"`
-	Variables []string `json:"variables,omitempty"`
-	OutputType NullableString `json:"output_type,omitempty"`
-	SchemaDef map[string]CompletionCapabilityCreateSchemaDefValue `json:"schema_def,omitempty"`
-	SetAsDefault NullableBool `json:"set_as_default,omitempty"`
+	Name                 string                                              `json:"name"`
+	IsPublic             NullableBool                                        `json:"is_public,omitempty"`
+	Type                 string                                              `json:"type"`
+	ModelId              NullableString                                      `json:"model_id,omitempty"`
+	ModelPoolId          NullableString                                      `json:"model_pool_id,omitempty"`
+	Config               NullableCapabilityConfig                            `json:"config,omitempty"`
+	ProjectId            NullableString                                      `json:"project_id,omitempty"`
+	SemanticId           NullableString                                      `json:"semantic_id,omitempty" validate:"regexp=^[a-z0-9]+(?:-[a-z0-9]+)*$"`
+	SystemPrompt         NullableString                                      `json:"system_prompt,omitempty"`
+	CompletionPrompt     NullableString                                      `json:"completion_prompt,omitempty"`
+	Variables            []string                                            `json:"variables,omitempty"`
+	OutputType           NullableString                                      `json:"output_type,omitempty"`
+	SchemaDef            map[string]CompletionCapabilityCreateSchemaDefValue `json:"schema_def,omitempty"`
+	SetAsDefault         NullableBool                                        `json:"set_as_default,omitempty"`
 	AdditionalProperties map[string]interface{}
 }
 
@@ -113,6 +113,7 @@ func (o *CompletionCapabilityUpdate) HasIsPublic() bool {
 func (o *CompletionCapabilityUpdate) SetIsPublic(v bool) {
 	o.IsPublic.Set(&v)
 }
+
 // SetIsPublicNil sets the value for IsPublic to be an explicit nil
 func (o *CompletionCapabilityUpdate) SetIsPublicNil() {
 	o.IsPublic.Set(nil)
@@ -179,6 +180,7 @@ func (o *CompletionCapabilityUpdate) HasModelId() bool {
 func (o *CompletionCapabilityUpdate) SetModelId(v string) {
 	o.ModelId.Set(&v)
 }
+
 // SetModelIdNil sets the value for ModelId to be an explicit nil
 func (o *CompletionCapabilityUpdate) SetModelIdNil() {
 	o.ModelId.Set(nil)
@@ -221,6 +223,7 @@ func (o *CompletionCapabilityUpdate) HasModelPoolId() bool {
 func (o *CompletionCapabilityUpdate) SetModelPoolId(v string) {
 	o.ModelPoolId.Set(&v)
 }
+
 // SetModelPoolIdNil sets the value for ModelPoolId to be an explicit nil
 func (o *CompletionCapabilityUpdate) SetModelPoolIdNil() {
 	o.ModelPoolId.Set(nil)
@@ -263,6 +266,7 @@ func (o *CompletionCapabilityUpdate) HasConfig() bool {
 func (o *CompletionCapabilityUpdate) SetConfig(v CapabilityConfig) {
 	o.Config.Set(&v)
 }
+
 // SetConfigNil sets the value for Config to be an explicit nil
 func (o *CompletionCapabilityUpdate) SetConfigNil() {
 	o.Config.Set(nil)
@@ -305,6 +309,7 @@ func (o *CompletionCapabilityUpdate) HasProjectId() bool {
 func (o *CompletionCapabilityUpdate) SetProjectId(v string) {
 	o.ProjectId.Set(&v)
 }
+
 // SetProjectIdNil sets the value for ProjectId to be an explicit nil
 func (o *CompletionCapabilityUpdate) SetProjectIdNil() {
 	o.ProjectId.Set(nil)
@@ -347,6 +352,7 @@ func (o *CompletionCapabilityUpdate) HasSemanticId() bool {
 func (o *CompletionCapabilityUpdate) SetSemanticId(v string) {
 	o.SemanticId.Set(&v)
 }
+
 // SetSemanticIdNil sets the value for SemanticId to be an explicit nil
 func (o *CompletionCapabilityUpdate) SetSemanticIdNil() {
 	o.SemanticId.Set(nil)
@@ -389,6 +395,7 @@ func (o *CompletionCapabilityUpdate) HasSystemPrompt() bool {
 func (o *CompletionCapabilityUpdate) SetSystemPrompt(v string) {
 	o.SystemPrompt.Set(&v)
 }
+
 // SetSystemPromptNil sets the value for SystemPrompt to be an explicit nil
 func (o *CompletionCapabilityUpdate) SetSystemPromptNil() {
 	o.SystemPrompt.Set(nil)
@@ -431,6 +438,7 @@ func (o *CompletionCapabilityUpdate) HasCompletionPrompt() bool {
 func (o *CompletionCapabilityUpdate) SetCompletionPrompt(v string) {
 	o.CompletionPrompt.Set(&v)
 }
+
 // SetCompletionPromptNil sets the value for CompletionPrompt to be an explicit nil
 func (o *CompletionCapabilityUpdate) SetCompletionPromptNil() {
 	o.CompletionPrompt.Set(nil)
@@ -506,6 +514,7 @@ func (o *CompletionCapabilityUpdate) HasOutputType() bool {
 func (o *CompletionCapabilityUpdate) SetOutputType(v string) {
 	o.OutputType.Set(&v)
 }
+
 // SetOutputTypeNil sets the value for OutputType to be an explicit nil
 func (o *CompletionCapabilityUpdate) SetOutputTypeNil() {
 	o.OutputType.Set(nil)
@@ -581,6 +590,7 @@ func (o *CompletionCapabilityUpdate) HasSetAsDefault() bool {
 func (o *CompletionCapabilityUpdate) SetSetAsDefault(v bool) {
 	o.SetAsDefault.Set(&v)
 }
+
 // SetSetAsDefaultNil sets the value for SetAsDefault to be an explicit nil
 func (o *CompletionCapabilityUpdate) SetSetAsDefaultNil() {
 	o.SetAsDefault.Set(nil)
@@ -592,7 +602,7 @@ func (o *CompletionCapabilityUpdate) UnsetSetAsDefault() {
 }
 
 func (o CompletionCapabilityUpdate) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -682,5 +692,3 @@ func (v *NullableCompletionCapabilityUpdate) UnmarshalJSON(src []byte) error {
 	v.isSet = true
 	return json.Unmarshal(src, &v.value)
 }
-
-

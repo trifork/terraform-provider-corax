@@ -15,12 +15,11 @@ import (
 	"fmt"
 )
 
-
 // ResponseCreateCapabilityV1CapabilitiesPost struct for ResponseCreateCapabilityV1CapabilitiesPost
 type ResponseCreateCapabilityV1CapabilitiesPost struct {
-	ChatCapability *ChatCapability
-	CompletionCapability *CompletionCapability
-	ExtractionCapability *ExtractionCapability
+	ChatCapability         *ChatCapability
+	CompletionCapability   *CompletionCapability
+	ExtractionCapability   *ExtractionCapability
 	SpeechToTextCapability *SpeechToTextCapability
 }
 
@@ -28,7 +27,7 @@ type ResponseCreateCapabilityV1CapabilitiesPost struct {
 func (dst *ResponseCreateCapabilityV1CapabilitiesPost) UnmarshalJSON(data []byte) error {
 	var err error
 	// try to unmarshal JSON data into ChatCapability
-	err = json.Unmarshal(data, &dst.ChatCapability);
+	err = json.Unmarshal(data, &dst.ChatCapability)
 	if err == nil {
 		jsonChatCapability, _ := json.Marshal(dst.ChatCapability)
 		if string(jsonChatCapability) == "{}" { // empty struct
@@ -41,7 +40,7 @@ func (dst *ResponseCreateCapabilityV1CapabilitiesPost) UnmarshalJSON(data []byte
 	}
 
 	// try to unmarshal JSON data into CompletionCapability
-	err = json.Unmarshal(data, &dst.CompletionCapability);
+	err = json.Unmarshal(data, &dst.CompletionCapability)
 	if err == nil {
 		jsonCompletionCapability, _ := json.Marshal(dst.CompletionCapability)
 		if string(jsonCompletionCapability) == "{}" { // empty struct
@@ -54,7 +53,7 @@ func (dst *ResponseCreateCapabilityV1CapabilitiesPost) UnmarshalJSON(data []byte
 	}
 
 	// try to unmarshal JSON data into ExtractionCapability
-	err = json.Unmarshal(data, &dst.ExtractionCapability);
+	err = json.Unmarshal(data, &dst.ExtractionCapability)
 	if err == nil {
 		jsonExtractionCapability, _ := json.Marshal(dst.ExtractionCapability)
 		if string(jsonExtractionCapability) == "{}" { // empty struct
@@ -67,7 +66,7 @@ func (dst *ResponseCreateCapabilityV1CapabilitiesPost) UnmarshalJSON(data []byte
 	}
 
 	// try to unmarshal JSON data into SpeechToTextCapability
-	err = json.Unmarshal(data, &dst.SpeechToTextCapability);
+	err = json.Unmarshal(data, &dst.SpeechToTextCapability)
 	if err == nil {
 		jsonSpeechToTextCapability, _ := json.Marshal(dst.SpeechToTextCapability)
 		if string(jsonSpeechToTextCapability) == "{}" { // empty struct
@@ -102,7 +101,6 @@ func (src ResponseCreateCapabilityV1CapabilitiesPost) MarshalJSON() ([]byte, err
 
 	return nil, nil // no data in anyOf schemas
 }
-
 
 type NullableResponseCreateCapabilityV1CapabilitiesPost struct {
 	value *ResponseCreateCapabilityV1CapabilitiesPost
@@ -139,5 +137,3 @@ func (v *NullableResponseCreateCapabilityV1CapabilitiesPost) UnmarshalJSON(src [
 	v.isSet = true
 	return json.Unmarshal(src, &v.value)
 }
-
-

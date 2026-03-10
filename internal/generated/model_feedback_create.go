@@ -19,7 +19,7 @@ var _ MappedNullable = &FeedbackCreate{}
 
 // FeedbackCreate struct for FeedbackCreate
 type FeedbackCreate struct {
-	Feedback string `json:"feedback"`
+	Feedback             string `json:"feedback"`
 	AdditionalProperties map[string]interface{}
 }
 
@@ -68,7 +68,7 @@ func (o *FeedbackCreate) SetFeedback(v string) {
 }
 
 func (o FeedbackCreate) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -121,5 +121,3 @@ func (v *NullableFeedbackCreate) UnmarshalJSON(src []byte) error {
 	v.isSet = true
 	return json.Unmarshal(src, &v.value)
 }
-
-

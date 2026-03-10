@@ -19,9 +19,9 @@ var _ MappedNullable = &PagedResponseModelEvaluationCriterionExecutionRepresenta
 
 // PagedResponseModelEvaluationCriterionExecutionRepresentation struct for PagedResponseModelEvaluationCriterionExecutionRepresentation
 type PagedResponseModelEvaluationCriterionExecutionRepresentation struct {
-	Embedded []EvaluationCriterionExecutionRepresentation `json:"_embedded"`
-	Page Page `json:"page"`
-	Links map[string]HateoasLink `json:"_links,omitempty"`
+	Embedded             []EvaluationCriterionExecutionRepresentation `json:"_embedded"`
+	Page                 Page                                         `json:"page"`
+	Links                map[string]HateoasLink                       `json:"_links,omitempty"`
 	AdditionalProperties map[string]interface{}
 }
 
@@ -128,7 +128,7 @@ func (o *PagedResponseModelEvaluationCriterionExecutionRepresentation) SetLinks(
 }
 
 func (o PagedResponseModelEvaluationCriterionExecutionRepresentation) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -185,5 +185,3 @@ func (v *NullablePagedResponseModelEvaluationCriterionExecutionRepresentation) U
 	v.isSet = true
 	return json.Unmarshal(src, &v.value)
 }
-
-

@@ -22,23 +22,23 @@ var _ MappedNullable = &CapabilityEvaluationRepresentation{}
 type CapabilityEvaluationRepresentation struct {
 	Links map[string]HateoasLink `json:"_links,omitempty"`
 	// Name of the evaluation
-	Name string `json:"name"`
-	ProjectId NullableString `json:"project_id,omitempty"`
-	IsPublic NullableBool `json:"is_public,omitempty"`
-	CapabilityId NullableString `json:"capability_id,omitempty"`
-	CapabilityVersion NullableInt32 `json:"capability_version,omitempty"`
+	Name                string         `json:"name"`
+	ProjectId           NullableString `json:"project_id,omitempty"`
+	IsPublic            NullableBool   `json:"is_public,omitempty"`
+	CapabilityId        NullableString `json:"capability_id,omitempty"`
+	CapabilityVersion   NullableInt32  `json:"capability_version,omitempty"`
 	EvaluationDatasetId NullableString `json:"evaluation_dataset_id,omitempty"`
 	// Configuration for the capability evaluation
 	Configuration CapabilityEvaluationConfiguration `json:"configuration"`
 	// ID of the capability evaluation
-	Id string `json:"id"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt NullableTime `json:"updated_at,omitempty"`
-	CreatedBy string `json:"created_by"`
+	Id        string         `json:"id"`
+	CreatedAt time.Time      `json:"created_at"`
+	UpdatedAt NullableTime   `json:"updated_at,omitempty"`
+	CreatedBy string         `json:"created_by"`
 	UpdatedBy NullableString `json:"updated_by,omitempty"`
 	// Number of criteria in the capability evaluation
 	EvaluationCriteriaCount *int32 `json:"evaluation_criteria_count,omitempty"`
-	AdditionalProperties map[string]interface{}
+	AdditionalProperties    map[string]interface{}
 }
 
 type _CapabilityEvaluationRepresentation CapabilityEvaluationRepresentation
@@ -158,6 +158,7 @@ func (o *CapabilityEvaluationRepresentation) HasProjectId() bool {
 func (o *CapabilityEvaluationRepresentation) SetProjectId(v string) {
 	o.ProjectId.Set(&v)
 }
+
 // SetProjectIdNil sets the value for ProjectId to be an explicit nil
 func (o *CapabilityEvaluationRepresentation) SetProjectIdNil() {
 	o.ProjectId.Set(nil)
@@ -200,6 +201,7 @@ func (o *CapabilityEvaluationRepresentation) HasIsPublic() bool {
 func (o *CapabilityEvaluationRepresentation) SetIsPublic(v bool) {
 	o.IsPublic.Set(&v)
 }
+
 // SetIsPublicNil sets the value for IsPublic to be an explicit nil
 func (o *CapabilityEvaluationRepresentation) SetIsPublicNil() {
 	o.IsPublic.Set(nil)
@@ -242,6 +244,7 @@ func (o *CapabilityEvaluationRepresentation) HasCapabilityId() bool {
 func (o *CapabilityEvaluationRepresentation) SetCapabilityId(v string) {
 	o.CapabilityId.Set(&v)
 }
+
 // SetCapabilityIdNil sets the value for CapabilityId to be an explicit nil
 func (o *CapabilityEvaluationRepresentation) SetCapabilityIdNil() {
 	o.CapabilityId.Set(nil)
@@ -284,6 +287,7 @@ func (o *CapabilityEvaluationRepresentation) HasCapabilityVersion() bool {
 func (o *CapabilityEvaluationRepresentation) SetCapabilityVersion(v int32) {
 	o.CapabilityVersion.Set(&v)
 }
+
 // SetCapabilityVersionNil sets the value for CapabilityVersion to be an explicit nil
 func (o *CapabilityEvaluationRepresentation) SetCapabilityVersionNil() {
 	o.CapabilityVersion.Set(nil)
@@ -326,6 +330,7 @@ func (o *CapabilityEvaluationRepresentation) HasEvaluationDatasetId() bool {
 func (o *CapabilityEvaluationRepresentation) SetEvaluationDatasetId(v string) {
 	o.EvaluationDatasetId.Set(&v)
 }
+
 // SetEvaluationDatasetIdNil sets the value for EvaluationDatasetId to be an explicit nil
 func (o *CapabilityEvaluationRepresentation) SetEvaluationDatasetIdNil() {
 	o.EvaluationDatasetId.Set(nil)
@@ -440,6 +445,7 @@ func (o *CapabilityEvaluationRepresentation) HasUpdatedAt() bool {
 func (o *CapabilityEvaluationRepresentation) SetUpdatedAt(v time.Time) {
 	o.UpdatedAt.Set(&v)
 }
+
 // SetUpdatedAtNil sets the value for UpdatedAt to be an explicit nil
 func (o *CapabilityEvaluationRepresentation) SetUpdatedAtNil() {
 	o.UpdatedAt.Set(nil)
@@ -506,6 +512,7 @@ func (o *CapabilityEvaluationRepresentation) HasUpdatedBy() bool {
 func (o *CapabilityEvaluationRepresentation) SetUpdatedBy(v string) {
 	o.UpdatedBy.Set(&v)
 }
+
 // SetUpdatedByNil sets the value for UpdatedBy to be an explicit nil
 func (o *CapabilityEvaluationRepresentation) SetUpdatedByNil() {
 	o.UpdatedBy.Set(nil)
@@ -549,7 +556,7 @@ func (o *CapabilityEvaluationRepresentation) SetEvaluationCriteriaCount(v int32)
 }
 
 func (o CapabilityEvaluationRepresentation) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -633,5 +640,3 @@ func (v *NullableCapabilityEvaluationRepresentation) UnmarshalJSON(src []byte) e
 	v.isSet = true
 	return json.Unmarshal(src, &v.value)
 }
-
-

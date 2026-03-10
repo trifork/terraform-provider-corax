@@ -20,25 +20,25 @@ var _ MappedNullable = &SpeechToTextCapability{}
 
 // SpeechToTextCapability struct for SpeechToTextCapability
 type SpeechToTextCapability struct {
-	Links map[string]HateoasLink `json:"_links,omitempty"`
-	Name string `json:"name"`
-	IsPublic NullableBool `json:"is_public,omitempty"`
-	Type *string `json:"type,omitempty"`
-	ModelId NullableString `json:"model_id,omitempty"`
-	ModelPoolId NullableString `json:"model_pool_id,omitempty"`
-	Config NullableCapabilityConfig `json:"config,omitempty"`
-	ProjectId NullableString `json:"project_id,omitempty"`
-	SemanticId NullableString `json:"semantic_id,omitempty" validate:"regexp=^[a-z0-9]+(?:-[a-z0-9]+)*$"`
-	Id string `json:"id"`
-	CreatedBy string `json:"created_by"`
-	UpdatedBy string `json:"updated_by"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
-	ArchivedAt NullableTime `json:"archived_at,omitempty"`
-	Owner string `json:"owner"`
-	Version *int32 `json:"version,omitempty"`
-	SystemPrompt NullableString `json:"system_prompt,omitempty"`
-	OutputType *string `json:"output_type,omitempty"`
+	Links                map[string]HateoasLink   `json:"_links,omitempty"`
+	Name                 string                   `json:"name"`
+	IsPublic             NullableBool             `json:"is_public,omitempty"`
+	Type                 *string                  `json:"type,omitempty"`
+	ModelId              NullableString           `json:"model_id,omitempty"`
+	ModelPoolId          NullableString           `json:"model_pool_id,omitempty"`
+	Config               NullableCapabilityConfig `json:"config,omitempty"`
+	ProjectId            NullableString           `json:"project_id,omitempty"`
+	SemanticId           NullableString           `json:"semantic_id,omitempty" validate:"regexp=^[a-z0-9]+(?:-[a-z0-9]+)*$"`
+	Id                   string                   `json:"id"`
+	CreatedBy            string                   `json:"created_by"`
+	UpdatedBy            string                   `json:"updated_by"`
+	CreatedAt            time.Time                `json:"created_at"`
+	UpdatedAt            time.Time                `json:"updated_at"`
+	ArchivedAt           NullableTime             `json:"archived_at,omitempty"`
+	Owner                string                   `json:"owner"`
+	Version              *int32                   `json:"version,omitempty"`
+	SystemPrompt         NullableString           `json:"system_prompt,omitempty"`
+	OutputType           *string                  `json:"output_type,omitempty"`
 	AdditionalProperties map[string]interface{}
 }
 
@@ -169,6 +169,7 @@ func (o *SpeechToTextCapability) HasIsPublic() bool {
 func (o *SpeechToTextCapability) SetIsPublic(v bool) {
 	o.IsPublic.Set(&v)
 }
+
 // SetIsPublicNil sets the value for IsPublic to be an explicit nil
 func (o *SpeechToTextCapability) SetIsPublicNil() {
 	o.IsPublic.Set(nil)
@@ -243,6 +244,7 @@ func (o *SpeechToTextCapability) HasModelId() bool {
 func (o *SpeechToTextCapability) SetModelId(v string) {
 	o.ModelId.Set(&v)
 }
+
 // SetModelIdNil sets the value for ModelId to be an explicit nil
 func (o *SpeechToTextCapability) SetModelIdNil() {
 	o.ModelId.Set(nil)
@@ -285,6 +287,7 @@ func (o *SpeechToTextCapability) HasModelPoolId() bool {
 func (o *SpeechToTextCapability) SetModelPoolId(v string) {
 	o.ModelPoolId.Set(&v)
 }
+
 // SetModelPoolIdNil sets the value for ModelPoolId to be an explicit nil
 func (o *SpeechToTextCapability) SetModelPoolIdNil() {
 	o.ModelPoolId.Set(nil)
@@ -327,6 +330,7 @@ func (o *SpeechToTextCapability) HasConfig() bool {
 func (o *SpeechToTextCapability) SetConfig(v CapabilityConfig) {
 	o.Config.Set(&v)
 }
+
 // SetConfigNil sets the value for Config to be an explicit nil
 func (o *SpeechToTextCapability) SetConfigNil() {
 	o.Config.Set(nil)
@@ -369,6 +373,7 @@ func (o *SpeechToTextCapability) HasProjectId() bool {
 func (o *SpeechToTextCapability) SetProjectId(v string) {
 	o.ProjectId.Set(&v)
 }
+
 // SetProjectIdNil sets the value for ProjectId to be an explicit nil
 func (o *SpeechToTextCapability) SetProjectIdNil() {
 	o.ProjectId.Set(nil)
@@ -411,6 +416,7 @@ func (o *SpeechToTextCapability) HasSemanticId() bool {
 func (o *SpeechToTextCapability) SetSemanticId(v string) {
 	o.SemanticId.Set(&v)
 }
+
 // SetSemanticIdNil sets the value for SemanticId to be an explicit nil
 func (o *SpeechToTextCapability) SetSemanticIdNil() {
 	o.SemanticId.Set(nil)
@@ -573,6 +579,7 @@ func (o *SpeechToTextCapability) HasArchivedAt() bool {
 func (o *SpeechToTextCapability) SetArchivedAt(v time.Time) {
 	o.ArchivedAt.Set(&v)
 }
+
 // SetArchivedAtNil sets the value for ArchivedAt to be an explicit nil
 func (o *SpeechToTextCapability) SetArchivedAtNil() {
 	o.ArchivedAt.Set(nil)
@@ -671,6 +678,7 @@ func (o *SpeechToTextCapability) HasSystemPrompt() bool {
 func (o *SpeechToTextCapability) SetSystemPrompt(v string) {
 	o.SystemPrompt.Set(&v)
 }
+
 // SetSystemPromptNil sets the value for SystemPrompt to be an explicit nil
 func (o *SpeechToTextCapability) SetSystemPromptNil() {
 	o.SystemPrompt.Set(nil)
@@ -714,7 +722,7 @@ func (o *SpeechToTextCapability) SetOutputType(v string) {
 }
 
 func (o SpeechToTextCapability) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -809,5 +817,3 @@ func (v *NullableSpeechToTextCapability) UnmarshalJSON(src []byte) error {
 	v.isSet = true
 	return json.Unmarshal(src, &v.value)
 }
-
-

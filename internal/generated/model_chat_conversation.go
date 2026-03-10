@@ -20,16 +20,16 @@ var _ MappedNullable = &ChatConversation{}
 
 // ChatConversation struct for ChatConversation
 type ChatConversation struct {
-	Links map[string]HateoasLink `json:"_links,omitempty"`
-	Owner string `json:"owner"`
-	Messages []Message `json:"messages"`
-	Name string `json:"name"`
-	CapabilityId string `json:"capability_id"`
-	CapabilityVersion int32 `json:"capability_version"`
-	CollectionIds []string `json:"collection_ids"`
-	Id string `json:"id"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
+	Links                map[string]HateoasLink `json:"_links,omitempty"`
+	Owner                string                 `json:"owner"`
+	Messages             []Message              `json:"messages"`
+	Name                 string                 `json:"name"`
+	CapabilityId         string                 `json:"capability_id"`
+	CapabilityVersion    int32                  `json:"capability_version"`
+	CollectionIds        []string               `json:"collection_ids"`
+	Id                   string                 `json:"id"`
+	CreatedAt            time.Time              `json:"created_at"`
+	UpdatedAt            time.Time              `json:"updated_at"`
 	AdditionalProperties map[string]interface{}
 }
 
@@ -311,7 +311,7 @@ func (o *ChatConversation) SetUpdatedAt(v time.Time) {
 }
 
 func (o ChatConversation) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -375,5 +375,3 @@ func (v *NullableChatConversation) UnmarshalJSON(src []byte) error {
 	v.isSet = true
 	return json.Unmarshal(src, &v.value)
 }
-
-

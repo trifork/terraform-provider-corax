@@ -23,9 +23,9 @@ type EvaluationCriterionExecutionRepresentation struct {
 	// ID of the evaluation criterion execution
 	Id string `json:"id"`
 	// Status of the evaluation criterion execution
-	Status EvaluationExecutionStatus `json:"status"`
-	Result NullableEvaluationCriterionExecutionResult `json:"result"`
-	CriterionId NullableString `json:"criterion_id"`
+	Status               EvaluationExecutionStatus                  `json:"status"`
+	Result               NullableEvaluationCriterionExecutionResult `json:"result"`
+	CriterionId          NullableString                             `json:"criterion_id"`
 	AdditionalProperties map[string]interface{}
 }
 
@@ -186,7 +186,7 @@ func (o *EvaluationCriterionExecutionRepresentation) SetCriterionId(v string) {
 }
 
 func (o EvaluationCriterionExecutionRepresentation) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -245,5 +245,3 @@ func (v *NullableEvaluationCriterionExecutionRepresentation) UnmarshalJSON(src [
 	v.isSet = true
 	return json.Unmarshal(src, &v.value)
 }
-
-

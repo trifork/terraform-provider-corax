@@ -20,11 +20,11 @@ type EvaluationExecutionStatus string
 
 // List of EvaluationExecutionStatus
 const (
-	PENDING EvaluationExecutionStatus = "pending"
+	PENDING     EvaluationExecutionStatus = "pending"
 	IN_PROGRESS EvaluationExecutionStatus = "in_progress"
-	COMPLETED EvaluationExecutionStatus = "completed"
-	FAILED EvaluationExecutionStatus = "failed"
-	CANCELLED EvaluationExecutionStatus = "cancelled"
+	COMPLETED   EvaluationExecutionStatus = "completed"
+	FAILED      EvaluationExecutionStatus = "failed"
+	CANCELLED   EvaluationExecutionStatus = "cancelled"
 )
 
 // All allowed values of EvaluationExecutionStatus enum
@@ -114,4 +114,3 @@ func (v *NullableEvaluationExecutionStatus) UnmarshalJSON(src []byte) error {
 	v.isSet = true
 	return json.Unmarshal(src, &v.value)
 }
-

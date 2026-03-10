@@ -15,12 +15,11 @@ import (
 	"fmt"
 )
 
-
 // Content struct for Content
 type Content struct {
 	ArrayOfMapmapOfStringAny *[]map[string]interface{}
-	MapmapOfStringAny *map[string]interface{}
-	String *string
+	MapmapOfStringAny        *map[string]interface{}
+	String                   *string
 }
 
 // Unmarshal JSON data into any of the pointers in the struct
@@ -32,7 +31,7 @@ func (dst *Content) UnmarshalJSON(data []byte) error {
 	}
 
 	// try to unmarshal JSON data into ArrayOfMapmapOfStringAny
-	err = json.Unmarshal(data, &dst.ArrayOfMapmapOfStringAny);
+	err = json.Unmarshal(data, &dst.ArrayOfMapmapOfStringAny)
 	if err == nil {
 		jsonArrayOfMapmapOfStringAny, _ := json.Marshal(dst.ArrayOfMapmapOfStringAny)
 		if string(jsonArrayOfMapmapOfStringAny) == "{}" { // empty struct
@@ -45,7 +44,7 @@ func (dst *Content) UnmarshalJSON(data []byte) error {
 	}
 
 	// try to unmarshal JSON data into MapmapOfStringAny
-	err = json.Unmarshal(data, &dst.MapmapOfStringAny);
+	err = json.Unmarshal(data, &dst.MapmapOfStringAny)
 	if err == nil {
 		jsonMapmapOfStringAny, _ := json.Marshal(dst.MapmapOfStringAny)
 		if string(jsonMapmapOfStringAny) == "{}" { // empty struct
@@ -58,7 +57,7 @@ func (dst *Content) UnmarshalJSON(data []byte) error {
 	}
 
 	// try to unmarshal JSON data into String
-	err = json.Unmarshal(data, &dst.String);
+	err = json.Unmarshal(data, &dst.String)
 	if err == nil {
 		jsonString, _ := json.Marshal(dst.String)
 		if string(jsonString) == "{}" { // empty struct
@@ -89,7 +88,6 @@ func (src Content) MarshalJSON() ([]byte, error) {
 
 	return nil, nil // no data in anyOf schemas
 }
-
 
 type NullableContent struct {
 	value *Content
@@ -126,5 +124,3 @@ func (v *NullableContent) UnmarshalJSON(src []byte) error {
 	v.isSet = true
 	return json.Unmarshal(src, &v.value)
 }
-
-

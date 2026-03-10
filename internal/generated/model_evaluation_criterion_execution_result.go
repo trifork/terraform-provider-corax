@@ -19,8 +19,8 @@ var _ MappedNullable = &EvaluationCriterionExecutionResult{}
 
 // EvaluationCriterionExecutionResult struct for EvaluationCriterionExecutionResult
 type EvaluationCriterionExecutionResult struct {
-	TestResults []TestResult `json:"test_results"`
-	Successful NullableBool `json:"successful,omitempty"`
+	TestResults          []TestResult `json:"test_results"`
+	Successful           NullableBool `json:"successful,omitempty"`
 	AdditionalProperties map[string]interface{}
 }
 
@@ -100,6 +100,7 @@ func (o *EvaluationCriterionExecutionResult) HasSuccessful() bool {
 func (o *EvaluationCriterionExecutionResult) SetSuccessful(v bool) {
 	o.Successful.Set(&v)
 }
+
 // SetSuccessfulNil sets the value for Successful to be an explicit nil
 func (o *EvaluationCriterionExecutionResult) SetSuccessfulNil() {
 	o.Successful.Set(nil)
@@ -111,7 +112,7 @@ func (o *EvaluationCriterionExecutionResult) UnsetSuccessful() {
 }
 
 func (o EvaluationCriterionExecutionResult) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -167,5 +168,3 @@ func (v *NullableEvaluationCriterionExecutionResult) UnmarshalJSON(src []byte) e
 	v.isSet = true
 	return json.Unmarshal(src, &v.value)
 }
-
-

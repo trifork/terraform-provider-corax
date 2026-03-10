@@ -19,10 +19,10 @@ var _ MappedNullable = &Page{}
 
 // Page Page schema for any paged API.
 type Page struct {
-	Number int32 `json:"number"`
-	Size int32 `json:"size"`
-	TotalElements int32 `json:"total_elements"`
-	TotalPages int32 `json:"total_pages"`
+	Number               int32 `json:"number"`
+	Size                 int32 `json:"size"`
+	TotalElements        int32 `json:"total_elements"`
+	TotalPages           int32 `json:"total_pages"`
 	AdditionalProperties map[string]interface{}
 }
 
@@ -146,7 +146,7 @@ func (o *Page) SetTotalPages(v int32) {
 }
 
 func (o Page) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -202,5 +202,3 @@ func (v *NullablePage) UnmarshalJSON(src []byte) error {
 	v.isSet = true
 	return json.Unmarshal(src, &v.value)
 }
-
-

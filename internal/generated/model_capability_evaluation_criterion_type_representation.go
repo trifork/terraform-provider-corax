@@ -21,7 +21,7 @@ var _ MappedNullable = &CapabilityEvaluationCriterionTypeRepresentation{}
 type CapabilityEvaluationCriterionTypeRepresentation struct {
 	Links map[string]HateoasLink `json:"_links,omitempty"`
 	// Name of the evaluation criterion
-	Name string `json:"name"`
+	Name                string               `json:"name"`
 	ConfigurationFields []ConfigurationField `json:"configuration_fields,omitempty"`
 	// Operation type of the capability evaluation criterion
 	Operation CapabilityCriterionOperationType `json:"operation"`
@@ -30,7 +30,7 @@ type CapabilityEvaluationCriterionTypeRepresentation struct {
 	// List of valid supported tasks for the criterion
 	ValidCapabilityTypes []CapabilityType `json:"valid_capability_types"`
 	// Description of the capability evaluation criterion
-	Description string `json:"description"`
+	Description          string `json:"description"`
 	AdditionalProperties map[string]interface{}
 }
 
@@ -245,7 +245,7 @@ func (o *CapabilityEvaluationCriterionTypeRepresentation) SetDescription(v strin
 }
 
 func (o CapabilityEvaluationCriterionTypeRepresentation) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -308,5 +308,3 @@ func (v *NullableCapabilityEvaluationCriterionTypeRepresentation) UnmarshalJSON(
 	v.isSet = true
 	return json.Unmarshal(src, &v.value)
 }
-
-

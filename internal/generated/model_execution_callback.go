@@ -20,17 +20,17 @@ var _ MappedNullable = &ExecutionCallback{}
 
 // ExecutionCallback struct for ExecutionCallback
 type ExecutionCallback struct {
-	Embedded map[string]interface{} `json:"_embedded,omitempty"`
-	Links map[string]HateoasLink `json:"_links,omitempty"`
-	Status string `json:"status"`
-	Attempts int32 `json:"attempts"`
-	CallbackUrl string `json:"callback_url"`
-	LastAttemptAt NullableTime `json:"last_attempt_at,omitempty"`
-	NextAttemptAt NullableTime `json:"next_attempt_at,omitempty"`
-	LastError NullableString `json:"last_error,omitempty"`
-	CreatedAt NullableTime `json:"created_at"`
-	UpdatedAt NullableTime `json:"updated_at"`
-	ExecutionId string `json:"execution_id"`
+	Embedded             map[string]interface{} `json:"_embedded,omitempty"`
+	Links                map[string]HateoasLink `json:"_links,omitempty"`
+	Status               string                 `json:"status"`
+	Attempts             int32                  `json:"attempts"`
+	CallbackUrl          string                 `json:"callback_url"`
+	LastAttemptAt        NullableTime           `json:"last_attempt_at,omitempty"`
+	NextAttemptAt        NullableTime           `json:"next_attempt_at,omitempty"`
+	LastError            NullableString         `json:"last_error,omitempty"`
+	CreatedAt            NullableTime           `json:"created_at"`
+	UpdatedAt            NullableTime           `json:"updated_at"`
+	ExecutionId          string                 `json:"execution_id"`
 	AdditionalProperties map[string]interface{}
 }
 
@@ -229,6 +229,7 @@ func (o *ExecutionCallback) HasLastAttemptAt() bool {
 func (o *ExecutionCallback) SetLastAttemptAt(v time.Time) {
 	o.LastAttemptAt.Set(&v)
 }
+
 // SetLastAttemptAtNil sets the value for LastAttemptAt to be an explicit nil
 func (o *ExecutionCallback) SetLastAttemptAtNil() {
 	o.LastAttemptAt.Set(nil)
@@ -271,6 +272,7 @@ func (o *ExecutionCallback) HasNextAttemptAt() bool {
 func (o *ExecutionCallback) SetNextAttemptAt(v time.Time) {
 	o.NextAttemptAt.Set(&v)
 }
+
 // SetNextAttemptAtNil sets the value for NextAttemptAt to be an explicit nil
 func (o *ExecutionCallback) SetNextAttemptAtNil() {
 	o.NextAttemptAt.Set(nil)
@@ -313,6 +315,7 @@ func (o *ExecutionCallback) HasLastError() bool {
 func (o *ExecutionCallback) SetLastError(v string) {
 	o.LastError.Set(&v)
 }
+
 // SetLastErrorNil sets the value for LastError to be an explicit nil
 func (o *ExecutionCallback) SetLastErrorNil() {
 	o.LastError.Set(nil)
@@ -400,7 +403,7 @@ func (o *ExecutionCallback) SetExecutionId(v string) {
 }
 
 func (o ExecutionCallback) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -473,5 +476,3 @@ func (v *NullableExecutionCallback) UnmarshalJSON(src []byte) error {
 	v.isSet = true
 	return json.Unmarshal(src, &v.value)
 }
-
-

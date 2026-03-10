@@ -20,10 +20,10 @@ type CapabilityType string
 
 // List of CapabilityType
 const (
-	CHAT CapabilityType = "chat"
-	COMPLETION CapabilityType = "completion"
-	EMBEDDING CapabilityType = "embedding"
-	EXTRACTION CapabilityType = "extraction"
+	CHAT           CapabilityType = "chat"
+	COMPLETION     CapabilityType = "completion"
+	EMBEDDING      CapabilityType = "embedding"
+	EXTRACTION     CapabilityType = "extraction"
 	SPEECH_TO_TEXT CapabilityType = "speech_to_text"
 )
 
@@ -114,4 +114,3 @@ func (v *NullableCapabilityType) UnmarshalJSON(src []byte) error {
 	v.isSet = true
 	return json.Unmarshal(src, &v.value)
 }
-

@@ -19,16 +19,16 @@ var _ MappedNullable = &MetricData{}
 
 // MetricData struct for MetricData
 type MetricData struct {
-	Name string `json:"name"`
-	Threshold float32 `json:"threshold"`
-	Success bool `json:"success"`
-	Score NullableFloat32 `json:"score,omitempty"`
-	Reason NullableString `json:"reason,omitempty"`
-	StrictMode NullableBool `json:"strictMode,omitempty"`
-	EvaluationModel NullableString `json:"evaluationModel,omitempty"`
-	Error NullableString `json:"error,omitempty"`
-	EvaluationCost NullableFloat32 `json:"evaluationCost,omitempty"`
-	VerboseLogs NullableString `json:"verboseLogs,omitempty"`
+	Name                 string          `json:"name"`
+	Threshold            float32         `json:"threshold"`
+	Success              bool            `json:"success"`
+	Score                NullableFloat32 `json:"score,omitempty"`
+	Reason               NullableString  `json:"reason,omitempty"`
+	StrictMode           NullableBool    `json:"strictMode,omitempty"`
+	EvaluationModel      NullableString  `json:"evaluationModel,omitempty"`
+	Error                NullableString  `json:"error,omitempty"`
+	EvaluationCost       NullableFloat32 `json:"evaluationCost,omitempty"`
+	VerboseLogs          NullableString  `json:"verboseLogs,omitempty"`
 	AdditionalProperties map[string]interface{}
 }
 
@@ -158,6 +158,7 @@ func (o *MetricData) HasScore() bool {
 func (o *MetricData) SetScore(v float32) {
 	o.Score.Set(&v)
 }
+
 // SetScoreNil sets the value for Score to be an explicit nil
 func (o *MetricData) SetScoreNil() {
 	o.Score.Set(nil)
@@ -200,6 +201,7 @@ func (o *MetricData) HasReason() bool {
 func (o *MetricData) SetReason(v string) {
 	o.Reason.Set(&v)
 }
+
 // SetReasonNil sets the value for Reason to be an explicit nil
 func (o *MetricData) SetReasonNil() {
 	o.Reason.Set(nil)
@@ -242,6 +244,7 @@ func (o *MetricData) HasStrictMode() bool {
 func (o *MetricData) SetStrictMode(v bool) {
 	o.StrictMode.Set(&v)
 }
+
 // SetStrictModeNil sets the value for StrictMode to be an explicit nil
 func (o *MetricData) SetStrictModeNil() {
 	o.StrictMode.Set(nil)
@@ -284,6 +287,7 @@ func (o *MetricData) HasEvaluationModel() bool {
 func (o *MetricData) SetEvaluationModel(v string) {
 	o.EvaluationModel.Set(&v)
 }
+
 // SetEvaluationModelNil sets the value for EvaluationModel to be an explicit nil
 func (o *MetricData) SetEvaluationModelNil() {
 	o.EvaluationModel.Set(nil)
@@ -326,6 +330,7 @@ func (o *MetricData) HasError() bool {
 func (o *MetricData) SetError(v string) {
 	o.Error.Set(&v)
 }
+
 // SetErrorNil sets the value for Error to be an explicit nil
 func (o *MetricData) SetErrorNil() {
 	o.Error.Set(nil)
@@ -368,6 +373,7 @@ func (o *MetricData) HasEvaluationCost() bool {
 func (o *MetricData) SetEvaluationCost(v float32) {
 	o.EvaluationCost.Set(&v)
 }
+
 // SetEvaluationCostNil sets the value for EvaluationCost to be an explicit nil
 func (o *MetricData) SetEvaluationCostNil() {
 	o.EvaluationCost.Set(nil)
@@ -410,6 +416,7 @@ func (o *MetricData) HasVerboseLogs() bool {
 func (o *MetricData) SetVerboseLogs(v string) {
 	o.VerboseLogs.Set(&v)
 }
+
 // SetVerboseLogsNil sets the value for VerboseLogs to be an explicit nil
 func (o *MetricData) SetVerboseLogsNil() {
 	o.VerboseLogs.Set(nil)
@@ -421,7 +428,7 @@ func (o *MetricData) UnsetVerboseLogs() {
 }
 
 func (o MetricData) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -497,5 +504,3 @@ func (v *NullableMetricData) UnmarshalJSON(src []byte) error {
 	v.isSet = true
 	return json.Unmarshal(src, &v.value)
 }
-
-

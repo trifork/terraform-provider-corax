@@ -22,7 +22,7 @@ type BedrockProviderValidationRequest struct {
 	// Provider configuration including credentials
 	Configuration BedrockConfiguration `json:"configuration"`
 	// Provider type
-	ProviderType string `json:"provider_type"`
+	ProviderType         string `json:"provider_type"`
 	AdditionalProperties map[string]interface{}
 }
 
@@ -96,7 +96,7 @@ func (o *BedrockProviderValidationRequest) SetProviderType(v string) {
 }
 
 func (o BedrockProviderValidationRequest) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -150,5 +150,3 @@ func (v *NullableBedrockProviderValidationRequest) UnmarshalJSON(src []byte) err
 	v.isSet = true
 	return json.Unmarshal(src, &v.value)
 }
-
-

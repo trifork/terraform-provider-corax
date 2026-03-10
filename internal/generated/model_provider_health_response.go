@@ -20,9 +20,9 @@ var _ MappedNullable = &ProviderHealthResponse{}
 
 // ProviderHealthResponse Health check response for a model provider.
 type ProviderHealthResponse struct {
-	Status string `json:"status"`
-	CheckedAt NullableTime `json:"checked_at,omitempty"`
-	ErrorMessage NullableString `json:"error_message,omitempty"`
+	Status               string         `json:"status"`
+	CheckedAt            NullableTime   `json:"checked_at,omitempty"`
+	ErrorMessage         NullableString `json:"error_message,omitempty"`
 	AdditionalProperties map[string]interface{}
 }
 
@@ -102,6 +102,7 @@ func (o *ProviderHealthResponse) HasCheckedAt() bool {
 func (o *ProviderHealthResponse) SetCheckedAt(v time.Time) {
 	o.CheckedAt.Set(&v)
 }
+
 // SetCheckedAtNil sets the value for CheckedAt to be an explicit nil
 func (o *ProviderHealthResponse) SetCheckedAtNil() {
 	o.CheckedAt.Set(nil)
@@ -144,6 +145,7 @@ func (o *ProviderHealthResponse) HasErrorMessage() bool {
 func (o *ProviderHealthResponse) SetErrorMessage(v string) {
 	o.ErrorMessage.Set(&v)
 }
+
 // SetErrorMessageNil sets the value for ErrorMessage to be an explicit nil
 func (o *ProviderHealthResponse) SetErrorMessageNil() {
 	o.ErrorMessage.Set(nil)
@@ -155,7 +157,7 @@ func (o *ProviderHealthResponse) UnsetErrorMessage() {
 }
 
 func (o ProviderHealthResponse) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -214,5 +216,3 @@ func (v *NullableProviderHealthResponse) UnmarshalJSON(src []byte) error {
 	v.isSet = true
 	return json.Unmarshal(src, &v.value)
 }
-
-

@@ -19,7 +19,7 @@ var _ MappedNullable = &OllamaConfiguration{}
 
 // OllamaConfiguration Configuration for Ollama provider.
 type OllamaConfiguration struct {
-	ApiEndpoint *string `json:"api_endpoint,omitempty"`
+	ApiEndpoint          *string `json:"api_endpoint,omitempty"`
 	AdditionalProperties map[string]interface{}
 }
 
@@ -79,7 +79,7 @@ func (o *OllamaConfiguration) SetApiEndpoint(v string) {
 }
 
 func (o OllamaConfiguration) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -134,5 +134,3 @@ func (v *NullableOllamaConfiguration) UnmarshalJSON(src []byte) error {
 	v.isSet = true
 	return json.Unmarshal(src, &v.value)
 }
-
-

@@ -20,12 +20,12 @@ var _ MappedNullable = &DocumentEmbeddingResponse{}
 
 // DocumentEmbeddingResponse Response model for document embedding operations
 type DocumentEmbeddingResponse struct {
-	Links map[string]HateoasLink `json:"_links,omitempty"`
-	CollectionId string `json:"collection_id"`
-	DocumentIds []string `json:"document_ids"`
-	Status *string `json:"status,omitempty"`
-	TotalEmbeddings *int32 `json:"total_embeddings,omitempty"`
-	CreatedAt *time.Time `json:"created_at,omitempty"`
+	Links                map[string]HateoasLink `json:"_links,omitempty"`
+	CollectionId         string                 `json:"collection_id"`
+	DocumentIds          []string               `json:"document_ids"`
+	Status               *string                `json:"status,omitempty"`
+	TotalEmbeddings      *int32                 `json:"total_embeddings,omitempty"`
+	CreatedAt            *time.Time             `json:"created_at,omitempty"`
 	AdditionalProperties map[string]interface{}
 }
 
@@ -236,7 +236,7 @@ func (o *DocumentEmbeddingResponse) SetCreatedAt(v time.Time) {
 }
 
 func (o DocumentEmbeddingResponse) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -302,5 +302,3 @@ func (v *NullableDocumentEmbeddingResponse) UnmarshalJSON(src []byte) error {
 	v.isSet = true
 	return json.Unmarshal(src, &v.value)
 }
-
-

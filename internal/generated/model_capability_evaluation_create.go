@@ -20,16 +20,16 @@ var _ MappedNullable = &CapabilityEvaluationCreate{}
 // CapabilityEvaluationCreate struct for CapabilityEvaluationCreate
 type CapabilityEvaluationCreate struct {
 	// Name of the evaluation
-	Name string `json:"name"`
+	Name      string         `json:"name"`
 	ProjectId NullableString `json:"project_id,omitempty"`
-	IsPublic NullableBool `json:"is_public,omitempty"`
+	IsPublic  NullableBool   `json:"is_public,omitempty"`
 	// ID of the capability to be evaluated
-	CapabilityId string `json:"capability_id"`
+	CapabilityId      string        `json:"capability_id"`
 	CapabilityVersion NullableInt32 `json:"capability_version,omitempty"`
 	// ID of the dataset to be used for the evaluation
 	EvaluationDatasetId string `json:"evaluation_dataset_id"`
 	// Configuration for the capability evaluation
-	Configuration CapabilityEvaluationConfiguration `json:"configuration"`
+	Configuration        CapabilityEvaluationConfiguration `json:"configuration"`
 	AdditionalProperties map[string]interface{}
 }
 
@@ -112,6 +112,7 @@ func (o *CapabilityEvaluationCreate) HasProjectId() bool {
 func (o *CapabilityEvaluationCreate) SetProjectId(v string) {
 	o.ProjectId.Set(&v)
 }
+
 // SetProjectIdNil sets the value for ProjectId to be an explicit nil
 func (o *CapabilityEvaluationCreate) SetProjectIdNil() {
 	o.ProjectId.Set(nil)
@@ -154,6 +155,7 @@ func (o *CapabilityEvaluationCreate) HasIsPublic() bool {
 func (o *CapabilityEvaluationCreate) SetIsPublic(v bool) {
 	o.IsPublic.Set(&v)
 }
+
 // SetIsPublicNil sets the value for IsPublic to be an explicit nil
 func (o *CapabilityEvaluationCreate) SetIsPublicNil() {
 	o.IsPublic.Set(nil)
@@ -220,6 +222,7 @@ func (o *CapabilityEvaluationCreate) HasCapabilityVersion() bool {
 func (o *CapabilityEvaluationCreate) SetCapabilityVersion(v int32) {
 	o.CapabilityVersion.Set(&v)
 }
+
 // SetCapabilityVersionNil sets the value for CapabilityVersion to be an explicit nil
 func (o *CapabilityEvaluationCreate) SetCapabilityVersionNil() {
 	o.CapabilityVersion.Set(nil)
@@ -279,7 +282,7 @@ func (o *CapabilityEvaluationCreate) SetConfiguration(v CapabilityEvaluationConf
 }
 
 func (o CapabilityEvaluationCreate) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -344,5 +347,3 @@ func (v *NullableCapabilityEvaluationCreate) UnmarshalJSON(src []byte) error {
 	v.isSet = true
 	return json.Unmarshal(src, &v.value)
 }
-
-

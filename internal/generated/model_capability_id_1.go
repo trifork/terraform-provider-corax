@@ -15,7 +15,6 @@ import (
 	"fmt"
 )
 
-
 // CapabilityId1 The ID or semantic ID of the capability
 type CapabilityId1 struct {
 	String *string
@@ -25,7 +24,7 @@ type CapabilityId1 struct {
 func (dst *CapabilityId1) UnmarshalJSON(data []byte) error {
 	var err error
 	// try to unmarshal JSON data into String
-	err = json.Unmarshal(data, &dst.String);
+	err = json.Unmarshal(data, &dst.String)
 	if err == nil {
 		jsonString, _ := json.Marshal(dst.String)
 		if string(jsonString) == "{}" { // empty struct
@@ -48,7 +47,6 @@ func (src CapabilityId1) MarshalJSON() ([]byte, error) {
 
 	return nil, nil // no data in anyOf schemas
 }
-
 
 type NullableCapabilityId1 struct {
 	value *CapabilityId1
@@ -85,5 +83,3 @@ func (v *NullableCapabilityId1) UnmarshalJSON(src []byte) error {
 	v.isSet = true
 	return json.Unmarshal(src, &v.value)
 }
-
-

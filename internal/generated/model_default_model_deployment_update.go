@@ -20,8 +20,8 @@ var _ MappedNullable = &DefaultModelDeploymentUpdate{}
 // DefaultModelDeploymentUpdate struct for DefaultModelDeploymentUpdate
 type DefaultModelDeploymentUpdate struct {
 	DefaultModelDeploymentId NullableString `json:"default_model_deployment_id,omitempty"`
-	ModelPoolId NullableString `json:"model_pool_id,omitempty"`
-	AdditionalProperties map[string]interface{}
+	ModelPoolId              NullableString `json:"model_pool_id,omitempty"`
+	AdditionalProperties     map[string]interface{}
 }
 
 type _DefaultModelDeploymentUpdate DefaultModelDeploymentUpdate
@@ -75,6 +75,7 @@ func (o *DefaultModelDeploymentUpdate) HasDefaultModelDeploymentId() bool {
 func (o *DefaultModelDeploymentUpdate) SetDefaultModelDeploymentId(v string) {
 	o.DefaultModelDeploymentId.Set(&v)
 }
+
 // SetDefaultModelDeploymentIdNil sets the value for DefaultModelDeploymentId to be an explicit nil
 func (o *DefaultModelDeploymentUpdate) SetDefaultModelDeploymentIdNil() {
 	o.DefaultModelDeploymentId.Set(nil)
@@ -117,6 +118,7 @@ func (o *DefaultModelDeploymentUpdate) HasModelPoolId() bool {
 func (o *DefaultModelDeploymentUpdate) SetModelPoolId(v string) {
 	o.ModelPoolId.Set(&v)
 }
+
 // SetModelPoolIdNil sets the value for ModelPoolId to be an explicit nil
 func (o *DefaultModelDeploymentUpdate) SetModelPoolIdNil() {
 	o.ModelPoolId.Set(nil)
@@ -128,7 +130,7 @@ func (o *DefaultModelDeploymentUpdate) UnsetModelPoolId() {
 }
 
 func (o DefaultModelDeploymentUpdate) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -186,5 +188,3 @@ func (v *NullableDefaultModelDeploymentUpdate) UnmarshalJSON(src []byte) error {
 	v.isSet = true
 	return json.Unmarshal(src, &v.value)
 }
-
-

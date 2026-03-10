@@ -19,11 +19,11 @@ var _ MappedNullable = &EvaluationDatasetConfigurationBase{}
 
 // EvaluationDatasetConfigurationBase struct for EvaluationDatasetConfigurationBase
 type EvaluationDatasetConfigurationBase struct {
-	Description NullableString `json:"description,omitempty"`
-	InputVariables []string `json:"input_variables,omitempty"`
+	Description    NullableString `json:"description,omitempty"`
+	InputVariables []string       `json:"input_variables,omitempty"`
 	// Output type of the dataset
-	OutputType EvaluationDatasetOutputType `json:"output_type"`
-	OutputSchemaDef map[string]interface{} `json:"output_schema_def,omitempty"`
+	OutputType           EvaluationDatasetOutputType `json:"output_type"`
+	OutputSchemaDef      map[string]interface{}      `json:"output_schema_def,omitempty"`
 	AdditionalProperties map[string]interface{}
 }
 
@@ -79,6 +79,7 @@ func (o *EvaluationDatasetConfigurationBase) HasDescription() bool {
 func (o *EvaluationDatasetConfigurationBase) SetDescription(v string) {
 	o.Description.Set(&v)
 }
+
 // SetDescriptionNil sets the value for Description to be an explicit nil
 func (o *EvaluationDatasetConfigurationBase) SetDescriptionNil() {
 	o.Description.Set(nil)
@@ -180,7 +181,7 @@ func (o *EvaluationDatasetConfigurationBase) SetOutputSchemaDef(v map[string]int
 }
 
 func (o EvaluationDatasetConfigurationBase) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -242,5 +243,3 @@ func (v *NullableEvaluationDatasetConfigurationBase) UnmarshalJSON(src []byte) e
 	v.isSet = true
 	return json.Unmarshal(src, &v.value)
 }
-
-

@@ -19,9 +19,9 @@ var _ MappedNullable = &ToolCallFunction{}
 
 // ToolCallFunction struct for ToolCallFunction
 type ToolCallFunction struct {
-	Name string `json:"name"`
-	Arguments string `json:"arguments"`
-	DisplayName NullableString `json:"display_name,omitempty"`
+	Name                 string         `json:"name"`
+	Arguments            string         `json:"arguments"`
+	DisplayName          NullableString `json:"display_name,omitempty"`
 	AdditionalProperties map[string]interface{}
 }
 
@@ -126,6 +126,7 @@ func (o *ToolCallFunction) HasDisplayName() bool {
 func (o *ToolCallFunction) SetDisplayName(v string) {
 	o.DisplayName.Set(&v)
 }
+
 // SetDisplayNameNil sets the value for DisplayName to be an explicit nil
 func (o *ToolCallFunction) SetDisplayNameNil() {
 	o.DisplayName.Set(nil)
@@ -137,7 +138,7 @@ func (o *ToolCallFunction) UnsetDisplayName() {
 }
 
 func (o ToolCallFunction) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -194,5 +195,3 @@ func (v *NullableToolCallFunction) UnmarshalJSON(src []byte) error {
 	v.isSet = true
 	return json.Unmarshal(src, &v.value)
 }
-
-

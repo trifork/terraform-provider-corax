@@ -19,17 +19,17 @@ var _ MappedNullable = &TestResult{}
 
 // TestResult struct for TestResult
 type TestResult struct {
-	Name string `json:"name"`
-	Success bool `json:"success"`
-	MetricsData []MetricData `json:"metrics_data"`
-	Conversational bool `json:"conversational"`
-	Multimodal NullableBool `json:"multimodal,omitempty"`
-	Input NullableInput `json:"input,omitempty"`
-	ActualOutput NullableActualOutput `json:"actual_output,omitempty"`
-	ExpectedOutput NullableString `json:"expected_output,omitempty"`
-	Context []string `json:"context,omitempty"`
-	RetrievalContext []string `json:"retrieval_context,omitempty"`
-	AdditionalMetadata map[string]interface{} `json:"additional_metadata,omitempty"`
+	Name                 string                 `json:"name"`
+	Success              bool                   `json:"success"`
+	MetricsData          []MetricData           `json:"metrics_data"`
+	Conversational       bool                   `json:"conversational"`
+	Multimodal           NullableBool           `json:"multimodal,omitempty"`
+	Input                NullableInput          `json:"input,omitempty"`
+	ActualOutput         NullableActualOutput   `json:"actual_output,omitempty"`
+	ExpectedOutput       NullableString         `json:"expected_output,omitempty"`
+	Context              []string               `json:"context,omitempty"`
+	RetrievalContext     []string               `json:"retrieval_context,omitempty"`
+	AdditionalMetadata   map[string]interface{} `json:"additional_metadata,omitempty"`
 	AdditionalProperties map[string]interface{}
 }
 
@@ -186,6 +186,7 @@ func (o *TestResult) HasMultimodal() bool {
 func (o *TestResult) SetMultimodal(v bool) {
 	o.Multimodal.Set(&v)
 }
+
 // SetMultimodalNil sets the value for Multimodal to be an explicit nil
 func (o *TestResult) SetMultimodalNil() {
 	o.Multimodal.Set(nil)
@@ -228,6 +229,7 @@ func (o *TestResult) HasInput() bool {
 func (o *TestResult) SetInput(v Input) {
 	o.Input.Set(&v)
 }
+
 // SetInputNil sets the value for Input to be an explicit nil
 func (o *TestResult) SetInputNil() {
 	o.Input.Set(nil)
@@ -270,6 +272,7 @@ func (o *TestResult) HasActualOutput() bool {
 func (o *TestResult) SetActualOutput(v ActualOutput) {
 	o.ActualOutput.Set(&v)
 }
+
 // SetActualOutputNil sets the value for ActualOutput to be an explicit nil
 func (o *TestResult) SetActualOutputNil() {
 	o.ActualOutput.Set(nil)
@@ -312,6 +315,7 @@ func (o *TestResult) HasExpectedOutput() bool {
 func (o *TestResult) SetExpectedOutput(v string) {
 	o.ExpectedOutput.Set(&v)
 }
+
 // SetExpectedOutputNil sets the value for ExpectedOutput to be an explicit nil
 func (o *TestResult) SetExpectedOutputNil() {
 	o.ExpectedOutput.Set(nil)
@@ -422,7 +426,7 @@ func (o *TestResult) SetAdditionalMetadata(v map[string]interface{}) {
 }
 
 func (o TestResult) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -501,5 +505,3 @@ func (v *NullableTestResult) UnmarshalJSON(src []byte) error {
 	v.isSet = true
 	return json.Unmarshal(src, &v.value)
 }
-
-

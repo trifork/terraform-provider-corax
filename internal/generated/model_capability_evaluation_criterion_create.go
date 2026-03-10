@@ -22,8 +22,8 @@ type CapabilityEvaluationCriterionCreate struct {
 	// Type of the capability evaluation criterion
 	Type CapabilityCriterionType `json:"type"`
 	// Configuration for the capability evaluation criterion
-	Configuration map[string]interface{} `json:"configuration"`
-	ModelDeploymentId NullableString `json:"model_deployment_id,omitempty"`
+	Configuration        map[string]interface{} `json:"configuration"`
+	ModelDeploymentId    NullableString         `json:"model_deployment_id,omitempty"`
 	AdditionalProperties map[string]interface{}
 }
 
@@ -128,6 +128,7 @@ func (o *CapabilityEvaluationCriterionCreate) HasModelDeploymentId() bool {
 func (o *CapabilityEvaluationCriterionCreate) SetModelDeploymentId(v string) {
 	o.ModelDeploymentId.Set(&v)
 }
+
 // SetModelDeploymentIdNil sets the value for ModelDeploymentId to be an explicit nil
 func (o *CapabilityEvaluationCriterionCreate) SetModelDeploymentIdNil() {
 	o.ModelDeploymentId.Set(nil)
@@ -139,7 +140,7 @@ func (o *CapabilityEvaluationCriterionCreate) UnsetModelDeploymentId() {
 }
 
 func (o CapabilityEvaluationCriterionCreate) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -196,5 +197,3 @@ func (v *NullableCapabilityEvaluationCriterionCreate) UnmarshalJSON(src []byte) 
 	v.isSet = true
 	return json.Unmarshal(src, &v.value)
 }
-
-

@@ -19,16 +19,16 @@ var _ MappedNullable = &SpeechToTextCapabilityCreate{}
 
 // SpeechToTextCapabilityCreate struct for SpeechToTextCapabilityCreate
 type SpeechToTextCapabilityCreate struct {
-	Name string `json:"name"`
-	IsPublic NullableBool `json:"is_public,omitempty"`
-	Type string `json:"type"`
-	ModelId NullableString `json:"model_id,omitempty"`
-	ModelPoolId NullableString `json:"model_pool_id,omitempty"`
-	Config NullableCapabilityConfig `json:"config,omitempty"`
-	ProjectId NullableString `json:"project_id,omitempty"`
-	SemanticId NullableString `json:"semantic_id,omitempty" validate:"regexp=^[a-z0-9]+(?:-[a-z0-9]+)*$"`
-	SystemPrompt NullableString `json:"system_prompt,omitempty"`
-	OutputType *string `json:"output_type,omitempty"`
+	Name                 string                   `json:"name"`
+	IsPublic             NullableBool             `json:"is_public,omitempty"`
+	Type                 string                   `json:"type"`
+	ModelId              NullableString           `json:"model_id,omitempty"`
+	ModelPoolId          NullableString           `json:"model_pool_id,omitempty"`
+	Config               NullableCapabilityConfig `json:"config,omitempty"`
+	ProjectId            NullableString           `json:"project_id,omitempty"`
+	SemanticId           NullableString           `json:"semantic_id,omitempty" validate:"regexp=^[a-z0-9]+(?:-[a-z0-9]+)*$"`
+	SystemPrompt         NullableString           `json:"system_prompt,omitempty"`
+	OutputType           *string                  `json:"output_type,omitempty"`
 	AdditionalProperties map[string]interface{}
 }
 
@@ -113,6 +113,7 @@ func (o *SpeechToTextCapabilityCreate) HasIsPublic() bool {
 func (o *SpeechToTextCapabilityCreate) SetIsPublic(v bool) {
 	o.IsPublic.Set(&v)
 }
+
 // SetIsPublicNil sets the value for IsPublic to be an explicit nil
 func (o *SpeechToTextCapabilityCreate) SetIsPublicNil() {
 	o.IsPublic.Set(nil)
@@ -179,6 +180,7 @@ func (o *SpeechToTextCapabilityCreate) HasModelId() bool {
 func (o *SpeechToTextCapabilityCreate) SetModelId(v string) {
 	o.ModelId.Set(&v)
 }
+
 // SetModelIdNil sets the value for ModelId to be an explicit nil
 func (o *SpeechToTextCapabilityCreate) SetModelIdNil() {
 	o.ModelId.Set(nil)
@@ -221,6 +223,7 @@ func (o *SpeechToTextCapabilityCreate) HasModelPoolId() bool {
 func (o *SpeechToTextCapabilityCreate) SetModelPoolId(v string) {
 	o.ModelPoolId.Set(&v)
 }
+
 // SetModelPoolIdNil sets the value for ModelPoolId to be an explicit nil
 func (o *SpeechToTextCapabilityCreate) SetModelPoolIdNil() {
 	o.ModelPoolId.Set(nil)
@@ -263,6 +266,7 @@ func (o *SpeechToTextCapabilityCreate) HasConfig() bool {
 func (o *SpeechToTextCapabilityCreate) SetConfig(v CapabilityConfig) {
 	o.Config.Set(&v)
 }
+
 // SetConfigNil sets the value for Config to be an explicit nil
 func (o *SpeechToTextCapabilityCreate) SetConfigNil() {
 	o.Config.Set(nil)
@@ -305,6 +309,7 @@ func (o *SpeechToTextCapabilityCreate) HasProjectId() bool {
 func (o *SpeechToTextCapabilityCreate) SetProjectId(v string) {
 	o.ProjectId.Set(&v)
 }
+
 // SetProjectIdNil sets the value for ProjectId to be an explicit nil
 func (o *SpeechToTextCapabilityCreate) SetProjectIdNil() {
 	o.ProjectId.Set(nil)
@@ -347,6 +352,7 @@ func (o *SpeechToTextCapabilityCreate) HasSemanticId() bool {
 func (o *SpeechToTextCapabilityCreate) SetSemanticId(v string) {
 	o.SemanticId.Set(&v)
 }
+
 // SetSemanticIdNil sets the value for SemanticId to be an explicit nil
 func (o *SpeechToTextCapabilityCreate) SetSemanticIdNil() {
 	o.SemanticId.Set(nil)
@@ -389,6 +395,7 @@ func (o *SpeechToTextCapabilityCreate) HasSystemPrompt() bool {
 func (o *SpeechToTextCapabilityCreate) SetSystemPrompt(v string) {
 	o.SystemPrompt.Set(&v)
 }
+
 // SetSystemPromptNil sets the value for SystemPrompt to be an explicit nil
 func (o *SpeechToTextCapabilityCreate) SetSystemPromptNil() {
 	o.SystemPrompt.Set(nil)
@@ -432,7 +439,7 @@ func (o *SpeechToTextCapabilityCreate) SetOutputType(v string) {
 }
 
 func (o SpeechToTextCapabilityCreate) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -510,5 +517,3 @@ func (v *NullableSpeechToTextCapabilityCreate) UnmarshalJSON(src []byte) error {
 	v.isSet = true
 	return json.Unmarshal(src, &v.value)
 }
-
-

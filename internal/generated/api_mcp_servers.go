@@ -19,14 +19,13 @@ import (
 	"strings"
 )
 
-
 // MCPServersAPIService MCPServersAPI service
 type MCPServersAPIService service
 
 type MCPServersAPICheckMcpServerHealthV1McpServersServerIdHealthGetRequest struct {
-	ctx context.Context
+	ctx        context.Context
 	ApiService *MCPServersAPIService
-	serverId string
+	serverId   string
 }
 
 func (r MCPServersAPICheckMcpServerHealthV1McpServersServerIdHealthGetRequest) Execute() (map[string]interface{}, *http.Response, error) {
@@ -38,26 +37,27 @@ CheckMcpServerHealthV1McpServersServerIdHealthGet Check MCP server health status
 
 Perform a health check on the specified MCP server by attempting to connect and retrieve available entities. Returns detailed status information and entity counts.
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param serverId
- @return MCPServersAPICheckMcpServerHealthV1McpServersServerIdHealthGetRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param serverId
+	@return MCPServersAPICheckMcpServerHealthV1McpServersServerIdHealthGetRequest
 */
 func (a *MCPServersAPIService) CheckMcpServerHealthV1McpServersServerIdHealthGet(ctx context.Context, serverId string) MCPServersAPICheckMcpServerHealthV1McpServersServerIdHealthGetRequest {
 	return MCPServersAPICheckMcpServerHealthV1McpServersServerIdHealthGetRequest{
 		ApiService: a,
-		ctx: ctx,
-		serverId: serverId,
+		ctx:        ctx,
+		serverId:   serverId,
 	}
 }
 
 // Execute executes the request
-//  @return map[string]interface{}
+//
+//	@return map[string]interface{}
 func (a *MCPServersAPIService) CheckMcpServerHealthV1McpServersServerIdHealthGetExecute(r MCPServersAPICheckMcpServerHealthV1McpServersServerIdHealthGetRequest) (map[string]interface{}, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  map[string]interface{}
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue map[string]interface{}
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "MCPServersAPIService.CheckMcpServerHealthV1McpServersServerIdHealthGet")
@@ -132,8 +132,8 @@ func (a *MCPServersAPIService) CheckMcpServerHealthV1McpServersServerIdHealthGet
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -151,8 +151,8 @@ func (a *MCPServersAPIService) CheckMcpServerHealthV1McpServersServerIdHealthGet
 }
 
 type MCPServersAPICreateMcpServerV1McpServersPostRequest struct {
-	ctx context.Context
-	ApiService *MCPServersAPIService
+	ctx           context.Context
+	ApiService    *MCPServersAPIService
 	mCPServerBase *MCPServerBase
 }
 
@@ -170,24 +170,25 @@ CreateMcpServerV1McpServersPost Create a new MCP server
 
 Create a new MCP (Model Context Protocol) server configuration. The server will be owned by the authenticated user.
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return MCPServersAPICreateMcpServerV1McpServersPostRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@return MCPServersAPICreateMcpServerV1McpServersPostRequest
 */
 func (a *MCPServersAPIService) CreateMcpServerV1McpServersPost(ctx context.Context) MCPServersAPICreateMcpServerV1McpServersPostRequest {
 	return MCPServersAPICreateMcpServerV1McpServersPostRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
 // Execute executes the request
-//  @return MCPServerResponse
+//
+//	@return MCPServerResponse
 func (a *MCPServersAPIService) CreateMcpServerV1McpServersPostExecute(r MCPServersAPICreateMcpServerV1McpServersPostRequest) (*MCPServerResponse, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPost
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *MCPServerResponse
+		localVarHTTPMethod  = http.MethodPost
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *MCPServerResponse
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "MCPServersAPIService.CreateMcpServerV1McpServersPost")
@@ -275,9 +276,9 @@ func (a *MCPServersAPIService) CreateMcpServerV1McpServersPostExecute(r MCPServe
 }
 
 type MCPServersAPIDeleteMcpServerV1McpServersServerIdDeleteRequest struct {
-	ctx context.Context
+	ctx        context.Context
 	ApiService *MCPServersAPIService
-	serverId string
+	serverId   string
 }
 
 func (r MCPServersAPIDeleteMcpServerV1McpServersServerIdDeleteRequest) Execute() (*http.Response, error) {
@@ -289,24 +290,24 @@ DeleteMcpServerV1McpServersServerIdDelete Delete an MCP server
 
 Permanently delete an MCP server configuration. Only the server owner can delete the server. The server cannot be deleted if it is currently being used by any capabilities.
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param serverId
- @return MCPServersAPIDeleteMcpServerV1McpServersServerIdDeleteRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param serverId
+	@return MCPServersAPIDeleteMcpServerV1McpServersServerIdDeleteRequest
 */
 func (a *MCPServersAPIService) DeleteMcpServerV1McpServersServerIdDelete(ctx context.Context, serverId string) MCPServersAPIDeleteMcpServerV1McpServersServerIdDeleteRequest {
 	return MCPServersAPIDeleteMcpServerV1McpServersServerIdDeleteRequest{
 		ApiService: a,
-		ctx: ctx,
-		serverId: serverId,
+		ctx:        ctx,
+		serverId:   serverId,
 	}
 }
 
 // Execute executes the request
 func (a *MCPServersAPIService) DeleteMcpServerV1McpServersServerIdDeleteExecute(r MCPServersAPIDeleteMcpServerV1McpServersServerIdDeleteRequest) (*http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodDelete
-		localVarPostBody     interface{}
-		formFiles            []formFile
+		localVarHTTPMethod = http.MethodDelete
+		localVarPostBody   interface{}
+		formFiles          []formFile
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "MCPServersAPIService.DeleteMcpServerV1McpServersServerIdDelete")
@@ -381,8 +382,8 @@ func (a *MCPServersAPIService) DeleteMcpServerV1McpServersServerIdDeleteExecute(
 				newErr.error = err.Error()
 				return localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarHTTPResponse, newErr
 	}
@@ -391,9 +392,9 @@ func (a *MCPServersAPIService) DeleteMcpServerV1McpServersServerIdDeleteExecute(
 }
 
 type MCPServersAPIGetMcpServerEntitiesV1McpServersServerIdEntitiesGetRequest struct {
-	ctx context.Context
+	ctx        context.Context
 	ApiService *MCPServersAPIService
-	serverId string
+	serverId   string
 }
 
 func (r MCPServersAPIGetMcpServerEntitiesV1McpServersServerIdEntitiesGetRequest) Execute() ([]map[string]interface{}, *http.Response, error) {
@@ -405,26 +406,27 @@ GetMcpServerEntitiesV1McpServersServerIdEntitiesGet Get all entities from an MCP
 
 Retrieve all available entities (tools, resources, and prompts) from the specified MCP server. This includes function definitions, resource templates, and prompt templates.
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param serverId
- @return MCPServersAPIGetMcpServerEntitiesV1McpServersServerIdEntitiesGetRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param serverId
+	@return MCPServersAPIGetMcpServerEntitiesV1McpServersServerIdEntitiesGetRequest
 */
 func (a *MCPServersAPIService) GetMcpServerEntitiesV1McpServersServerIdEntitiesGet(ctx context.Context, serverId string) MCPServersAPIGetMcpServerEntitiesV1McpServersServerIdEntitiesGetRequest {
 	return MCPServersAPIGetMcpServerEntitiesV1McpServersServerIdEntitiesGetRequest{
 		ApiService: a,
-		ctx: ctx,
-		serverId: serverId,
+		ctx:        ctx,
+		serverId:   serverId,
 	}
 }
 
 // Execute executes the request
-//  @return []map[string]interface{}
+//
+//	@return []map[string]interface{}
 func (a *MCPServersAPIService) GetMcpServerEntitiesV1McpServersServerIdEntitiesGetExecute(r MCPServersAPIGetMcpServerEntitiesV1McpServersServerIdEntitiesGetRequest) ([]map[string]interface{}, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  []map[string]interface{}
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue []map[string]interface{}
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "MCPServersAPIService.GetMcpServerEntitiesV1McpServersServerIdEntitiesGet")
@@ -499,8 +501,8 @@ func (a *MCPServersAPIService) GetMcpServerEntitiesV1McpServersServerIdEntitiesG
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -518,9 +520,9 @@ func (a *MCPServersAPIService) GetMcpServerEntitiesV1McpServersServerIdEntitiesG
 }
 
 type MCPServersAPIGetMcpServerPromptsV1McpServersServerIdPromptsGetRequest struct {
-	ctx context.Context
+	ctx        context.Context
 	ApiService *MCPServersAPIService
-	serverId string
+	serverId   string
 }
 
 func (r MCPServersAPIGetMcpServerPromptsV1McpServersServerIdPromptsGetRequest) Execute() ([]*map[string]interface{}, *http.Response, error) {
@@ -532,26 +534,27 @@ GetMcpServerPromptsV1McpServersServerIdPromptsGet Get all prompts from an MCP se
 
 Retrieve all available prompts and prompt templates from the specified MCP server. Prompts are reusable templates that can be used to generate consistent AI interactions.
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param serverId
- @return MCPServersAPIGetMcpServerPromptsV1McpServersServerIdPromptsGetRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param serverId
+	@return MCPServersAPIGetMcpServerPromptsV1McpServersServerIdPromptsGetRequest
 */
 func (a *MCPServersAPIService) GetMcpServerPromptsV1McpServersServerIdPromptsGet(ctx context.Context, serverId string) MCPServersAPIGetMcpServerPromptsV1McpServersServerIdPromptsGetRequest {
 	return MCPServersAPIGetMcpServerPromptsV1McpServersServerIdPromptsGetRequest{
 		ApiService: a,
-		ctx: ctx,
-		serverId: serverId,
+		ctx:        ctx,
+		serverId:   serverId,
 	}
 }
 
 // Execute executes the request
-//  @return []*map[string]interface{}
+//
+//	@return []*map[string]interface{}
 func (a *MCPServersAPIService) GetMcpServerPromptsV1McpServersServerIdPromptsGetExecute(r MCPServersAPIGetMcpServerPromptsV1McpServersServerIdPromptsGetRequest) ([]*map[string]interface{}, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  []*map[string]interface{}
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue []*map[string]interface{}
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "MCPServersAPIService.GetMcpServerPromptsV1McpServersServerIdPromptsGet")
@@ -626,8 +629,8 @@ func (a *MCPServersAPIService) GetMcpServerPromptsV1McpServersServerIdPromptsGet
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -645,9 +648,9 @@ func (a *MCPServersAPIService) GetMcpServerPromptsV1McpServersServerIdPromptsGet
 }
 
 type MCPServersAPIGetMcpServerResourcesV1McpServersServerIdResourcesGetRequest struct {
-	ctx context.Context
+	ctx        context.Context
 	ApiService *MCPServersAPIService
-	serverId string
+	serverId   string
 }
 
 func (r MCPServersAPIGetMcpServerResourcesV1McpServersServerIdResourcesGetRequest) Execute() ([]*map[string]interface{}, *http.Response, error) {
@@ -659,26 +662,27 @@ GetMcpServerResourcesV1McpServersServerIdResourcesGet Get all resources from an 
 
 Retrieve all available resources and resource templates from the specified MCP server. Resources provide access to external data sources, files, or APIs that capabilities can read from.
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param serverId
- @return MCPServersAPIGetMcpServerResourcesV1McpServersServerIdResourcesGetRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param serverId
+	@return MCPServersAPIGetMcpServerResourcesV1McpServersServerIdResourcesGetRequest
 */
 func (a *MCPServersAPIService) GetMcpServerResourcesV1McpServersServerIdResourcesGet(ctx context.Context, serverId string) MCPServersAPIGetMcpServerResourcesV1McpServersServerIdResourcesGetRequest {
 	return MCPServersAPIGetMcpServerResourcesV1McpServersServerIdResourcesGetRequest{
 		ApiService: a,
-		ctx: ctx,
-		serverId: serverId,
+		ctx:        ctx,
+		serverId:   serverId,
 	}
 }
 
 // Execute executes the request
-//  @return []*map[string]interface{}
+//
+//	@return []*map[string]interface{}
 func (a *MCPServersAPIService) GetMcpServerResourcesV1McpServersServerIdResourcesGetExecute(r MCPServersAPIGetMcpServerResourcesV1McpServersServerIdResourcesGetRequest) ([]*map[string]interface{}, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  []*map[string]interface{}
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue []*map[string]interface{}
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "MCPServersAPIService.GetMcpServerResourcesV1McpServersServerIdResourcesGet")
@@ -753,8 +757,8 @@ func (a *MCPServersAPIService) GetMcpServerResourcesV1McpServersServerIdResource
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -772,9 +776,9 @@ func (a *MCPServersAPIService) GetMcpServerResourcesV1McpServersServerIdResource
 }
 
 type MCPServersAPIGetMcpServerToolsV1McpServersServerIdToolsGetRequest struct {
-	ctx context.Context
+	ctx        context.Context
 	ApiService *MCPServersAPIService
-	serverId string
+	serverId   string
 }
 
 func (r MCPServersAPIGetMcpServerToolsV1McpServersServerIdToolsGetRequest) Execute() ([]map[string]interface{}, *http.Response, error) {
@@ -786,26 +790,27 @@ GetMcpServerToolsV1McpServersServerIdToolsGet Get all tools from an MCP server
 
 Retrieve all available tools (functions) from the specified MCP server. Tools are executable functions that can be called by capabilities to perform specific tasks.
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param serverId
- @return MCPServersAPIGetMcpServerToolsV1McpServersServerIdToolsGetRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param serverId
+	@return MCPServersAPIGetMcpServerToolsV1McpServersServerIdToolsGetRequest
 */
 func (a *MCPServersAPIService) GetMcpServerToolsV1McpServersServerIdToolsGet(ctx context.Context, serverId string) MCPServersAPIGetMcpServerToolsV1McpServersServerIdToolsGetRequest {
 	return MCPServersAPIGetMcpServerToolsV1McpServersServerIdToolsGetRequest{
 		ApiService: a,
-		ctx: ctx,
-		serverId: serverId,
+		ctx:        ctx,
+		serverId:   serverId,
 	}
 }
 
 // Execute executes the request
-//  @return []map[string]interface{}
+//
+//	@return []map[string]interface{}
 func (a *MCPServersAPIService) GetMcpServerToolsV1McpServersServerIdToolsGetExecute(r MCPServersAPIGetMcpServerToolsV1McpServersServerIdToolsGetRequest) ([]map[string]interface{}, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  []map[string]interface{}
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue []map[string]interface{}
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "MCPServersAPIService.GetMcpServerToolsV1McpServersServerIdToolsGet")
@@ -880,8 +885,8 @@ func (a *MCPServersAPIService) GetMcpServerToolsV1McpServersServerIdToolsGetExec
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -899,9 +904,9 @@ func (a *MCPServersAPIService) GetMcpServerToolsV1McpServersServerIdToolsGetExec
 }
 
 type MCPServersAPIGetMcpServerV1McpServersServerIdGetRequest struct {
-	ctx context.Context
+	ctx        context.Context
 	ApiService *MCPServersAPIService
-	serverId string
+	serverId   string
 }
 
 func (r MCPServersAPIGetMcpServerV1McpServersServerIdGetRequest) Execute() (*MCPServerResponse, *http.Response, error) {
@@ -913,26 +918,27 @@ GetMcpServerV1McpServersServerIdGet Get MCP server by ID
 
 Retrieve detailed information about a specific MCP server by its unique identifier. Only returns servers owned by the authenticated user.
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param serverId
- @return MCPServersAPIGetMcpServerV1McpServersServerIdGetRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param serverId
+	@return MCPServersAPIGetMcpServerV1McpServersServerIdGetRequest
 */
 func (a *MCPServersAPIService) GetMcpServerV1McpServersServerIdGet(ctx context.Context, serverId string) MCPServersAPIGetMcpServerV1McpServersServerIdGetRequest {
 	return MCPServersAPIGetMcpServerV1McpServersServerIdGetRequest{
 		ApiService: a,
-		ctx: ctx,
-		serverId: serverId,
+		ctx:        ctx,
+		serverId:   serverId,
 	}
 }
 
 // Execute executes the request
-//  @return MCPServerResponse
+//
+//	@return MCPServerResponse
 func (a *MCPServersAPIService) GetMcpServerV1McpServersServerIdGetExecute(r MCPServersAPIGetMcpServerV1McpServersServerIdGetRequest) (*MCPServerResponse, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *MCPServerResponse
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *MCPServerResponse
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "MCPServersAPIService.GetMcpServerV1McpServersServerIdGet")
@@ -1007,8 +1013,8 @@ func (a *MCPServersAPIService) GetMcpServerV1McpServersServerIdGetExecute(r MCPS
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -1026,12 +1032,12 @@ func (a *MCPServersAPIService) GetMcpServerV1McpServersServerIdGetExecute(r MCPS
 }
 
 type MCPServersAPIListMcpServersV1McpServersGetRequest struct {
-	ctx context.Context
+	ctx        context.Context
 	ApiService *MCPServersAPIService
-	page *int32
-	size *int32
-	sort *string
-	filter *string
+	page       *int32
+	size       *int32
+	sort       *string
+	filter     *string
 }
 
 func (r MCPServersAPIListMcpServersV1McpServersGetRequest) Page(page int32) MCPServersAPIListMcpServersV1McpServersGetRequest {
@@ -1063,24 +1069,25 @@ ListMcpServersV1McpServersGet List MCP servers
 
 Retrieve a paginated list of all MCP (Model Context Protocol) servers owned by the current user. Supports sorting and filtering through pagination parameters.
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return MCPServersAPIListMcpServersV1McpServersGetRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@return MCPServersAPIListMcpServersV1McpServersGetRequest
 */
 func (a *MCPServersAPIService) ListMcpServersV1McpServersGet(ctx context.Context) MCPServersAPIListMcpServersV1McpServersGetRequest {
 	return MCPServersAPIListMcpServersV1McpServersGetRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
 // Execute executes the request
-//  @return PagedResponseModelMCPServerResponse
+//
+//	@return PagedResponseModelMCPServerResponse
 func (a *MCPServersAPIService) ListMcpServersV1McpServersGetExecute(r MCPServersAPIListMcpServersV1McpServersGetRequest) (*PagedResponseModelMCPServerResponse, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *PagedResponseModelMCPServerResponse
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *PagedResponseModelMCPServerResponse
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "MCPServersAPIService.ListMcpServersV1McpServersGet")
@@ -1097,23 +1104,23 @@ func (a *MCPServersAPIService) ListMcpServersV1McpServersGetExecute(r MCPServers
 	if r.page != nil {
 		parameterAddToHeaderOrQuery(localVarQueryParams, "page", r.page, "form", "")
 	} else {
-        var defaultValue int32 = 1
-        parameterAddToHeaderOrQuery(localVarQueryParams, "page", defaultValue, "form", "")
-        r.page = &defaultValue
+		var defaultValue int32 = 1
+		parameterAddToHeaderOrQuery(localVarQueryParams, "page", defaultValue, "form", "")
+		r.page = &defaultValue
 	}
 	if r.size != nil {
 		parameterAddToHeaderOrQuery(localVarQueryParams, "size", r.size, "form", "")
 	} else {
-        var defaultValue int32 = 10
-        parameterAddToHeaderOrQuery(localVarQueryParams, "size", defaultValue, "form", "")
-        r.size = &defaultValue
+		var defaultValue int32 = 10
+		parameterAddToHeaderOrQuery(localVarQueryParams, "size", defaultValue, "form", "")
+		r.size = &defaultValue
 	}
 	if r.sort != nil {
 		parameterAddToHeaderOrQuery(localVarQueryParams, "sort", r.sort, "form", "")
 	} else {
-        var defaultValue string = "id"
-        parameterAddToHeaderOrQuery(localVarQueryParams, "sort", defaultValue, "form", "")
-        r.sort = &defaultValue
+		var defaultValue string = "id"
+		parameterAddToHeaderOrQuery(localVarQueryParams, "sort", defaultValue, "form", "")
+		r.sort = &defaultValue
 	}
 	if r.filter != nil {
 		parameterAddToHeaderOrQuery(localVarQueryParams, "filter", r.filter, "form", "")
@@ -1178,8 +1185,8 @@ func (a *MCPServersAPIService) ListMcpServersV1McpServersGetExecute(r MCPServers
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
-					newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-					newErr.model = v
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -1197,9 +1204,9 @@ func (a *MCPServersAPIService) ListMcpServersV1McpServersGetExecute(r MCPServers
 }
 
 type MCPServersAPIUpdateMcpServerV1McpServersServerIdPutRequest struct {
-	ctx context.Context
-	ApiService *MCPServersAPIService
-	serverId string
+	ctx           context.Context
+	ApiService    *MCPServersAPIService
+	serverId      string
 	mCPServerBase *MCPServerBase
 }
 
@@ -1217,26 +1224,27 @@ UpdateMcpServerV1McpServersServerIdPut Update an existing MCP server
 
 Update the configuration of an existing MCP server. Only the server owner can update the configuration.
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param serverId
- @return MCPServersAPIUpdateMcpServerV1McpServersServerIdPutRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param serverId
+	@return MCPServersAPIUpdateMcpServerV1McpServersServerIdPutRequest
 */
 func (a *MCPServersAPIService) UpdateMcpServerV1McpServersServerIdPut(ctx context.Context, serverId string) MCPServersAPIUpdateMcpServerV1McpServersServerIdPutRequest {
 	return MCPServersAPIUpdateMcpServerV1McpServersServerIdPutRequest{
 		ApiService: a,
-		ctx: ctx,
-		serverId: serverId,
+		ctx:        ctx,
+		serverId:   serverId,
 	}
 }
 
 // Execute executes the request
-//  @return MCPServerResponse
+//
+//	@return MCPServerResponse
 func (a *MCPServersAPIService) UpdateMcpServerV1McpServersServerIdPutExecute(r MCPServersAPIUpdateMcpServerV1McpServersServerIdPutRequest) (*MCPServerResponse, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPut
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *MCPServerResponse
+		localVarHTTPMethod  = http.MethodPut
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *MCPServerResponse
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "MCPServersAPIService.UpdateMcpServerV1McpServersServerIdPut")

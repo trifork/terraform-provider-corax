@@ -19,11 +19,11 @@ var _ MappedNullable = &Message{}
 
 // Message struct for Message
 type Message struct {
-	Role string `json:"role"`
-	Content NullableContent `json:"content,omitempty"`
-	Sources []interface{} `json:"sources,omitempty"`
-	ToolCallId NullableString `json:"tool_call_id,omitempty"`
-	ToolCalls []ToolCallMessage `json:"tool_calls,omitempty"`
+	Role                 string            `json:"role"`
+	Content              NullableContent   `json:"content,omitempty"`
+	Sources              []interface{}     `json:"sources,omitempty"`
+	ToolCallId           NullableString    `json:"tool_call_id,omitempty"`
+	ToolCalls            []ToolCallMessage `json:"tool_calls,omitempty"`
 	AdditionalProperties map[string]interface{}
 }
 
@@ -103,6 +103,7 @@ func (o *Message) HasContent() bool {
 func (o *Message) SetContent(v Content) {
 	o.Content.Set(&v)
 }
+
 // SetContentNil sets the value for Content to be an explicit nil
 func (o *Message) SetContentNil() {
 	o.Content.Set(nil)
@@ -178,6 +179,7 @@ func (o *Message) HasToolCallId() bool {
 func (o *Message) SetToolCallId(v string) {
 	o.ToolCallId.Set(&v)
 }
+
 // SetToolCallIdNil sets the value for ToolCallId to be an explicit nil
 func (o *Message) SetToolCallIdNil() {
 	o.ToolCallId.Set(nil)
@@ -222,7 +224,7 @@ func (o *Message) SetToolCalls(v []ToolCallMessage) {
 }
 
 func (o Message) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -287,5 +289,3 @@ func (v *NullableMessage) UnmarshalJSON(src []byte) error {
 	v.isSet = true
 	return json.Unmarshal(src, &v.value)
 }
-
-

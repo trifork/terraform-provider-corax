@@ -19,12 +19,12 @@ var _ MappedNullable = &ModelDeploymentCreate{}
 
 // ModelDeploymentCreate struct for ModelDeploymentCreate
 type ModelDeploymentCreate struct {
-	Name string `json:"name"`
-	Description NullableString `json:"description,omitempty"`
-	SupportedTasks []CapabilityType `json:"supported_tasks"`
-	Configuration map[string]interface{} `json:"configuration,omitempty"`
-	IsActive *bool `json:"is_active,omitempty"`
-	ProviderId string `json:"provider_id"`
+	Name                 string                 `json:"name"`
+	Description          NullableString         `json:"description,omitempty"`
+	SupportedTasks       []CapabilityType       `json:"supported_tasks"`
+	Configuration        map[string]interface{} `json:"configuration,omitempty"`
+	IsActive             *bool                  `json:"is_active,omitempty"`
+	ProviderId           string                 `json:"provider_id"`
 	AdditionalProperties map[string]interface{}
 }
 
@@ -110,6 +110,7 @@ func (o *ModelDeploymentCreate) HasDescription() bool {
 func (o *ModelDeploymentCreate) SetDescription(v string) {
 	o.Description.Set(&v)
 }
+
 // SetDescriptionNil sets the value for Description to be an explicit nil
 func (o *ModelDeploymentCreate) SetDescriptionNil() {
 	o.Description.Set(nil)
@@ -233,7 +234,7 @@ func (o *ModelDeploymentCreate) SetProviderId(v string) {
 }
 
 func (o ModelDeploymentCreate) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -297,5 +298,3 @@ func (v *NullableModelDeploymentCreate) UnmarshalJSON(src []byte) error {
 	v.isSet = true
 	return json.Unmarshal(src, &v.value)
 }
-
-

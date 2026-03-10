@@ -22,16 +22,16 @@ var _ MappedNullable = &EvaluationDatasetRepresentation{}
 type EvaluationDatasetRepresentation struct {
 	Links map[string]HateoasLink `json:"_links,omitempty"`
 	// Name of the dataset
-	Name string `json:"name"`
+	Name      string         `json:"name"`
 	ProjectId NullableString `json:"project_id,omitempty"`
-	IsPublic NullableBool `json:"is_public,omitempty"`
+	IsPublic  NullableBool   `json:"is_public,omitempty"`
 	// Configuration for the dataset
 	Configuration EvaluationDatasetConfigurationBase `json:"configuration"`
 	// ID of the evaluation dataset
 	Id string `json:"id"`
 	// Number of items in the evaluation dataset
-	ItemsCount *int32 `json:"items_count,omitempty"`
-	UpdatedAt NullableTime `json:"updated_at,omitempty"`
+	ItemsCount           *int32       `json:"items_count,omitempty"`
+	UpdatedAt            NullableTime `json:"updated_at,omitempty"`
 	AdditionalProperties map[string]interface{}
 }
 
@@ -150,6 +150,7 @@ func (o *EvaluationDatasetRepresentation) HasProjectId() bool {
 func (o *EvaluationDatasetRepresentation) SetProjectId(v string) {
 	o.ProjectId.Set(&v)
 }
+
 // SetProjectIdNil sets the value for ProjectId to be an explicit nil
 func (o *EvaluationDatasetRepresentation) SetProjectIdNil() {
 	o.ProjectId.Set(nil)
@@ -192,6 +193,7 @@ func (o *EvaluationDatasetRepresentation) HasIsPublic() bool {
 func (o *EvaluationDatasetRepresentation) SetIsPublic(v bool) {
 	o.IsPublic.Set(&v)
 }
+
 // SetIsPublicNil sets the value for IsPublic to be an explicit nil
 func (o *EvaluationDatasetRepresentation) SetIsPublicNil() {
 	o.IsPublic.Set(nil)
@@ -314,6 +316,7 @@ func (o *EvaluationDatasetRepresentation) HasUpdatedAt() bool {
 func (o *EvaluationDatasetRepresentation) SetUpdatedAt(v time.Time) {
 	o.UpdatedAt.Set(&v)
 }
+
 // SetUpdatedAtNil sets the value for UpdatedAt to be an explicit nil
 func (o *EvaluationDatasetRepresentation) SetUpdatedAtNil() {
 	o.UpdatedAt.Set(nil)
@@ -325,7 +328,7 @@ func (o *EvaluationDatasetRepresentation) UnsetUpdatedAt() {
 }
 
 func (o EvaluationDatasetRepresentation) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -395,5 +398,3 @@ func (v *NullableEvaluationDatasetRepresentation) UnmarshalJSON(src []byte) erro
 	v.isSet = true
 	return json.Unmarshal(src, &v.value)
 }
-
-

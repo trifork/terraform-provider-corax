@@ -19,10 +19,10 @@ var _ MappedNullable = &CollectionUpdate{}
 
 // CollectionUpdate struct for CollectionUpdate
 type CollectionUpdate struct {
-	Name string `json:"name"`
-	Description NullableString `json:"description,omitempty"`
-	IsPublic *bool `json:"is_public,omitempty"`
-	ProjectId NullableString `json:"project_id,omitempty"`
+	Name                 string         `json:"name"`
+	Description          NullableString `json:"description,omitempty"`
+	IsPublic             *bool          `json:"is_public,omitempty"`
+	ProjectId            NullableString `json:"project_id,omitempty"`
 	AdditionalProperties map[string]interface{}
 }
 
@@ -106,6 +106,7 @@ func (o *CollectionUpdate) HasDescription() bool {
 func (o *CollectionUpdate) SetDescription(v string) {
 	o.Description.Set(&v)
 }
+
 // SetDescriptionNil sets the value for Description to be an explicit nil
 func (o *CollectionUpdate) SetDescriptionNil() {
 	o.Description.Set(nil)
@@ -180,6 +181,7 @@ func (o *CollectionUpdate) HasProjectId() bool {
 func (o *CollectionUpdate) SetProjectId(v string) {
 	o.ProjectId.Set(&v)
 }
+
 // SetProjectIdNil sets the value for ProjectId to be an explicit nil
 func (o *CollectionUpdate) SetProjectIdNil() {
 	o.ProjectId.Set(nil)
@@ -191,7 +193,7 @@ func (o *CollectionUpdate) UnsetProjectId() {
 }
 
 func (o CollectionUpdate) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -253,5 +255,3 @@ func (v *NullableCollectionUpdate) UnmarshalJSON(src []byte) error {
 	v.isSet = true
 	return json.Unmarshal(src, &v.value)
 }
-
-
