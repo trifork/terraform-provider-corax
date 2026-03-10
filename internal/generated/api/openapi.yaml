@@ -1,9 +1,7 @@
-# Copyright (c) Trifork
-
 openapi: 3.1.0
 info:
   title: Corax API
-  version: v2.118.0
+  version: v2.127.0
 servers:
 - url: /
 paths:
@@ -1947,6 +1945,39 @@ paths:
       - HTTPBearer: []
       - APIKeyHeader: []
       summary: Update Model Provider
+      tags:
+      - Model Providers
+  /v1/model-providers/{provider_id}/available-models:
+    get:
+      description: List models available from a provider using its stored credentials.
+      operationId: list_available_models_v1_model_providers__provider_id__available_models_get
+      parameters:
+      - explode: false
+        in: path
+        name: provider_id
+        required: true
+        schema:
+          format: uuid
+          title: Provider Id
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProviderValidationResponse"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      - APIKeyHeader: []
+      summary: List Available Models
       tags:
       - Model Providers
   /v1/model-providers/{provider_id}/health:
@@ -4232,6 +4263,51 @@ components:
       required:
       - model_id
       title: AvailableModel
+    AzureAiProviderValidationRequest:
+      properties:
+        configuration:
+          allOf:
+          - $ref: "#/components/schemas/OpenAILikeConfiguration"
+          description: Provider configuration including credentials
+        provider_type:
+          description: Provider type
+          enum:
+          - azure_ai
+          title: Provider Type
+          type: string
+      required:
+      - configuration
+      - provider_type
+      title: AzureAiProviderValidationRequest
+    AzureAiProviderWithDeploymentsCreate:
+      properties:
+        configuration:
+          allOf:
+          - $ref: "#/components/schemas/OpenAILikeConfiguration"
+          description: Provider configuration
+        name:
+          description: Provider display name
+          maxLength: 50
+          minLength: 1
+          title: Name
+          type: string
+        provider_type:
+          description: Provider type
+          enum:
+          - azure_ai
+          title: Provider Type
+          type: string
+        deployments:
+          description: Deployments to create
+          items:
+            $ref: "#/components/schemas/DeploymentCreate"
+          type: array
+      required:
+      - configuration
+      - deployments
+      - name
+      - provider_type
+      title: AzureAiProviderWithDeploymentsCreate
     AzureConfiguration:
       description: Configuration for Azure OpenAI provider.
       properties:
@@ -5291,6 +5367,11 @@ components:
         system_prompt:
           title: System Prompt
           type: string
+        variables:
+          items:
+            type: string
+          nullable: true
+          type: array
         collection_ids:
           items:
             format: uuid
@@ -5345,6 +5426,11 @@ components:
         system_prompt:
           title: System Prompt
           type: string
+        variables:
+          items:
+            type: string
+          nullable: true
+          type: array
         collection_ids:
           items:
             format: uuid
@@ -5394,6 +5480,11 @@ components:
         system_prompt:
           nullable: true
           type: string
+        variables:
+          items:
+            type: string
+          nullable: true
+          type: array
         collection_ids:
           items:
             format: uuid
@@ -5428,11 +5519,13 @@ components:
           - function:
               name: name
               arguments: arguments
+              display_name: display_name
             id: id
             type: type
           - function:
               name: name
               arguments: arguments
+              display_name: display_name
             id: id
             type: type
           content: Content
@@ -5445,11 +5538,13 @@ components:
           - function:
               name: name
               arguments: arguments
+              display_name: display_name
             id: id
             type: type
           - function:
               name: name
               arguments: arguments
+              display_name: display_name
             id: id
             type: type
           content: Content
@@ -7355,11 +7450,13 @@ components:
         - function:
             name: name
             arguments: arguments
+            display_name: display_name
           id: id
           type: type
         - function:
             name: name
             arguments: arguments
+            display_name: display_name
           id: id
           type: type
         content: Content
@@ -8498,11 +8595,13 @@ components:
             - function:
                 name: name
                 arguments: arguments
+                display_name: display_name
               id: id
               type: type
             - function:
                 name: name
                 arguments: arguments
+                display_name: display_name
               id: id
               type: type
             content: Content
@@ -8515,11 +8614,13 @@ components:
             - function:
                 name: name
                 arguments: arguments
+                display_name: display_name
               id: id
               type: type
             - function:
                 name: name
                 arguments: arguments
+                display_name: display_name
               id: id
               type: type
             content: Content
@@ -8547,11 +8648,13 @@ components:
             - function:
                 name: name
                 arguments: arguments
+                display_name: display_name
               id: id
               type: type
             - function:
                 name: name
                 arguments: arguments
+                display_name: display_name
               id: id
               type: type
             content: Content
@@ -8564,11 +8667,13 @@ components:
             - function:
                 name: name
                 arguments: arguments
+                display_name: display_name
               id: id
               type: type
             - function:
                 name: name
                 arguments: arguments
+                display_name: display_name
               id: id
               type: type
             content: Content
@@ -9820,12 +9925,16 @@ components:
       example:
         name: name
         arguments: arguments
+        display_name: display_name
       properties:
         name:
           title: Name
           type: string
         arguments:
           title: Arguments
+          type: string
+        display_name:
+          nullable: true
           type: string
       required:
       - arguments
@@ -9836,6 +9945,7 @@ components:
         function:
           name: name
           arguments: arguments
+          display_name: display_name
         id: id
         type: type
       properties:
@@ -9916,6 +10026,7 @@ components:
       anyOf:
       - $ref: "#/components/schemas/AnthropicProviderWithDeploymentsCreate"
       - $ref: "#/components/schemas/AzureProviderWithDeploymentsCreate"
+      - $ref: "#/components/schemas/AzureAiProviderWithDeploymentsCreate"
       - $ref: "#/components/schemas/AzureSpeechProviderWithDeploymentsCreate"
       - $ref: "#/components/schemas/BedrockProviderWithDeploymentsCreate"
       - $ref: "#/components/schemas/GeminiProviderWithDeploymentsCreate"
@@ -9929,6 +10040,7 @@ components:
       anyOf:
       - $ref: "#/components/schemas/AnthropicProviderValidationRequest"
       - $ref: "#/components/schemas/AzureProviderValidationRequest"
+      - $ref: "#/components/schemas/AzureAiProviderValidationRequest"
       - $ref: "#/components/schemas/AzureSpeechProviderValidationRequest"
       - $ref: "#/components/schemas/BedrockProviderValidationRequest"
       - $ref: "#/components/schemas/GeminiProviderValidationRequest"

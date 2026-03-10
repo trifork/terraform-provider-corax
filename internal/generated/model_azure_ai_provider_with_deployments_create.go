@@ -16,13 +16,13 @@ import (
 	"fmt"
 )
 
-// checks if the GeminiProviderWithDeploymentsCreate type satisfies the MappedNullable interface at compile time
-var _ MappedNullable = &GeminiProviderWithDeploymentsCreate{}
+// checks if the AzureAiProviderWithDeploymentsCreate type satisfies the MappedNullable interface at compile time
+var _ MappedNullable = &AzureAiProviderWithDeploymentsCreate{}
 
-// GeminiProviderWithDeploymentsCreate struct for GeminiProviderWithDeploymentsCreate
-type GeminiProviderWithDeploymentsCreate struct {
+// AzureAiProviderWithDeploymentsCreate struct for AzureAiProviderWithDeploymentsCreate
+type AzureAiProviderWithDeploymentsCreate struct {
 	// Provider configuration
-	Configuration AzureConfiguration `json:"configuration"`
+	Configuration OpenAILikeConfiguration `json:"configuration"`
 	// Provider display name
 	Name string `json:"name"`
 	// Provider type
@@ -31,14 +31,14 @@ type GeminiProviderWithDeploymentsCreate struct {
 	Deployments []DeploymentCreate `json:"deployments"`
 }
 
-type _GeminiProviderWithDeploymentsCreate GeminiProviderWithDeploymentsCreate
+type _AzureAiProviderWithDeploymentsCreate AzureAiProviderWithDeploymentsCreate
 
-// NewGeminiProviderWithDeploymentsCreate instantiates a new GeminiProviderWithDeploymentsCreate object
+// NewAzureAiProviderWithDeploymentsCreate instantiates a new AzureAiProviderWithDeploymentsCreate object
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewGeminiProviderWithDeploymentsCreate(configuration AzureConfiguration, name string, providerType string, deployments []DeploymentCreate) *GeminiProviderWithDeploymentsCreate {
-	this := GeminiProviderWithDeploymentsCreate{}
+func NewAzureAiProviderWithDeploymentsCreate(configuration OpenAILikeConfiguration, name string, providerType string, deployments []DeploymentCreate) *AzureAiProviderWithDeploymentsCreate {
+	this := AzureAiProviderWithDeploymentsCreate{}
 	this.Configuration = configuration
 	this.Name = name
 	this.ProviderType = providerType
@@ -46,18 +46,18 @@ func NewGeminiProviderWithDeploymentsCreate(configuration AzureConfiguration, na
 	return &this
 }
 
-// NewGeminiProviderWithDeploymentsCreateWithDefaults instantiates a new GeminiProviderWithDeploymentsCreate object
+// NewAzureAiProviderWithDeploymentsCreateWithDefaults instantiates a new AzureAiProviderWithDeploymentsCreate object
 // This constructor will only assign default values to properties that have it defined,
 // but it doesn't guarantee that properties required by API are set
-func NewGeminiProviderWithDeploymentsCreateWithDefaults() *GeminiProviderWithDeploymentsCreate {
-	this := GeminiProviderWithDeploymentsCreate{}
+func NewAzureAiProviderWithDeploymentsCreateWithDefaults() *AzureAiProviderWithDeploymentsCreate {
+	this := AzureAiProviderWithDeploymentsCreate{}
 	return &this
 }
 
 // GetConfiguration returns the Configuration field value
-func (o *GeminiProviderWithDeploymentsCreate) GetConfiguration() AzureConfiguration {
+func (o *AzureAiProviderWithDeploymentsCreate) GetConfiguration() OpenAILikeConfiguration {
 	if o == nil {
-		var ret AzureConfiguration
+		var ret OpenAILikeConfiguration
 		return ret
 	}
 
@@ -66,7 +66,7 @@ func (o *GeminiProviderWithDeploymentsCreate) GetConfiguration() AzureConfigurat
 
 // GetConfigurationOk returns a tuple with the Configuration field value
 // and a boolean to check if the value has been set.
-func (o *GeminiProviderWithDeploymentsCreate) GetConfigurationOk() (*AzureConfiguration, bool) {
+func (o *AzureAiProviderWithDeploymentsCreate) GetConfigurationOk() (*OpenAILikeConfiguration, bool) {
 	if o == nil {
 		return nil, false
 	}
@@ -74,12 +74,12 @@ func (o *GeminiProviderWithDeploymentsCreate) GetConfigurationOk() (*AzureConfig
 }
 
 // SetConfiguration sets field value
-func (o *GeminiProviderWithDeploymentsCreate) SetConfiguration(v AzureConfiguration) {
+func (o *AzureAiProviderWithDeploymentsCreate) SetConfiguration(v OpenAILikeConfiguration) {
 	o.Configuration = v
 }
 
 // GetName returns the Name field value
-func (o *GeminiProviderWithDeploymentsCreate) GetName() string {
+func (o *AzureAiProviderWithDeploymentsCreate) GetName() string {
 	if o == nil {
 		var ret string
 		return ret
@@ -90,7 +90,7 @@ func (o *GeminiProviderWithDeploymentsCreate) GetName() string {
 
 // GetNameOk returns a tuple with the Name field value
 // and a boolean to check if the value has been set.
-func (o *GeminiProviderWithDeploymentsCreate) GetNameOk() (*string, bool) {
+func (o *AzureAiProviderWithDeploymentsCreate) GetNameOk() (*string, bool) {
 	if o == nil {
 		return nil, false
 	}
@@ -98,12 +98,12 @@ func (o *GeminiProviderWithDeploymentsCreate) GetNameOk() (*string, bool) {
 }
 
 // SetName sets field value
-func (o *GeminiProviderWithDeploymentsCreate) SetName(v string) {
+func (o *AzureAiProviderWithDeploymentsCreate) SetName(v string) {
 	o.Name = v
 }
 
 // GetProviderType returns the ProviderType field value
-func (o *GeminiProviderWithDeploymentsCreate) GetProviderType() string {
+func (o *AzureAiProviderWithDeploymentsCreate) GetProviderType() string {
 	if o == nil {
 		var ret string
 		return ret
@@ -114,7 +114,7 @@ func (o *GeminiProviderWithDeploymentsCreate) GetProviderType() string {
 
 // GetProviderTypeOk returns a tuple with the ProviderType field value
 // and a boolean to check if the value has been set.
-func (o *GeminiProviderWithDeploymentsCreate) GetProviderTypeOk() (*string, bool) {
+func (o *AzureAiProviderWithDeploymentsCreate) GetProviderTypeOk() (*string, bool) {
 	if o == nil {
 		return nil, false
 	}
@@ -122,12 +122,12 @@ func (o *GeminiProviderWithDeploymentsCreate) GetProviderTypeOk() (*string, bool
 }
 
 // SetProviderType sets field value
-func (o *GeminiProviderWithDeploymentsCreate) SetProviderType(v string) {
+func (o *AzureAiProviderWithDeploymentsCreate) SetProviderType(v string) {
 	o.ProviderType = v
 }
 
 // GetDeployments returns the Deployments field value
-func (o *GeminiProviderWithDeploymentsCreate) GetDeployments() []DeploymentCreate {
+func (o *AzureAiProviderWithDeploymentsCreate) GetDeployments() []DeploymentCreate {
 	if o == nil {
 		var ret []DeploymentCreate
 		return ret
@@ -138,7 +138,7 @@ func (o *GeminiProviderWithDeploymentsCreate) GetDeployments() []DeploymentCreat
 
 // GetDeploymentsOk returns a tuple with the Deployments field value
 // and a boolean to check if the value has been set.
-func (o *GeminiProviderWithDeploymentsCreate) GetDeploymentsOk() ([]DeploymentCreate, bool) {
+func (o *AzureAiProviderWithDeploymentsCreate) GetDeploymentsOk() ([]DeploymentCreate, bool) {
 	if o == nil {
 		return nil, false
 	}
@@ -146,11 +146,11 @@ func (o *GeminiProviderWithDeploymentsCreate) GetDeploymentsOk() ([]DeploymentCr
 }
 
 // SetDeployments sets field value
-func (o *GeminiProviderWithDeploymentsCreate) SetDeployments(v []DeploymentCreate) {
+func (o *AzureAiProviderWithDeploymentsCreate) SetDeployments(v []DeploymentCreate) {
 	o.Deployments = v
 }
 
-func (o GeminiProviderWithDeploymentsCreate) MarshalJSON() ([]byte, error) {
+func (o AzureAiProviderWithDeploymentsCreate) MarshalJSON() ([]byte, error) {
 	toSerialize,err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
@@ -158,7 +158,7 @@ func (o GeminiProviderWithDeploymentsCreate) MarshalJSON() ([]byte, error) {
 	return json.Marshal(toSerialize)
 }
 
-func (o GeminiProviderWithDeploymentsCreate) ToMap() (map[string]interface{}, error) {
+func (o AzureAiProviderWithDeploymentsCreate) ToMap() (map[string]interface{}, error) {
 	toSerialize := map[string]interface{}{}
 	toSerialize["configuration"] = o.Configuration
 	toSerialize["name"] = o.Name
@@ -167,7 +167,7 @@ func (o GeminiProviderWithDeploymentsCreate) ToMap() (map[string]interface{}, er
 	return toSerialize, nil
 }
 
-func (o *GeminiProviderWithDeploymentsCreate) UnmarshalJSON(data []byte) (err error) {
+func (o *AzureAiProviderWithDeploymentsCreate) UnmarshalJSON(data []byte) (err error) {
 	// This validates that all required properties are included in the JSON object
 	// by unmarshalling the object into a generic map with string keys and checking
 	// that every required field exists as a key in the generic map.
@@ -192,53 +192,53 @@ func (o *GeminiProviderWithDeploymentsCreate) UnmarshalJSON(data []byte) (err er
 		}
 	}
 
-	varGeminiProviderWithDeploymentsCreate := _GeminiProviderWithDeploymentsCreate{}
+	varAzureAiProviderWithDeploymentsCreate := _AzureAiProviderWithDeploymentsCreate{}
 
 	decoder := json.NewDecoder(bytes.NewReader(data))
 	decoder.DisallowUnknownFields()
-	err = decoder.Decode(&varGeminiProviderWithDeploymentsCreate)
+	err = decoder.Decode(&varAzureAiProviderWithDeploymentsCreate)
 
 	if err != nil {
 		return err
 	}
 
-	*o = GeminiProviderWithDeploymentsCreate(varGeminiProviderWithDeploymentsCreate)
+	*o = AzureAiProviderWithDeploymentsCreate(varAzureAiProviderWithDeploymentsCreate)
 
 	return err
 }
 
-type NullableGeminiProviderWithDeploymentsCreate struct {
-	value *GeminiProviderWithDeploymentsCreate
+type NullableAzureAiProviderWithDeploymentsCreate struct {
+	value *AzureAiProviderWithDeploymentsCreate
 	isSet bool
 }
 
-func (v NullableGeminiProviderWithDeploymentsCreate) Get() *GeminiProviderWithDeploymentsCreate {
+func (v NullableAzureAiProviderWithDeploymentsCreate) Get() *AzureAiProviderWithDeploymentsCreate {
 	return v.value
 }
 
-func (v *NullableGeminiProviderWithDeploymentsCreate) Set(val *GeminiProviderWithDeploymentsCreate) {
+func (v *NullableAzureAiProviderWithDeploymentsCreate) Set(val *AzureAiProviderWithDeploymentsCreate) {
 	v.value = val
 	v.isSet = true
 }
 
-func (v NullableGeminiProviderWithDeploymentsCreate) IsSet() bool {
+func (v NullableAzureAiProviderWithDeploymentsCreate) IsSet() bool {
 	return v.isSet
 }
 
-func (v *NullableGeminiProviderWithDeploymentsCreate) Unset() {
+func (v *NullableAzureAiProviderWithDeploymentsCreate) Unset() {
 	v.value = nil
 	v.isSet = false
 }
 
-func NewNullableGeminiProviderWithDeploymentsCreate(val *GeminiProviderWithDeploymentsCreate) *NullableGeminiProviderWithDeploymentsCreate {
-	return &NullableGeminiProviderWithDeploymentsCreate{value: val, isSet: true}
+func NewNullableAzureAiProviderWithDeploymentsCreate(val *AzureAiProviderWithDeploymentsCreate) *NullableAzureAiProviderWithDeploymentsCreate {
+	return &NullableAzureAiProviderWithDeploymentsCreate{value: val, isSet: true}
 }
 
-func (v NullableGeminiProviderWithDeploymentsCreate) MarshalJSON() ([]byte, error) {
+func (v NullableAzureAiProviderWithDeploymentsCreate) MarshalJSON() ([]byte, error) {
 	return json.Marshal(v.value)
 }
 
-func (v *NullableGeminiProviderWithDeploymentsCreate) UnmarshalJSON(src []byte) error {
+func (v *NullableAzureAiProviderWithDeploymentsCreate) UnmarshalJSON(src []byte) error {
 	v.isSet = true
 	return json.Unmarshal(src, &v.value)
 }

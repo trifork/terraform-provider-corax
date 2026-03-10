@@ -31,7 +31,13 @@ model_field_type.go
 model_evaluation_dataset_output_type.go
 model_streaming_transport.go
 model_mcp_connection_type.go
+model_execution_status.go
+
+# Ignore files with type name conflicts
+model_configuration.go
+api_model_provider_types.go
 
 # Ignore files with references to fixed enum constants
 model_mcp_server_base.go
 model_mcp_server_response.go
+model_execution.go

@@ -44,6 +44,8 @@ model_api_key_create.go
 model_array_property_input.go
 model_array_property_output.go
 model_available_model.go
+model_azure_ai_provider_validation_request.go
+model_azure_ai_provider_with_deployments_create.go
 model_azure_configuration.go
 model_azure_provider_validation_request.go
 model_azure_provider_with_deployments_create.go

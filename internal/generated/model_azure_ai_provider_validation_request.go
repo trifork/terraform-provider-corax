@@ -16,42 +16,42 @@ import (
 	"fmt"
 )
 
-// checks if the OpenRouterProviderValidationRequest type satisfies the MappedNullable interface at compile time
-var _ MappedNullable = &OpenRouterProviderValidationRequest{}
+// checks if the AzureAiProviderValidationRequest type satisfies the MappedNullable interface at compile time
+var _ MappedNullable = &AzureAiProviderValidationRequest{}
 
-// OpenRouterProviderValidationRequest struct for OpenRouterProviderValidationRequest
-type OpenRouterProviderValidationRequest struct {
+// AzureAiProviderValidationRequest struct for AzureAiProviderValidationRequest
+type AzureAiProviderValidationRequest struct {
 	// Provider configuration including credentials
-	Configuration OpenAIConfiguration `json:"configuration"`
+	Configuration OpenAILikeConfiguration `json:"configuration"`
 	// Provider type
 	ProviderType string `json:"provider_type"`
 }
 
-type _OpenRouterProviderValidationRequest OpenRouterProviderValidationRequest
+type _AzureAiProviderValidationRequest AzureAiProviderValidationRequest
 
-// NewOpenRouterProviderValidationRequest instantiates a new OpenRouterProviderValidationRequest object
+// NewAzureAiProviderValidationRequest instantiates a new AzureAiProviderValidationRequest object
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewOpenRouterProviderValidationRequest(configuration OpenAIConfiguration, providerType string) *OpenRouterProviderValidationRequest {
-	this := OpenRouterProviderValidationRequest{}
+func NewAzureAiProviderValidationRequest(configuration OpenAILikeConfiguration, providerType string) *AzureAiProviderValidationRequest {
+	this := AzureAiProviderValidationRequest{}
 	this.Configuration = configuration
 	this.ProviderType = providerType
 	return &this
 }
 
-// NewOpenRouterProviderValidationRequestWithDefaults instantiates a new OpenRouterProviderValidationRequest object
+// NewAzureAiProviderValidationRequestWithDefaults instantiates a new AzureAiProviderValidationRequest object
 // This constructor will only assign default values to properties that have it defined,
 // but it doesn't guarantee that properties required by API are set
-func NewOpenRouterProviderValidationRequestWithDefaults() *OpenRouterProviderValidationRequest {
-	this := OpenRouterProviderValidationRequest{}
+func NewAzureAiProviderValidationRequestWithDefaults() *AzureAiProviderValidationRequest {
+	this := AzureAiProviderValidationRequest{}
 	return &this
 }
 
 // GetConfiguration returns the Configuration field value
-func (o *OpenRouterProviderValidationRequest) GetConfiguration() OpenAIConfiguration {
+func (o *AzureAiProviderValidationRequest) GetConfiguration() OpenAILikeConfiguration {
 	if o == nil {
-		var ret OpenAIConfiguration
+		var ret OpenAILikeConfiguration
 		return ret
 	}
 
@@ -60,7 +60,7 @@ func (o *OpenRouterProviderValidationRequest) GetConfiguration() OpenAIConfigura
 
 // GetConfigurationOk returns a tuple with the Configuration field value
 // and a boolean to check if the value has been set.
-func (o *OpenRouterProviderValidationRequest) GetConfigurationOk() (*OpenAIConfiguration, bool) {
+func (o *AzureAiProviderValidationRequest) GetConfigurationOk() (*OpenAILikeConfiguration, bool) {
 	if o == nil {
 		return nil, false
 	}
@@ -68,12 +68,12 @@ func (o *OpenRouterProviderValidationRequest) GetConfigurationOk() (*OpenAIConfi
 }
 
 // SetConfiguration sets field value
-func (o *OpenRouterProviderValidationRequest) SetConfiguration(v OpenAIConfiguration) {
+func (o *AzureAiProviderValidationRequest) SetConfiguration(v OpenAILikeConfiguration) {
 	o.Configuration = v
 }
 
 // GetProviderType returns the ProviderType field value
-func (o *OpenRouterProviderValidationRequest) GetProviderType() string {
+func (o *AzureAiProviderValidationRequest) GetProviderType() string {
 	if o == nil {
 		var ret string
 		return ret
@@ -84,7 +84,7 @@ func (o *OpenRouterProviderValidationRequest) GetProviderType() string {
 
 // GetProviderTypeOk returns a tuple with the ProviderType field value
 // and a boolean to check if the value has been set.
-func (o *OpenRouterProviderValidationRequest) GetProviderTypeOk() (*string, bool) {
+func (o *AzureAiProviderValidationRequest) GetProviderTypeOk() (*string, bool) {
 	if o == nil {
 		return nil, false
 	}
@@ -92,11 +92,11 @@ func (o *OpenRouterProviderValidationRequest) GetProviderTypeOk() (*string, bool
 }
 
 // SetProviderType sets field value
-func (o *OpenRouterProviderValidationRequest) SetProviderType(v string) {
+func (o *AzureAiProviderValidationRequest) SetProviderType(v string) {
 	o.ProviderType = v
 }
 
-func (o OpenRouterProviderValidationRequest) MarshalJSON() ([]byte, error) {
+func (o AzureAiProviderValidationRequest) MarshalJSON() ([]byte, error) {
 	toSerialize,err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
@@ -104,14 +104,14 @@ func (o OpenRouterProviderValidationRequest) MarshalJSON() ([]byte, error) {
 	return json.Marshal(toSerialize)
 }
 
-func (o OpenRouterProviderValidationRequest) ToMap() (map[string]interface{}, error) {
+func (o AzureAiProviderValidationRequest) ToMap() (map[string]interface{}, error) {
 	toSerialize := map[string]interface{}{}
 	toSerialize["configuration"] = o.Configuration
 	toSerialize["provider_type"] = o.ProviderType
 	return toSerialize, nil
 }
 
-func (o *OpenRouterProviderValidationRequest) UnmarshalJSON(data []byte) (err error) {
+func (o *AzureAiProviderValidationRequest) UnmarshalJSON(data []byte) (err error) {
 	// This validates that all required properties are included in the JSON object
 	// by unmarshalling the object into a generic map with string keys and checking
 	// that every required field exists as a key in the generic map.
@@ -134,53 +134,53 @@ func (o *OpenRouterProviderValidationRequest) UnmarshalJSON(data []byte) (err er
 		}
 	}
 
-	varOpenRouterProviderValidationRequest := _OpenRouterProviderValidationRequest{}
+	varAzureAiProviderValidationRequest := _AzureAiProviderValidationRequest{}
 
 	decoder := json.NewDecoder(bytes.NewReader(data))
 	decoder.DisallowUnknownFields()
-	err = decoder.Decode(&varOpenRouterProviderValidationRequest)
+	err = decoder.Decode(&varAzureAiProviderValidationRequest)
 
 	if err != nil {
 		return err
 	}
 
-	*o = OpenRouterProviderValidationRequest(varOpenRouterProviderValidationRequest)
+	*o = AzureAiProviderValidationRequest(varAzureAiProviderValidationRequest)
 
 	return err
 }
 
-type NullableOpenRouterProviderValidationRequest struct {
-	value *OpenRouterProviderValidationRequest
+type NullableAzureAiProviderValidationRequest struct {
+	value *AzureAiProviderValidationRequest
 	isSet bool
 }
 
-func (v NullableOpenRouterProviderValidationRequest) Get() *OpenRouterProviderValidationRequest {
+func (v NullableAzureAiProviderValidationRequest) Get() *AzureAiProviderValidationRequest {
 	return v.value
 }
 
-func (v *NullableOpenRouterProviderValidationRequest) Set(val *OpenRouterProviderValidationRequest) {
+func (v *NullableAzureAiProviderValidationRequest) Set(val *AzureAiProviderValidationRequest) {
 	v.value = val
 	v.isSet = true
 }
 
-func (v NullableOpenRouterProviderValidationRequest) IsSet() bool {
+func (v NullableAzureAiProviderValidationRequest) IsSet() bool {
 	return v.isSet
 }
 
-func (v *NullableOpenRouterProviderValidationRequest) Unset() {
+func (v *NullableAzureAiProviderValidationRequest) Unset() {
 	v.value = nil
 	v.isSet = false
 }
 
-func NewNullableOpenRouterProviderValidationRequest(val *OpenRouterProviderValidationRequest) *NullableOpenRouterProviderValidationRequest {
-	return &NullableOpenRouterProviderValidationRequest{value: val, isSet: true}
+func NewNullableAzureAiProviderValidationRequest(val *AzureAiProviderValidationRequest) *NullableAzureAiProviderValidationRequest {
+	return &NullableAzureAiProviderValidationRequest{value: val, isSet: true}
 }
 
-func (v NullableOpenRouterProviderValidationRequest) MarshalJSON() ([]byte, error) {
+func (v NullableAzureAiProviderValidationRequest) MarshalJSON() ([]byte, error) {
 	return json.Marshal(v.value)
 }
 
-func (v *NullableOpenRouterProviderValidationRequest) UnmarshalJSON(src []byte) error {
+func (v *NullableAzureAiProviderValidationRequest) UnmarshalJSON(src []byte) error {
 	v.isSet = true
 	return json.Unmarshal(src, &v.value)
 }
