@@ -14,11 +14,11 @@ import (
 	"encoding/json"
 )
 
-// checks if the MistralProviderValidationRequest type satisfies the MappedNullable interface at compile time
-var _ MappedNullable = &MistralProviderValidationRequest{}
+// checks if the AzureAiProviderValidationRequest type satisfies the MappedNullable interface at compile time
+var _ MappedNullable = &AzureAiProviderValidationRequest{}
 
-// MistralProviderValidationRequest struct for MistralProviderValidationRequest
-type MistralProviderValidationRequest struct {
+// AzureAiProviderValidationRequest struct for AzureAiProviderValidationRequest
+type AzureAiProviderValidationRequest struct {
 	// Provider configuration including credentials
 	Configuration OpenAILikeConfiguration `json:"configuration"`
 	// Provider type
@@ -26,29 +26,29 @@ type MistralProviderValidationRequest struct {
 	AdditionalProperties map[string]interface{}
 }
 
-type _MistralProviderValidationRequest MistralProviderValidationRequest
+type _AzureAiProviderValidationRequest AzureAiProviderValidationRequest
 
-// NewMistralProviderValidationRequest instantiates a new MistralProviderValidationRequest object
+// NewAzureAiProviderValidationRequest instantiates a new AzureAiProviderValidationRequest object
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewMistralProviderValidationRequest(configuration OpenAILikeConfiguration, providerType string) *MistralProviderValidationRequest {
-	this := MistralProviderValidationRequest{}
+func NewAzureAiProviderValidationRequest(configuration OpenAILikeConfiguration, providerType string) *AzureAiProviderValidationRequest {
+	this := AzureAiProviderValidationRequest{}
 	this.Configuration = configuration
 	this.ProviderType = providerType
 	return &this
 }
 
-// NewMistralProviderValidationRequestWithDefaults instantiates a new MistralProviderValidationRequest object
+// NewAzureAiProviderValidationRequestWithDefaults instantiates a new AzureAiProviderValidationRequest object
 // This constructor will only assign default values to properties that have it defined,
 // but it doesn't guarantee that properties required by API are set
-func NewMistralProviderValidationRequestWithDefaults() *MistralProviderValidationRequest {
-	this := MistralProviderValidationRequest{}
+func NewAzureAiProviderValidationRequestWithDefaults() *AzureAiProviderValidationRequest {
+	this := AzureAiProviderValidationRequest{}
 	return &this
 }
 
 // GetConfiguration returns the Configuration field value
-func (o *MistralProviderValidationRequest) GetConfiguration() OpenAILikeConfiguration {
+func (o *AzureAiProviderValidationRequest) GetConfiguration() OpenAILikeConfiguration {
 	if o == nil {
 		var ret OpenAILikeConfiguration
 		return ret
@@ -59,7 +59,7 @@ func (o *MistralProviderValidationRequest) GetConfiguration() OpenAILikeConfigur
 
 // GetConfigurationOk returns a tuple with the Configuration field value
 // and a boolean to check if the value has been set.
-func (o *MistralProviderValidationRequest) GetConfigurationOk() (*OpenAILikeConfiguration, bool) {
+func (o *AzureAiProviderValidationRequest) GetConfigurationOk() (*OpenAILikeConfiguration, bool) {
 	if o == nil {
 		return nil, false
 	}
@@ -67,12 +67,12 @@ func (o *MistralProviderValidationRequest) GetConfigurationOk() (*OpenAILikeConf
 }
 
 // SetConfiguration sets field value
-func (o *MistralProviderValidationRequest) SetConfiguration(v OpenAILikeConfiguration) {
+func (o *AzureAiProviderValidationRequest) SetConfiguration(v OpenAILikeConfiguration) {
 	o.Configuration = v
 }
 
 // GetProviderType returns the ProviderType field value
-func (o *MistralProviderValidationRequest) GetProviderType() string {
+func (o *AzureAiProviderValidationRequest) GetProviderType() string {
 	if o == nil {
 		var ret string
 		return ret
@@ -83,7 +83,7 @@ func (o *MistralProviderValidationRequest) GetProviderType() string {
 
 // GetProviderTypeOk returns a tuple with the ProviderType field value
 // and a boolean to check if the value has been set.
-func (o *MistralProviderValidationRequest) GetProviderTypeOk() (*string, bool) {
+func (o *AzureAiProviderValidationRequest) GetProviderTypeOk() (*string, bool) {
 	if o == nil {
 		return nil, false
 	}
@@ -91,11 +91,11 @@ func (o *MistralProviderValidationRequest) GetProviderTypeOk() (*string, bool) {
 }
 
 // SetProviderType sets field value
-func (o *MistralProviderValidationRequest) SetProviderType(v string) {
+func (o *AzureAiProviderValidationRequest) SetProviderType(v string) {
 	o.ProviderType = v
 }
 
-func (o MistralProviderValidationRequest) MarshalJSON() ([]byte, error) {
+func (o AzureAiProviderValidationRequest) MarshalJSON() ([]byte, error) {
 	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
@@ -103,7 +103,7 @@ func (o MistralProviderValidationRequest) MarshalJSON() ([]byte, error) {
 	return json.Marshal(toSerialize)
 }
 
-func (o MistralProviderValidationRequest) ToMap() (map[string]interface{}, error) {
+func (o AzureAiProviderValidationRequest) ToMap() (map[string]interface{}, error) {
 	toSerialize := map[string]interface{}{}
 	toSerialize["configuration"] = o.Configuration
 	toSerialize["provider_type"] = o.ProviderType
@@ -115,38 +115,38 @@ func (o MistralProviderValidationRequest) ToMap() (map[string]interface{}, error
 	return toSerialize, nil
 }
 
-type NullableMistralProviderValidationRequest struct {
-	value *MistralProviderValidationRequest
+type NullableAzureAiProviderValidationRequest struct {
+	value *AzureAiProviderValidationRequest
 	isSet bool
 }
 
-func (v NullableMistralProviderValidationRequest) Get() *MistralProviderValidationRequest {
+func (v NullableAzureAiProviderValidationRequest) Get() *AzureAiProviderValidationRequest {
 	return v.value
 }
 
-func (v *NullableMistralProviderValidationRequest) Set(val *MistralProviderValidationRequest) {
+func (v *NullableAzureAiProviderValidationRequest) Set(val *AzureAiProviderValidationRequest) {
 	v.value = val
 	v.isSet = true
 }
 
-func (v NullableMistralProviderValidationRequest) IsSet() bool {
+func (v NullableAzureAiProviderValidationRequest) IsSet() bool {
 	return v.isSet
 }
 
-func (v *NullableMistralProviderValidationRequest) Unset() {
+func (v *NullableAzureAiProviderValidationRequest) Unset() {
 	v.value = nil
 	v.isSet = false
 }
 
-func NewNullableMistralProviderValidationRequest(val *MistralProviderValidationRequest) *NullableMistralProviderValidationRequest {
-	return &NullableMistralProviderValidationRequest{value: val, isSet: true}
+func NewNullableAzureAiProviderValidationRequest(val *AzureAiProviderValidationRequest) *NullableAzureAiProviderValidationRequest {
+	return &NullableAzureAiProviderValidationRequest{value: val, isSet: true}
 }
 
-func (v NullableMistralProviderValidationRequest) MarshalJSON() ([]byte, error) {
+func (v NullableAzureAiProviderValidationRequest) MarshalJSON() ([]byte, error) {
 	return json.Marshal(v.value)
 }
 
-func (v *NullableMistralProviderValidationRequest) UnmarshalJSON(src []byte) error {
+func (v *NullableAzureAiProviderValidationRequest) UnmarshalJSON(src []byte) error {
 	v.isSet = true
 	return json.Unmarshal(src, &v.value)
 }

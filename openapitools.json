@@ -14,7 +14,9 @@
         "modelPackage": "apiModels",
         "additionalProperties": {
           "structPrefix": true,
-          "isGoSubmodule": true
+          "isGoSubmodule": true,
+          "disallowAdditionalPropertiesIfNotPresent": false,
+          "generateUnmarshalJSON": false
         },
         "globalProperty": {
           "apiTests": false,

@@ -14,13 +14,13 @@ import (
 	"encoding/json"
 )
 
-// checks if the AzureProviderWithDeploymentsCreate type satisfies the MappedNullable interface at compile time
-var _ MappedNullable = &AzureProviderWithDeploymentsCreate{}
+// checks if the AzureAiProviderWithDeploymentsCreate type satisfies the MappedNullable interface at compile time
+var _ MappedNullable = &AzureAiProviderWithDeploymentsCreate{}
 
-// AzureProviderWithDeploymentsCreate struct for AzureProviderWithDeploymentsCreate
-type AzureProviderWithDeploymentsCreate struct {
+// AzureAiProviderWithDeploymentsCreate struct for AzureAiProviderWithDeploymentsCreate
+type AzureAiProviderWithDeploymentsCreate struct {
 	// Provider configuration
-	Configuration AzureConfiguration `json:"configuration"`
+	Configuration OpenAILikeConfiguration `json:"configuration"`
 	// Provider display name
 	Name string `json:"name"`
 	// Provider type
@@ -30,14 +30,14 @@ type AzureProviderWithDeploymentsCreate struct {
 	AdditionalProperties map[string]interface{}
 }
 
-type _AzureProviderWithDeploymentsCreate AzureProviderWithDeploymentsCreate
+type _AzureAiProviderWithDeploymentsCreate AzureAiProviderWithDeploymentsCreate
 
-// NewAzureProviderWithDeploymentsCreate instantiates a new AzureProviderWithDeploymentsCreate object
+// NewAzureAiProviderWithDeploymentsCreate instantiates a new AzureAiProviderWithDeploymentsCreate object
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewAzureProviderWithDeploymentsCreate(configuration AzureConfiguration, name string, providerType string, deployments []DeploymentCreate) *AzureProviderWithDeploymentsCreate {
-	this := AzureProviderWithDeploymentsCreate{}
+func NewAzureAiProviderWithDeploymentsCreate(configuration OpenAILikeConfiguration, name string, providerType string, deployments []DeploymentCreate) *AzureAiProviderWithDeploymentsCreate {
+	this := AzureAiProviderWithDeploymentsCreate{}
 	this.Configuration = configuration
 	this.Name = name
 	this.ProviderType = providerType
@@ -45,18 +45,18 @@ func NewAzureProviderWithDeploymentsCreate(configuration AzureConfiguration, nam
 	return &this
 }
 
-// NewAzureProviderWithDeploymentsCreateWithDefaults instantiates a new AzureProviderWithDeploymentsCreate object
+// NewAzureAiProviderWithDeploymentsCreateWithDefaults instantiates a new AzureAiProviderWithDeploymentsCreate object
 // This constructor will only assign default values to properties that have it defined,
 // but it doesn't guarantee that properties required by API are set
-func NewAzureProviderWithDeploymentsCreateWithDefaults() *AzureProviderWithDeploymentsCreate {
-	this := AzureProviderWithDeploymentsCreate{}
+func NewAzureAiProviderWithDeploymentsCreateWithDefaults() *AzureAiProviderWithDeploymentsCreate {
+	this := AzureAiProviderWithDeploymentsCreate{}
 	return &this
 }
 
 // GetConfiguration returns the Configuration field value
-func (o *AzureProviderWithDeploymentsCreate) GetConfiguration() AzureConfiguration {
+func (o *AzureAiProviderWithDeploymentsCreate) GetConfiguration() OpenAILikeConfiguration {
 	if o == nil {
-		var ret AzureConfiguration
+		var ret OpenAILikeConfiguration
 		return ret
 	}
 
@@ -65,7 +65,7 @@ func (o *AzureProviderWithDeploymentsCreate) GetConfiguration() AzureConfigurati
 
 // GetConfigurationOk returns a tuple with the Configuration field value
 // and a boolean to check if the value has been set.
-func (o *AzureProviderWithDeploymentsCreate) GetConfigurationOk() (*AzureConfiguration, bool) {
+func (o *AzureAiProviderWithDeploymentsCreate) GetConfigurationOk() (*OpenAILikeConfiguration, bool) {
 	if o == nil {
 		return nil, false
 	}
@@ -73,12 +73,12 @@ func (o *AzureProviderWithDeploymentsCreate) GetConfigurationOk() (*AzureConfigu
 }
 
 // SetConfiguration sets field value
-func (o *AzureProviderWithDeploymentsCreate) SetConfiguration(v AzureConfiguration) {
+func (o *AzureAiProviderWithDeploymentsCreate) SetConfiguration(v OpenAILikeConfiguration) {
 	o.Configuration = v
 }
 
 // GetName returns the Name field value
-func (o *AzureProviderWithDeploymentsCreate) GetName() string {
+func (o *AzureAiProviderWithDeploymentsCreate) GetName() string {
 	if o == nil {
 		var ret string
 		return ret
@@ -89,7 +89,7 @@ func (o *AzureProviderWithDeploymentsCreate) GetName() string {
 
 // GetNameOk returns a tuple with the Name field value
 // and a boolean to check if the value has been set.
-func (o *AzureProviderWithDeploymentsCreate) GetNameOk() (*string, bool) {
+func (o *AzureAiProviderWithDeploymentsCreate) GetNameOk() (*string, bool) {
 	if o == nil {
 		return nil, false
 	}
@@ -97,12 +97,12 @@ func (o *AzureProviderWithDeploymentsCreate) GetNameOk() (*string, bool) {
 }
 
 // SetName sets field value
-func (o *AzureProviderWithDeploymentsCreate) SetName(v string) {
+func (o *AzureAiProviderWithDeploymentsCreate) SetName(v string) {
 	o.Name = v
 }
 
 // GetProviderType returns the ProviderType field value
-func (o *AzureProviderWithDeploymentsCreate) GetProviderType() string {
+func (o *AzureAiProviderWithDeploymentsCreate) GetProviderType() string {
 	if o == nil {
 		var ret string
 		return ret
@@ -113,7 +113,7 @@ func (o *AzureProviderWithDeploymentsCreate) GetProviderType() string {
 
 // GetProviderTypeOk returns a tuple with the ProviderType field value
 // and a boolean to check if the value has been set.
-func (o *AzureProviderWithDeploymentsCreate) GetProviderTypeOk() (*string, bool) {
+func (o *AzureAiProviderWithDeploymentsCreate) GetProviderTypeOk() (*string, bool) {
 	if o == nil {
 		return nil, false
 	}
@@ -121,12 +121,12 @@ func (o *AzureProviderWithDeploymentsCreate) GetProviderTypeOk() (*string, bool)
 }
 
 // SetProviderType sets field value
-func (o *AzureProviderWithDeploymentsCreate) SetProviderType(v string) {
+func (o *AzureAiProviderWithDeploymentsCreate) SetProviderType(v string) {
 	o.ProviderType = v
 }
 
 // GetDeployments returns the Deployments field value
-func (o *AzureProviderWithDeploymentsCreate) GetDeployments() []DeploymentCreate {
+func (o *AzureAiProviderWithDeploymentsCreate) GetDeployments() []DeploymentCreate {
 	if o == nil {
 		var ret []DeploymentCreate
 		return ret
@@ -137,7 +137,7 @@ func (o *AzureProviderWithDeploymentsCreate) GetDeployments() []DeploymentCreate
 
 // GetDeploymentsOk returns a tuple with the Deployments field value
 // and a boolean to check if the value has been set.
-func (o *AzureProviderWithDeploymentsCreate) GetDeploymentsOk() ([]DeploymentCreate, bool) {
+func (o *AzureAiProviderWithDeploymentsCreate) GetDeploymentsOk() ([]DeploymentCreate, bool) {
 	if o == nil {
 		return nil, false
 	}
@@ -145,11 +145,11 @@ func (o *AzureProviderWithDeploymentsCreate) GetDeploymentsOk() ([]DeploymentCre
 }
 
 // SetDeployments sets field value
-func (o *AzureProviderWithDeploymentsCreate) SetDeployments(v []DeploymentCreate) {
+func (o *AzureAiProviderWithDeploymentsCreate) SetDeployments(v []DeploymentCreate) {
 	o.Deployments = v
 }
 
-func (o AzureProviderWithDeploymentsCreate) MarshalJSON() ([]byte, error) {
+func (o AzureAiProviderWithDeploymentsCreate) MarshalJSON() ([]byte, error) {
 	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
@@ -157,7 +157,7 @@ func (o AzureProviderWithDeploymentsCreate) MarshalJSON() ([]byte, error) {
 	return json.Marshal(toSerialize)
 }
 
-func (o AzureProviderWithDeploymentsCreate) ToMap() (map[string]interface{}, error) {
+func (o AzureAiProviderWithDeploymentsCreate) ToMap() (map[string]interface{}, error) {
 	toSerialize := map[string]interface{}{}
 	toSerialize["configuration"] = o.Configuration
 	toSerialize["name"] = o.Name
@@ -171,38 +171,38 @@ func (o AzureProviderWithDeploymentsCreate) ToMap() (map[string]interface{}, err
 	return toSerialize, nil
 }
 
-type NullableAzureProviderWithDeploymentsCreate struct {
-	value *AzureProviderWithDeploymentsCreate
+type NullableAzureAiProviderWithDeploymentsCreate struct {
+	value *AzureAiProviderWithDeploymentsCreate
 	isSet bool
 }
 
-func (v NullableAzureProviderWithDeploymentsCreate) Get() *AzureProviderWithDeploymentsCreate {
+func (v NullableAzureAiProviderWithDeploymentsCreate) Get() *AzureAiProviderWithDeploymentsCreate {
 	return v.value
 }
 
-func (v *NullableAzureProviderWithDeploymentsCreate) Set(val *AzureProviderWithDeploymentsCreate) {
+func (v *NullableAzureAiProviderWithDeploymentsCreate) Set(val *AzureAiProviderWithDeploymentsCreate) {
 	v.value = val
 	v.isSet = true
 }
 
-func (v NullableAzureProviderWithDeploymentsCreate) IsSet() bool {
+func (v NullableAzureAiProviderWithDeploymentsCreate) IsSet() bool {
 	return v.isSet
 }
 
-func (v *NullableAzureProviderWithDeploymentsCreate) Unset() {
+func (v *NullableAzureAiProviderWithDeploymentsCreate) Unset() {
 	v.value = nil
 	v.isSet = false
 }
 
-func NewNullableAzureProviderWithDeploymentsCreate(val *AzureProviderWithDeploymentsCreate) *NullableAzureProviderWithDeploymentsCreate {
-	return &NullableAzureProviderWithDeploymentsCreate{value: val, isSet: true}
+func NewNullableAzureAiProviderWithDeploymentsCreate(val *AzureAiProviderWithDeploymentsCreate) *NullableAzureAiProviderWithDeploymentsCreate {
+	return &NullableAzureAiProviderWithDeploymentsCreate{value: val, isSet: true}
 }
 
-func (v NullableAzureProviderWithDeploymentsCreate) MarshalJSON() ([]byte, error) {
+func (v NullableAzureAiProviderWithDeploymentsCreate) MarshalJSON() ([]byte, error) {
 	return json.Marshal(v.value)
 }
 
-func (v *NullableAzureProviderWithDeploymentsCreate) UnmarshalJSON(src []byte) error {
+func (v *NullableAzureAiProviderWithDeploymentsCreate) UnmarshalJSON(src []byte) error {
 	v.isSet = true
 	return json.Unmarshal(src, &v.value)
 }

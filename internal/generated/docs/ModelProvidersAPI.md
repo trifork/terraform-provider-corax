@@ -9,6 +9,7 @@ Method | HTTP request | Description
 [**DeleteModelProviderV1ModelProvidersProviderIdDelete**](ModelProvidersAPI.md#DeleteModelProviderV1ModelProvidersProviderIdDelete) | **Delete** /v1/model-providers/{provider_id} | Delete Model Provider
 [**GetModelProviderV1ModelProvidersProviderIdGet**](ModelProvidersAPI.md#GetModelProviderV1ModelProvidersProviderIdGet) | **Get** /v1/model-providers/{provider_id} | Get Model Provider
 [**GetProviderHealthV1ModelProvidersProviderIdHealthGet**](ModelProvidersAPI.md#GetProviderHealthV1ModelProvidersProviderIdHealthGet) | **Get** /v1/model-providers/{provider_id}/health | Get Provider Health
+[**ListAvailableModelsV1ModelProvidersProviderIdAvailableModelsGet**](ModelProvidersAPI.md#ListAvailableModelsV1ModelProvidersProviderIdAvailableModelsGet) | **Get** /v1/model-providers/{provider_id}/available-models | List Available Models
 [**ListModelProvidersV1ModelProvidersGet**](ModelProvidersAPI.md#ListModelProvidersV1ModelProvidersGet) | **Get** /v1/model-providers | List Model Providers
 [**TriggerProviderHealthCheckV1ModelProvidersProviderIdHealthCheckPost**](ModelProvidersAPI.md#TriggerProviderHealthCheckV1ModelProvidersProviderIdHealthCheckPost) | **Post** /v1/model-providers/{provider_id}/health-check | Trigger Provider Health Check
 [**UpdateModelProviderV1ModelProvidersProviderIdPut**](ModelProvidersAPI.md#UpdateModelProviderV1ModelProvidersProviderIdPut) | **Put** /v1/model-providers/{provider_id} | Update Model Provider
@@ -340,6 +341,76 @@ Name | Type | Description  | Notes
 ### Return type
 
 [**ProviderHealthResponse**](ProviderHealthResponse.md)
+
+### Authorization
+
+[APIKeyHeader](../README.md#APIKeyHeader), [HTTPBearer](../README.md#HTTPBearer)
+
+### HTTP request headers
+
+- **Content-Type**: Not defined
+- **Accept**: application/json
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints)
+[[Back to Model list]](../README.md#documentation-for-models)
+[[Back to README]](../README.md)
+
+
+## ListAvailableModelsV1ModelProvidersProviderIdAvailableModelsGet
+
+> ProviderValidationResponse ListAvailableModelsV1ModelProvidersProviderIdAvailableModelsGet(ctx, providerId).Execute()
+
+List Available Models
+
+
+
+### Example
+
+```go
+package main
+
+import (
+	"context"
+	"fmt"
+	"os"
+	openapiclient "github.com/GIT_USER_ID/GIT_REPO_ID/api"
+)
+
+func main() {
+	providerId := "38400000-8cf0-11bd-b23e-10b96e4ef00d" // string | 
+
+	configuration := openapiclient.NewConfiguration()
+	apiClient := openapiclient.NewAPIClient(configuration)
+	resp, r, err := apiClient.ModelProvidersAPI.ListAvailableModelsV1ModelProvidersProviderIdAvailableModelsGet(context.Background(), providerId).Execute()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error when calling `ModelProvidersAPI.ListAvailableModelsV1ModelProvidersProviderIdAvailableModelsGet``: %v\n", err)
+		fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
+	}
+	// response from `ListAvailableModelsV1ModelProvidersProviderIdAvailableModelsGet`: ProviderValidationResponse
+	fmt.Fprintf(os.Stdout, "Response from `ModelProvidersAPI.ListAvailableModelsV1ModelProvidersProviderIdAvailableModelsGet`: %v\n", resp)
+}
+```
+
+### Path Parameters
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+**ctx** | **context.Context** | context for authentication, logging, cancellation, deadlines, tracing, etc.
+**providerId** | **string** |  | 
+
+### Other Parameters
+
+Other parameters are passed through a pointer to a apiListAvailableModelsV1ModelProvidersProviderIdAvailableModelsGetRequest struct via the builder pattern
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+
+
+### Return type
+
+[**ProviderValidationResponse**](ProviderValidationResponse.md)
 
 ### Authorization
 

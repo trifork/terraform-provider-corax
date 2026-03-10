@@ -14,7 +14,6 @@ api_knowledge_collections.go
 api_mcp_servers.go
 api_model_deployments.go
 api_model_discovery.go
-api_model_provider_types.go
 api_model_providers.go
 api_projects.go
 client.go
@@ -44,6 +43,8 @@ model_api_key_create.go
 model_array_property_input.go
 model_array_property_output.go
 model_available_model.go
+model_azure_ai_provider_validation_request.go
+model_azure_ai_provider_with_deployments_create.go
 model_azure_configuration.go
 model_azure_provider_validation_request.go
 model_azure_provider_with_deployments_create.go
@@ -87,7 +88,6 @@ model_completion_capability_create.go
 model_completion_capability_create_schema_def_value.go
 model_completion_capability_schema_def_value.go
 model_completion_capability_update.go
-model_configuration.go
 model_configuration_field.go
 model_content.go
 model_data.go
@@ -112,11 +112,9 @@ model_evaluation_execution_data.go
 model_evaluation_execution_progress.go
 model_evaluation_execution_representation.go
 model_evaluation_execution_status.go
-model_execution.go
 model_execution_callback.go
 model_execution_create.go
 model_execution_result.go
-model_execution_status.go
 model_execution_usage.go
 model_extraction_capability.go
 model_extraction_capability_create.go
