@@ -13,8 +13,6 @@ package api
 import (
 	"encoding/json"
 	"time"
-	"bytes"
-	"fmt"
 )
 
 // checks if the Collection type satisfies the MappedNullable interface at compile time
@@ -34,6 +32,7 @@ type Collection struct {
 	UpdatedAt time.Time `json:"updated_at"`
 	Owner string `json:"owner"`
 	DocumentsCount *int32 `json:"documents_count,omitempty"`
+	AdditionalProperties map[string]interface{}
 }
 
 type _Collection Collection
@@ -451,50 +450,12 @@ func (o Collection) ToMap() (map[string]interface{}, error) {
 	if !IsNil(o.DocumentsCount) {
 		toSerialize["documents_count"] = o.DocumentsCount
 	}
+
+	for key, value := range o.AdditionalProperties {
+		toSerialize[key] = value
+	}
+
 	return toSerialize, nil
-}
-
-func (o *Collection) UnmarshalJSON(data []byte) (err error) {
-	// This validates that all required properties are included in the JSON object
-	// by unmarshalling the object into a generic map with string keys and checking
-	// that every required field exists as a key in the generic map.
-	requiredProperties := []string{
-		"name",
-		"id",
-		"created_by",
-		"updated_by",
-		"created_at",
-		"updated_at",
-		"owner",
-	}
-
-	allProperties := make(map[string]interface{})
-
-	err = json.Unmarshal(data, &allProperties)
-
-	if err != nil {
-		return err;
-	}
-
-	for _, requiredProperty := range(requiredProperties) {
-		if _, exists := allProperties[requiredProperty]; !exists {
-			return fmt.Errorf("no value given for required property %v", requiredProperty)
-		}
-	}
-
-	varCollection := _Collection{}
-
-	decoder := json.NewDecoder(bytes.NewReader(data))
-	decoder.DisallowUnknownFields()
-	err = decoder.Decode(&varCollection)
-
-	if err != nil {
-		return err
-	}
-
-	*o = Collection(varCollection)
-
-	return err
 }
 
 type NullableCollection struct {

@@ -12,8 +12,6 @@ package api
 
 import (
 	"encoding/json"
-	"bytes"
-	"fmt"
 )
 
 // checks if the AnthropicConfiguration type satisfies the MappedNullable interface at compile time
@@ -22,6 +20,7 @@ var _ MappedNullable = &AnthropicConfiguration{}
 // AnthropicConfiguration Configuration for Anthropic provider.
 type AnthropicConfiguration struct {
 	ApiKey string `json:"api_key"`
+	AdditionalProperties map[string]interface{}
 }
 
 type _AnthropicConfiguration AnthropicConfiguration
@@ -79,44 +78,12 @@ func (o AnthropicConfiguration) MarshalJSON() ([]byte, error) {
 func (o AnthropicConfiguration) ToMap() (map[string]interface{}, error) {
 	toSerialize := map[string]interface{}{}
 	toSerialize["api_key"] = o.ApiKey
+
+	for key, value := range o.AdditionalProperties {
+		toSerialize[key] = value
+	}
+
 	return toSerialize, nil
-}
-
-func (o *AnthropicConfiguration) UnmarshalJSON(data []byte) (err error) {
-	// This validates that all required properties are included in the JSON object
-	// by unmarshalling the object into a generic map with string keys and checking
-	// that every required field exists as a key in the generic map.
-	requiredProperties := []string{
-		"api_key",
-	}
-
-	allProperties := make(map[string]interface{})
-
-	err = json.Unmarshal(data, &allProperties)
-
-	if err != nil {
-		return err;
-	}
-
-	for _, requiredProperty := range(requiredProperties) {
-		if _, exists := allProperties[requiredProperty]; !exists {
-			return fmt.Errorf("no value given for required property %v", requiredProperty)
-		}
-	}
-
-	varAnthropicConfiguration := _AnthropicConfiguration{}
-
-	decoder := json.NewDecoder(bytes.NewReader(data))
-	decoder.DisallowUnknownFields()
-	err = decoder.Decode(&varAnthropicConfiguration)
-
-	if err != nil {
-		return err
-	}
-
-	*o = AnthropicConfiguration(varAnthropicConfiguration)
-
-	return err
 }
 
 type NullableAnthropicConfiguration struct {

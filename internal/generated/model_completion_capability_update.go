@@ -12,8 +12,6 @@ package api
 
 import (
 	"encoding/json"
-	"bytes"
-	"fmt"
 )
 
 // checks if the CompletionCapabilityUpdate type satisfies the MappedNullable interface at compile time
@@ -35,6 +33,7 @@ type CompletionCapabilityUpdate struct {
 	OutputType NullableString `json:"output_type,omitempty"`
 	SchemaDef map[string]CompletionCapabilityCreateSchemaDefValue `json:"schema_def,omitempty"`
 	SetAsDefault NullableBool `json:"set_as_default,omitempty"`
+	AdditionalProperties map[string]interface{}
 }
 
 type _CompletionCapabilityUpdate CompletionCapabilityUpdate
@@ -640,45 +639,12 @@ func (o CompletionCapabilityUpdate) ToMap() (map[string]interface{}, error) {
 	if o.SetAsDefault.IsSet() {
 		toSerialize["set_as_default"] = o.SetAsDefault.Get()
 	}
+
+	for key, value := range o.AdditionalProperties {
+		toSerialize[key] = value
+	}
+
 	return toSerialize, nil
-}
-
-func (o *CompletionCapabilityUpdate) UnmarshalJSON(data []byte) (err error) {
-	// This validates that all required properties are included in the JSON object
-	// by unmarshalling the object into a generic map with string keys and checking
-	// that every required field exists as a key in the generic map.
-	requiredProperties := []string{
-		"name",
-		"type",
-	}
-
-	allProperties := make(map[string]interface{})
-
-	err = json.Unmarshal(data, &allProperties)
-
-	if err != nil {
-		return err;
-	}
-
-	for _, requiredProperty := range(requiredProperties) {
-		if _, exists := allProperties[requiredProperty]; !exists {
-			return fmt.Errorf("no value given for required property %v", requiredProperty)
-		}
-	}
-
-	varCompletionCapabilityUpdate := _CompletionCapabilityUpdate{}
-
-	decoder := json.NewDecoder(bytes.NewReader(data))
-	decoder.DisallowUnknownFields()
-	err = decoder.Decode(&varCompletionCapabilityUpdate)
-
-	if err != nil {
-		return err
-	}
-
-	*o = CompletionCapabilityUpdate(varCompletionCapabilityUpdate)
-
-	return err
 }
 
 type NullableCompletionCapabilityUpdate struct {

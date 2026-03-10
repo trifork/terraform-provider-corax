@@ -13,7 +13,6 @@ package api
 import (
 	"encoding/json"
 	"fmt"
-	"gopkg.in/validator.v2"
 )
 
 // CompletionCapabilitySchemaDefValue - struct for CompletionCapabilitySchemaDefValue

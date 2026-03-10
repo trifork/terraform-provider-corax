@@ -12,8 +12,6 @@ package api
 
 import (
 	"encoding/json"
-	"bytes"
-	"fmt"
 )
 
 // checks if the BedrockProviderWithDeploymentsCreate type satisfies the MappedNullable interface at compile time
@@ -29,6 +27,7 @@ type BedrockProviderWithDeploymentsCreate struct {
 	ProviderType string `json:"provider_type"`
 	// Deployments to create
 	Deployments []DeploymentCreate `json:"deployments"`
+	AdditionalProperties map[string]interface{}
 }
 
 type _BedrockProviderWithDeploymentsCreate BedrockProviderWithDeploymentsCreate
@@ -164,47 +163,12 @@ func (o BedrockProviderWithDeploymentsCreate) ToMap() (map[string]interface{}, e
 	toSerialize["name"] = o.Name
 	toSerialize["provider_type"] = o.ProviderType
 	toSerialize["deployments"] = o.Deployments
+
+	for key, value := range o.AdditionalProperties {
+		toSerialize[key] = value
+	}
+
 	return toSerialize, nil
-}
-
-func (o *BedrockProviderWithDeploymentsCreate) UnmarshalJSON(data []byte) (err error) {
-	// This validates that all required properties are included in the JSON object
-	// by unmarshalling the object into a generic map with string keys and checking
-	// that every required field exists as a key in the generic map.
-	requiredProperties := []string{
-		"configuration",
-		"name",
-		"provider_type",
-		"deployments",
-	}
-
-	allProperties := make(map[string]interface{})
-
-	err = json.Unmarshal(data, &allProperties)
-
-	if err != nil {
-		return err;
-	}
-
-	for _, requiredProperty := range(requiredProperties) {
-		if _, exists := allProperties[requiredProperty]; !exists {
-			return fmt.Errorf("no value given for required property %v", requiredProperty)
-		}
-	}
-
-	varBedrockProviderWithDeploymentsCreate := _BedrockProviderWithDeploymentsCreate{}
-
-	decoder := json.NewDecoder(bytes.NewReader(data))
-	decoder.DisallowUnknownFields()
-	err = decoder.Decode(&varBedrockProviderWithDeploymentsCreate)
-
-	if err != nil {
-		return err
-	}
-
-	*o = BedrockProviderWithDeploymentsCreate(varBedrockProviderWithDeploymentsCreate)
-
-	return err
 }
 
 type NullableBedrockProviderWithDeploymentsCreate struct {

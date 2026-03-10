@@ -29,7 +29,10 @@ type CapabilityConfig struct {
 	// Whether content (prompts, completion data, variables) should be recorded in observability systems. Will be automatically set to False when using timed data retention.
 	ContentTracing *bool `json:"content_tracing,omitempty"`
 	McpServerIds []string `json:"mcp_server_ids,omitempty"`
+	AdditionalProperties map[string]interface{}
 }
+
+type _CapabilityConfig CapabilityConfig
 
 // NewCapabilityConfig instantiates a new CapabilityConfig object
 // This constructor will assign default values to properties that have it defined,
@@ -429,6 +432,11 @@ func (o CapabilityConfig) ToMap() (map[string]interface{}, error) {
 	if o.McpServerIds != nil {
 		toSerialize["mcp_server_ids"] = o.McpServerIds
 	}
+
+	for key, value := range o.AdditionalProperties {
+		toSerialize[key] = value
+	}
+
 	return toSerialize, nil
 }
 

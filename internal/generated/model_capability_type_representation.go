@@ -12,8 +12,6 @@ package api
 
 import (
 	"encoding/json"
-	"bytes"
-	"fmt"
 )
 
 // checks if the CapabilityTypeRepresentation type satisfies the MappedNullable interface at compile time
@@ -27,6 +25,7 @@ type CapabilityTypeRepresentation struct {
 	DefaultModelDeploymentId NullableString `json:"default_model_deployment_id,omitempty"`
 	ModelPoolId NullableString `json:"model_pool_id,omitempty"`
 	Embedded map[string]interface{} `json:"_embedded,omitempty"`
+	AdditionalProperties map[string]interface{}
 }
 
 type _CapabilityTypeRepresentation CapabilityTypeRepresentation
@@ -272,45 +271,12 @@ func (o CapabilityTypeRepresentation) ToMap() (map[string]interface{}, error) {
 	if o.Embedded != nil {
 		toSerialize["_embedded"] = o.Embedded
 	}
+
+	for key, value := range o.AdditionalProperties {
+		toSerialize[key] = value
+	}
+
 	return toSerialize, nil
-}
-
-func (o *CapabilityTypeRepresentation) UnmarshalJSON(data []byte) (err error) {
-	// This validates that all required properties are included in the JSON object
-	// by unmarshalling the object into a generic map with string keys and checking
-	// that every required field exists as a key in the generic map.
-	requiredProperties := []string{
-		"id",
-		"name",
-	}
-
-	allProperties := make(map[string]interface{})
-
-	err = json.Unmarshal(data, &allProperties)
-
-	if err != nil {
-		return err;
-	}
-
-	for _, requiredProperty := range(requiredProperties) {
-		if _, exists := allProperties[requiredProperty]; !exists {
-			return fmt.Errorf("no value given for required property %v", requiredProperty)
-		}
-	}
-
-	varCapabilityTypeRepresentation := _CapabilityTypeRepresentation{}
-
-	decoder := json.NewDecoder(bytes.NewReader(data))
-	decoder.DisallowUnknownFields()
-	err = decoder.Decode(&varCapabilityTypeRepresentation)
-
-	if err != nil {
-		return err
-	}
-
-	*o = CapabilityTypeRepresentation(varCapabilityTypeRepresentation)
-
-	return err
 }
 
 type NullableCapabilityTypeRepresentation struct {

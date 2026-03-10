@@ -20,7 +20,10 @@ var _ MappedNullable = &HTTPValidationError{}
 // HTTPValidationError struct for HTTPValidationError
 type HTTPValidationError struct {
 	Detail []ValidationError `json:"detail,omitempty"`
+	AdditionalProperties map[string]interface{}
 }
+
+type _HTTPValidationError HTTPValidationError
 
 // NewHTTPValidationError instantiates a new HTTPValidationError object
 // This constructor will assign default values to properties that have it defined,
@@ -84,6 +87,11 @@ func (o HTTPValidationError) ToMap() (map[string]interface{}, error) {
 	if !IsNil(o.Detail) {
 		toSerialize["detail"] = o.Detail
 	}
+
+	for key, value := range o.AdditionalProperties {
+		toSerialize[key] = value
+	}
+
 	return toSerialize, nil
 }
 

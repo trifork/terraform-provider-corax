@@ -12,8 +12,6 @@ package api
 
 import (
 	"encoding/json"
-	"bytes"
-	"fmt"
 )
 
 // checks if the AzureConfiguration type satisfies the MappedNullable interface at compile time
@@ -23,6 +21,7 @@ var _ MappedNullable = &AzureConfiguration{}
 type AzureConfiguration struct {
 	ApiKey string `json:"api_key"`
 	ApiEndpoint string `json:"api_endpoint"`
+	AdditionalProperties map[string]interface{}
 }
 
 type _AzureConfiguration AzureConfiguration
@@ -106,45 +105,12 @@ func (o AzureConfiguration) ToMap() (map[string]interface{}, error) {
 	toSerialize := map[string]interface{}{}
 	toSerialize["api_key"] = o.ApiKey
 	toSerialize["api_endpoint"] = o.ApiEndpoint
+
+	for key, value := range o.AdditionalProperties {
+		toSerialize[key] = value
+	}
+
 	return toSerialize, nil
-}
-
-func (o *AzureConfiguration) UnmarshalJSON(data []byte) (err error) {
-	// This validates that all required properties are included in the JSON object
-	// by unmarshalling the object into a generic map with string keys and checking
-	// that every required field exists as a key in the generic map.
-	requiredProperties := []string{
-		"api_key",
-		"api_endpoint",
-	}
-
-	allProperties := make(map[string]interface{})
-
-	err = json.Unmarshal(data, &allProperties)
-
-	if err != nil {
-		return err;
-	}
-
-	for _, requiredProperty := range(requiredProperties) {
-		if _, exists := allProperties[requiredProperty]; !exists {
-			return fmt.Errorf("no value given for required property %v", requiredProperty)
-		}
-	}
-
-	varAzureConfiguration := _AzureConfiguration{}
-
-	decoder := json.NewDecoder(bytes.NewReader(data))
-	decoder.DisallowUnknownFields()
-	err = decoder.Decode(&varAzureConfiguration)
-
-	if err != nil {
-		return err
-	}
-
-	*o = AzureConfiguration(varAzureConfiguration)
-
-	return err
 }
 
 type NullableAzureConfiguration struct {

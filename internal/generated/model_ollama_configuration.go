@@ -20,7 +20,10 @@ var _ MappedNullable = &OllamaConfiguration{}
 // OllamaConfiguration Configuration for Ollama provider.
 type OllamaConfiguration struct {
 	ApiEndpoint *string `json:"api_endpoint,omitempty"`
+	AdditionalProperties map[string]interface{}
 }
+
+type _OllamaConfiguration OllamaConfiguration
 
 // NewOllamaConfiguration instantiates a new OllamaConfiguration object
 // This constructor will assign default values to properties that have it defined,
@@ -88,6 +91,11 @@ func (o OllamaConfiguration) ToMap() (map[string]interface{}, error) {
 	if !IsNil(o.ApiEndpoint) {
 		toSerialize["api_endpoint"] = o.ApiEndpoint
 	}
+
+	for key, value := range o.AdditionalProperties {
+		toSerialize[key] = value
+	}
+
 	return toSerialize, nil
 }
 

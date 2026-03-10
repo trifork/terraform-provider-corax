@@ -22,7 +22,10 @@ type CapabilityEvaluationConfiguration struct {
 	Description NullableString `json:"description,omitempty"`
 	// Percentage of criteria that need to be successful for the evaluation to be considered successful. Defaults to 1.0 (100%)
 	SuccessThreshold *float32 `json:"success_threshold,omitempty"`
+	AdditionalProperties map[string]interface{}
 }
+
+type _CapabilityEvaluationConfiguration CapabilityEvaluationConfiguration
 
 // NewCapabilityEvaluationConfiguration instantiates a new CapabilityEvaluationConfiguration object
 // This constructor will assign default values to properties that have it defined,
@@ -135,6 +138,11 @@ func (o CapabilityEvaluationConfiguration) ToMap() (map[string]interface{}, erro
 	if !IsNil(o.SuccessThreshold) {
 		toSerialize["success_threshold"] = o.SuccessThreshold
 	}
+
+	for key, value := range o.AdditionalProperties {
+		toSerialize[key] = value
+	}
+
 	return toSerialize, nil
 }
 

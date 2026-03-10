@@ -13,7 +13,6 @@ package api
 import (
 	"encoding/json"
 	"fmt"
-	"gopkg.in/validator.v2"
 )
 
 // DataRetention - Defines how long execution input and output data should be kept. Specify 'infinite' for indefinite retention or 'timed' with a specific deletion period in hours.

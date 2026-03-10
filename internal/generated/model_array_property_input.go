@@ -12,8 +12,6 @@ package api
 
 import (
 	"encoding/json"
-	"bytes"
-	"fmt"
 )
 
 // checks if the ArrayPropertyInput type satisfies the MappedNullable interface at compile time
@@ -24,6 +22,7 @@ type ArrayPropertyInput struct {
 	Type string `json:"type"`
 	Description string `json:"description"`
 	Items Items `json:"items"`
+	AdditionalProperties map[string]interface{}
 }
 
 type _ArrayPropertyInput ArrayPropertyInput
@@ -133,46 +132,12 @@ func (o ArrayPropertyInput) ToMap() (map[string]interface{}, error) {
 	toSerialize["type"] = o.Type
 	toSerialize["description"] = o.Description
 	toSerialize["items"] = o.Items
+
+	for key, value := range o.AdditionalProperties {
+		toSerialize[key] = value
+	}
+
 	return toSerialize, nil
-}
-
-func (o *ArrayPropertyInput) UnmarshalJSON(data []byte) (err error) {
-	// This validates that all required properties are included in the JSON object
-	// by unmarshalling the object into a generic map with string keys and checking
-	// that every required field exists as a key in the generic map.
-	requiredProperties := []string{
-		"type",
-		"description",
-		"items",
-	}
-
-	allProperties := make(map[string]interface{})
-
-	err = json.Unmarshal(data, &allProperties)
-
-	if err != nil {
-		return err;
-	}
-
-	for _, requiredProperty := range(requiredProperties) {
-		if _, exists := allProperties[requiredProperty]; !exists {
-			return fmt.Errorf("no value given for required property %v", requiredProperty)
-		}
-	}
-
-	varArrayPropertyInput := _ArrayPropertyInput{}
-
-	decoder := json.NewDecoder(bytes.NewReader(data))
-	decoder.DisallowUnknownFields()
-	err = decoder.Decode(&varArrayPropertyInput)
-
-	if err != nil {
-		return err
-	}
-
-	*o = ArrayPropertyInput(varArrayPropertyInput)
-
-	return err
 }
 
 type NullableArrayPropertyInput struct {

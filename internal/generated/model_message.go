@@ -12,8 +12,6 @@ package api
 
 import (
 	"encoding/json"
-	"bytes"
-	"fmt"
 )
 
 // checks if the Message type satisfies the MappedNullable interface at compile time
@@ -26,6 +24,7 @@ type Message struct {
 	Sources []interface{} `json:"sources,omitempty"`
 	ToolCallId NullableString `json:"tool_call_id,omitempty"`
 	ToolCalls []ToolCallMessage `json:"tool_calls,omitempty"`
+	AdditionalProperties map[string]interface{}
 }
 
 type _Message Message
@@ -245,44 +244,12 @@ func (o Message) ToMap() (map[string]interface{}, error) {
 	if o.ToolCalls != nil {
 		toSerialize["tool_calls"] = o.ToolCalls
 	}
+
+	for key, value := range o.AdditionalProperties {
+		toSerialize[key] = value
+	}
+
 	return toSerialize, nil
-}
-
-func (o *Message) UnmarshalJSON(data []byte) (err error) {
-	// This validates that all required properties are included in the JSON object
-	// by unmarshalling the object into a generic map with string keys and checking
-	// that every required field exists as a key in the generic map.
-	requiredProperties := []string{
-		"role",
-	}
-
-	allProperties := make(map[string]interface{})
-
-	err = json.Unmarshal(data, &allProperties)
-
-	if err != nil {
-		return err;
-	}
-
-	for _, requiredProperty := range(requiredProperties) {
-		if _, exists := allProperties[requiredProperty]; !exists {
-			return fmt.Errorf("no value given for required property %v", requiredProperty)
-		}
-	}
-
-	varMessage := _Message{}
-
-	decoder := json.NewDecoder(bytes.NewReader(data))
-	decoder.DisallowUnknownFields()
-	err = decoder.Decode(&varMessage)
-
-	if err != nil {
-		return err
-	}
-
-	*o = Message(varMessage)
-
-	return err
 }
 
 type NullableMessage struct {

@@ -13,7 +13,6 @@ package api
 import (
 	"encoding/json"
 	"fmt"
-	"gopkg.in/validator.v2"
 )
 
 // Items - struct for Items

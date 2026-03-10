@@ -22,7 +22,10 @@ type ExecutionCreate struct {
 	Payload interface{} `json:"payload,omitempty"`
 	Version NullableInt32 `json:"version,omitempty"`
 	CallbackUrl NullableString `json:"callback_url,omitempty"`
+	AdditionalProperties map[string]interface{}
 }
+
+type _ExecutionCreate ExecutionCreate
 
 // NewExecutionCreate instantiates a new ExecutionCreate object
 // This constructor will assign default values to properties that have it defined,
@@ -177,6 +180,11 @@ func (o ExecutionCreate) ToMap() (map[string]interface{}, error) {
 	if o.CallbackUrl.IsSet() {
 		toSerialize["callback_url"] = o.CallbackUrl.Get()
 	}
+
+	for key, value := range o.AdditionalProperties {
+		toSerialize[key] = value
+	}
+
 	return toSerialize, nil
 }
 

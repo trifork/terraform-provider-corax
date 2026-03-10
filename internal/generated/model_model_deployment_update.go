@@ -12,8 +12,6 @@ package api
 
 import (
 	"encoding/json"
-	"bytes"
-	"fmt"
 )
 
 // checks if the ModelDeploymentUpdate type satisfies the MappedNullable interface at compile time
@@ -27,6 +25,7 @@ type ModelDeploymentUpdate struct {
 	Configuration map[string]interface{} `json:"configuration,omitempty"`
 	IsActive *bool `json:"is_active,omitempty"`
 	ProviderId string `json:"provider_id"`
+	AdditionalProperties map[string]interface{}
 }
 
 type _ModelDeploymentUpdate ModelDeploymentUpdate
@@ -255,46 +254,12 @@ func (o ModelDeploymentUpdate) ToMap() (map[string]interface{}, error) {
 		toSerialize["is_active"] = o.IsActive
 	}
 	toSerialize["provider_id"] = o.ProviderId
+
+	for key, value := range o.AdditionalProperties {
+		toSerialize[key] = value
+	}
+
 	return toSerialize, nil
-}
-
-func (o *ModelDeploymentUpdate) UnmarshalJSON(data []byte) (err error) {
-	// This validates that all required properties are included in the JSON object
-	// by unmarshalling the object into a generic map with string keys and checking
-	// that every required field exists as a key in the generic map.
-	requiredProperties := []string{
-		"name",
-		"supported_tasks",
-		"provider_id",
-	}
-
-	allProperties := make(map[string]interface{})
-
-	err = json.Unmarshal(data, &allProperties)
-
-	if err != nil {
-		return err;
-	}
-
-	for _, requiredProperty := range(requiredProperties) {
-		if _, exists := allProperties[requiredProperty]; !exists {
-			return fmt.Errorf("no value given for required property %v", requiredProperty)
-		}
-	}
-
-	varModelDeploymentUpdate := _ModelDeploymentUpdate{}
-
-	decoder := json.NewDecoder(bytes.NewReader(data))
-	decoder.DisallowUnknownFields()
-	err = decoder.Decode(&varModelDeploymentUpdate)
-
-	if err != nil {
-		return err
-	}
-
-	*o = ModelDeploymentUpdate(varModelDeploymentUpdate)
-
-	return err
 }
 
 type NullableModelDeploymentUpdate struct {

@@ -12,8 +12,6 @@ package api
 
 import (
 	"encoding/json"
-	"bytes"
-	"fmt"
 )
 
 // checks if the ConfigurationField type satisfies the MappedNullable interface at compile time
@@ -33,6 +31,7 @@ type ConfigurationField struct {
 	Max NullableMax `json:"max,omitempty"`
 	Min NullableMin `json:"min,omitempty"`
 	Step NullableStep `json:"step,omitempty"`
+	AdditionalProperties map[string]interface{}
 }
 
 type _ConfigurationField ConfigurationField
@@ -522,47 +521,12 @@ func (o ConfigurationField) ToMap() (map[string]interface{}, error) {
 	if o.Step.IsSet() {
 		toSerialize["step"] = o.Step.Get()
 	}
+
+	for key, value := range o.AdditionalProperties {
+		toSerialize[key] = value
+	}
+
 	return toSerialize, nil
-}
-
-func (o *ConfigurationField) UnmarshalJSON(data []byte) (err error) {
-	// This validates that all required properties are included in the JSON object
-	// by unmarshalling the object into a generic map with string keys and checking
-	// that every required field exists as a key in the generic map.
-	requiredProperties := []string{
-		"name",
-		"label",
-		"type",
-		"required",
-	}
-
-	allProperties := make(map[string]interface{})
-
-	err = json.Unmarshal(data, &allProperties)
-
-	if err != nil {
-		return err;
-	}
-
-	for _, requiredProperty := range(requiredProperties) {
-		if _, exists := allProperties[requiredProperty]; !exists {
-			return fmt.Errorf("no value given for required property %v", requiredProperty)
-		}
-	}
-
-	varConfigurationField := _ConfigurationField{}
-
-	decoder := json.NewDecoder(bytes.NewReader(data))
-	decoder.DisallowUnknownFields()
-	err = decoder.Decode(&varConfigurationField)
-
-	if err != nil {
-		return err
-	}
-
-	*o = ConfigurationField(varConfigurationField)
-
-	return err
 }
 
 type NullableConfigurationField struct {

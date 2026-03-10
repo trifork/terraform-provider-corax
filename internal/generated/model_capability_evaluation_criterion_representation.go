@@ -12,8 +12,6 @@ package api
 
 import (
 	"encoding/json"
-	"bytes"
-	"fmt"
 )
 
 // checks if the CapabilityEvaluationCriterionRepresentation type satisfies the MappedNullable interface at compile time
@@ -28,6 +26,7 @@ type CapabilityEvaluationCriterionRepresentation struct {
 	Configuration map[string]interface{} `json:"configuration"`
 	ModelDeploymentId NullableString `json:"model_deployment_id,omitempty"`
 	Id NullableString `json:"id,omitempty"`
+	AdditionalProperties map[string]interface{}
 }
 
 type _CapabilityEvaluationCriterionRepresentation CapabilityEvaluationCriterionRepresentation
@@ -237,45 +236,12 @@ func (o CapabilityEvaluationCriterionRepresentation) ToMap() (map[string]interfa
 	if o.Id.IsSet() {
 		toSerialize["id"] = o.Id.Get()
 	}
+
+	for key, value := range o.AdditionalProperties {
+		toSerialize[key] = value
+	}
+
 	return toSerialize, nil
-}
-
-func (o *CapabilityEvaluationCriterionRepresentation) UnmarshalJSON(data []byte) (err error) {
-	// This validates that all required properties are included in the JSON object
-	// by unmarshalling the object into a generic map with string keys and checking
-	// that every required field exists as a key in the generic map.
-	requiredProperties := []string{
-		"type",
-		"configuration",
-	}
-
-	allProperties := make(map[string]interface{})
-
-	err = json.Unmarshal(data, &allProperties)
-
-	if err != nil {
-		return err;
-	}
-
-	for _, requiredProperty := range(requiredProperties) {
-		if _, exists := allProperties[requiredProperty]; !exists {
-			return fmt.Errorf("no value given for required property %v", requiredProperty)
-		}
-	}
-
-	varCapabilityEvaluationCriterionRepresentation := _CapabilityEvaluationCriterionRepresentation{}
-
-	decoder := json.NewDecoder(bytes.NewReader(data))
-	decoder.DisallowUnknownFields()
-	err = decoder.Decode(&varCapabilityEvaluationCriterionRepresentation)
-
-	if err != nil {
-		return err
-	}
-
-	*o = CapabilityEvaluationCriterionRepresentation(varCapabilityEvaluationCriterionRepresentation)
-
-	return err
 }
 
 type NullableCapabilityEvaluationCriterionRepresentation struct {

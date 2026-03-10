@@ -12,8 +12,6 @@ package api
 
 import (
 	"encoding/json"
-	"bytes"
-	"fmt"
 )
 
 // checks if the ToolCallFunction type satisfies the MappedNullable interface at compile time
@@ -24,6 +22,7 @@ type ToolCallFunction struct {
 	Name string `json:"name"`
 	Arguments string `json:"arguments"`
 	DisplayName NullableString `json:"display_name,omitempty"`
+	AdditionalProperties map[string]interface{}
 }
 
 type _ToolCallFunction ToolCallFunction
@@ -152,45 +151,12 @@ func (o ToolCallFunction) ToMap() (map[string]interface{}, error) {
 	if o.DisplayName.IsSet() {
 		toSerialize["display_name"] = o.DisplayName.Get()
 	}
+
+	for key, value := range o.AdditionalProperties {
+		toSerialize[key] = value
+	}
+
 	return toSerialize, nil
-}
-
-func (o *ToolCallFunction) UnmarshalJSON(data []byte) (err error) {
-	// This validates that all required properties are included in the JSON object
-	// by unmarshalling the object into a generic map with string keys and checking
-	// that every required field exists as a key in the generic map.
-	requiredProperties := []string{
-		"name",
-		"arguments",
-	}
-
-	allProperties := make(map[string]interface{})
-
-	err = json.Unmarshal(data, &allProperties)
-
-	if err != nil {
-		return err;
-	}
-
-	for _, requiredProperty := range(requiredProperties) {
-		if _, exists := allProperties[requiredProperty]; !exists {
-			return fmt.Errorf("no value given for required property %v", requiredProperty)
-		}
-	}
-
-	varToolCallFunction := _ToolCallFunction{}
-
-	decoder := json.NewDecoder(bytes.NewReader(data))
-	decoder.DisallowUnknownFields()
-	err = decoder.Decode(&varToolCallFunction)
-
-	if err != nil {
-		return err
-	}
-
-	*o = ToolCallFunction(varToolCallFunction)
-
-	return err
 }
 
 type NullableToolCallFunction struct {

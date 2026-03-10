@@ -12,8 +12,6 @@ package api
 
 import (
 	"encoding/json"
-	"bytes"
-	"fmt"
 )
 
 // checks if the EvaluationDatasetItemCreate type satisfies the MappedNullable interface at compile time
@@ -26,6 +24,7 @@ type EvaluationDatasetItemCreate struct {
 	// Output for the dataset item
 	Output map[string]interface{} `json:"output"`
 	Sources []string `json:"sources,omitempty"`
+	AdditionalProperties map[string]interface{}
 }
 
 type _EvaluationDatasetItemCreate EvaluationDatasetItemCreate
@@ -145,45 +144,12 @@ func (o EvaluationDatasetItemCreate) ToMap() (map[string]interface{}, error) {
 	if o.Sources != nil {
 		toSerialize["sources"] = o.Sources
 	}
+
+	for key, value := range o.AdditionalProperties {
+		toSerialize[key] = value
+	}
+
 	return toSerialize, nil
-}
-
-func (o *EvaluationDatasetItemCreate) UnmarshalJSON(data []byte) (err error) {
-	// This validates that all required properties are included in the JSON object
-	// by unmarshalling the object into a generic map with string keys and checking
-	// that every required field exists as a key in the generic map.
-	requiredProperties := []string{
-		"input",
-		"output",
-	}
-
-	allProperties := make(map[string]interface{})
-
-	err = json.Unmarshal(data, &allProperties)
-
-	if err != nil {
-		return err;
-	}
-
-	for _, requiredProperty := range(requiredProperties) {
-		if _, exists := allProperties[requiredProperty]; !exists {
-			return fmt.Errorf("no value given for required property %v", requiredProperty)
-		}
-	}
-
-	varEvaluationDatasetItemCreate := _EvaluationDatasetItemCreate{}
-
-	decoder := json.NewDecoder(bytes.NewReader(data))
-	decoder.DisallowUnknownFields()
-	err = decoder.Decode(&varEvaluationDatasetItemCreate)
-
-	if err != nil {
-		return err
-	}
-
-	*o = EvaluationDatasetItemCreate(varEvaluationDatasetItemCreate)
-
-	return err
 }
 
 type NullableEvaluationDatasetItemCreate struct {

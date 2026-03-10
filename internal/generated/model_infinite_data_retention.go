@@ -20,7 +20,10 @@ var _ MappedNullable = &InfiniteDataRetention{}
 // InfiniteDataRetention struct for InfiniteDataRetention
 type InfiniteDataRetention struct {
 	Type *string `json:"type,omitempty"`
+	AdditionalProperties map[string]interface{}
 }
+
+type _InfiniteDataRetention InfiniteDataRetention
 
 // NewInfiniteDataRetention instantiates a new InfiniteDataRetention object
 // This constructor will assign default values to properties that have it defined,
@@ -88,6 +91,11 @@ func (o InfiniteDataRetention) ToMap() (map[string]interface{}, error) {
 	if !IsNil(o.Type) {
 		toSerialize["type"] = o.Type
 	}
+
+	for key, value := range o.AdditionalProperties {
+		toSerialize[key] = value
+	}
+
 	return toSerialize, nil
 }
 

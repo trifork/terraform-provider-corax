@@ -22,7 +22,10 @@ type BlobConfig struct {
 	MaxFileSizeMb *int32 `json:"max_file_size_mb,omitempty"`
 	MaxBlobs *int32 `json:"max_blobs,omitempty"`
 	AllowedMimeTypes []string `json:"allowed_mime_types,omitempty"`
+	AdditionalProperties map[string]interface{}
 }
+
+type _BlobConfig BlobConfig
 
 // NewBlobConfig instantiates a new BlobConfig object
 // This constructor will assign default values to properties that have it defined,
@@ -164,6 +167,11 @@ func (o BlobConfig) ToMap() (map[string]interface{}, error) {
 	if !IsNil(o.AllowedMimeTypes) {
 		toSerialize["allowed_mime_types"] = o.AllowedMimeTypes
 	}
+
+	for key, value := range o.AdditionalProperties {
+		toSerialize[key] = value
+	}
+
 	return toSerialize, nil
 }
 

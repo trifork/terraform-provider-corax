@@ -13,8 +13,6 @@ package api
 import (
 	"encoding/json"
 	"time"
-	"bytes"
-	"fmt"
 )
 
 // checks if the CapabilityVersion type satisfies the MappedNullable interface at compile time
@@ -37,6 +35,7 @@ type CapabilityVersion struct {
 	Status *string `json:"status,omitempty"`
 	// Whether this is the default version
 	IsDefaultVersion bool `json:"is_default_version"`
+	AdditionalProperties map[string]interface{}
 }
 
 type _CapabilityVersion CapabilityVersion
@@ -299,49 +298,12 @@ func (o CapabilityVersion) ToMap() (map[string]interface{}, error) {
 		toSerialize["status"] = o.Status
 	}
 	toSerialize["is_default_version"] = o.IsDefaultVersion
+
+	for key, value := range o.AdditionalProperties {
+		toSerialize[key] = value
+	}
+
 	return toSerialize, nil
-}
-
-func (o *CapabilityVersion) UnmarshalJSON(data []byte) (err error) {
-	// This validates that all required properties are included in the JSON object
-	// by unmarshalling the object into a generic map with string keys and checking
-	// that every required field exists as a key in the generic map.
-	requiredProperties := []string{
-		"id",
-		"capability_id",
-		"version",
-		"created_at",
-		"updated_at",
-		"is_default_version",
-	}
-
-	allProperties := make(map[string]interface{})
-
-	err = json.Unmarshal(data, &allProperties)
-
-	if err != nil {
-		return err;
-	}
-
-	for _, requiredProperty := range(requiredProperties) {
-		if _, exists := allProperties[requiredProperty]; !exists {
-			return fmt.Errorf("no value given for required property %v", requiredProperty)
-		}
-	}
-
-	varCapabilityVersion := _CapabilityVersion{}
-
-	decoder := json.NewDecoder(bytes.NewReader(data))
-	decoder.DisallowUnknownFields()
-	err = decoder.Decode(&varCapabilityVersion)
-
-	if err != nil {
-		return err
-	}
-
-	*o = CapabilityVersion(varCapabilityVersion)
-
-	return err
 }
 
 type NullableCapabilityVersion struct {

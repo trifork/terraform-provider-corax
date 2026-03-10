@@ -13,8 +13,6 @@ package api
 import (
 	"encoding/json"
 	"time"
-	"bytes"
-	"fmt"
 )
 
 // checks if the ExtractionCapability type satisfies the MappedNullable interface at compile time
@@ -41,6 +39,7 @@ type ExtractionCapability struct {
 	Version *int32 `json:"version,omitempty"`
 	SystemPrompt NullableString `json:"system_prompt,omitempty"`
 	OutputType *string `json:"output_type,omitempty"`
+	AdditionalProperties map[string]interface{}
 }
 
 type _ExtractionCapability ExtractionCapability
@@ -767,50 +766,12 @@ func (o ExtractionCapability) ToMap() (map[string]interface{}, error) {
 	if !IsNil(o.OutputType) {
 		toSerialize["output_type"] = o.OutputType
 	}
+
+	for key, value := range o.AdditionalProperties {
+		toSerialize[key] = value
+	}
+
 	return toSerialize, nil
-}
-
-func (o *ExtractionCapability) UnmarshalJSON(data []byte) (err error) {
-	// This validates that all required properties are included in the JSON object
-	// by unmarshalling the object into a generic map with string keys and checking
-	// that every required field exists as a key in the generic map.
-	requiredProperties := []string{
-		"name",
-		"id",
-		"created_by",
-		"updated_by",
-		"created_at",
-		"updated_at",
-		"owner",
-	}
-
-	allProperties := make(map[string]interface{})
-
-	err = json.Unmarshal(data, &allProperties)
-
-	if err != nil {
-		return err;
-	}
-
-	for _, requiredProperty := range(requiredProperties) {
-		if _, exists := allProperties[requiredProperty]; !exists {
-			return fmt.Errorf("no value given for required property %v", requiredProperty)
-		}
-	}
-
-	varExtractionCapability := _ExtractionCapability{}
-
-	decoder := json.NewDecoder(bytes.NewReader(data))
-	decoder.DisallowUnknownFields()
-	err = decoder.Decode(&varExtractionCapability)
-
-	if err != nil {
-		return err
-	}
-
-	*o = ExtractionCapability(varExtractionCapability)
-
-	return err
 }
 
 type NullableExtractionCapability struct {

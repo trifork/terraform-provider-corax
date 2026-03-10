@@ -12,8 +12,6 @@ package api
 
 import (
 	"encoding/json"
-	"bytes"
-	"fmt"
 )
 
 // checks if the TimedDataRetention type satisfies the MappedNullable interface at compile time
@@ -24,6 +22,7 @@ type TimedDataRetention struct {
 	Type *string `json:"type,omitempty"`
 	// Duration in hours. Must be at least 1 hour.
 	Hours int32 `json:"hours"`
+	AdditionalProperties map[string]interface{}
 }
 
 type _TimedDataRetention TimedDataRetention
@@ -120,44 +119,12 @@ func (o TimedDataRetention) ToMap() (map[string]interface{}, error) {
 		toSerialize["type"] = o.Type
 	}
 	toSerialize["hours"] = o.Hours
+
+	for key, value := range o.AdditionalProperties {
+		toSerialize[key] = value
+	}
+
 	return toSerialize, nil
-}
-
-func (o *TimedDataRetention) UnmarshalJSON(data []byte) (err error) {
-	// This validates that all required properties are included in the JSON object
-	// by unmarshalling the object into a generic map with string keys and checking
-	// that every required field exists as a key in the generic map.
-	requiredProperties := []string{
-		"hours",
-	}
-
-	allProperties := make(map[string]interface{})
-
-	err = json.Unmarshal(data, &allProperties)
-
-	if err != nil {
-		return err;
-	}
-
-	for _, requiredProperty := range(requiredProperties) {
-		if _, exists := allProperties[requiredProperty]; !exists {
-			return fmt.Errorf("no value given for required property %v", requiredProperty)
-		}
-	}
-
-	varTimedDataRetention := _TimedDataRetention{}
-
-	decoder := json.NewDecoder(bytes.NewReader(data))
-	decoder.DisallowUnknownFields()
-	err = decoder.Decode(&varTimedDataRetention)
-
-	if err != nil {
-		return err
-	}
-
-	*o = TimedDataRetention(varTimedDataRetention)
-
-	return err
 }
 
 type NullableTimedDataRetention struct {

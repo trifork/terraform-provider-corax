@@ -13,8 +13,6 @@ package api
 import (
 	"encoding/json"
 	"time"
-	"bytes"
-	"fmt"
 )
 
 // checks if the DocumentEmbeddingResponse type satisfies the MappedNullable interface at compile time
@@ -28,6 +26,7 @@ type DocumentEmbeddingResponse struct {
 	Status *string `json:"status,omitempty"`
 	TotalEmbeddings *int32 `json:"total_embeddings,omitempty"`
 	CreatedAt *time.Time `json:"created_at,omitempty"`
+	AdditionalProperties map[string]interface{}
 }
 
 type _DocumentEmbeddingResponse DocumentEmbeddingResponse
@@ -260,45 +259,12 @@ func (o DocumentEmbeddingResponse) ToMap() (map[string]interface{}, error) {
 	if !IsNil(o.CreatedAt) {
 		toSerialize["created_at"] = o.CreatedAt
 	}
+
+	for key, value := range o.AdditionalProperties {
+		toSerialize[key] = value
+	}
+
 	return toSerialize, nil
-}
-
-func (o *DocumentEmbeddingResponse) UnmarshalJSON(data []byte) (err error) {
-	// This validates that all required properties are included in the JSON object
-	// by unmarshalling the object into a generic map with string keys and checking
-	// that every required field exists as a key in the generic map.
-	requiredProperties := []string{
-		"collection_id",
-		"document_ids",
-	}
-
-	allProperties := make(map[string]interface{})
-
-	err = json.Unmarshal(data, &allProperties)
-
-	if err != nil {
-		return err;
-	}
-
-	for _, requiredProperty := range(requiredProperties) {
-		if _, exists := allProperties[requiredProperty]; !exists {
-			return fmt.Errorf("no value given for required property %v", requiredProperty)
-		}
-	}
-
-	varDocumentEmbeddingResponse := _DocumentEmbeddingResponse{}
-
-	decoder := json.NewDecoder(bytes.NewReader(data))
-	decoder.DisallowUnknownFields()
-	err = decoder.Decode(&varDocumentEmbeddingResponse)
-
-	if err != nil {
-		return err
-	}
-
-	*o = DocumentEmbeddingResponse(varDocumentEmbeddingResponse)
-
-	return err
 }
 
 type NullableDocumentEmbeddingResponse struct {

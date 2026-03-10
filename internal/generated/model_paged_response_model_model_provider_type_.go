@@ -12,8 +12,6 @@ package api
 
 import (
 	"encoding/json"
-	"bytes"
-	"fmt"
 )
 
 // checks if the PagedResponseModelModelProviderType type satisfies the MappedNullable interface at compile time
@@ -24,6 +22,7 @@ type PagedResponseModelModelProviderType struct {
 	Embedded []ModelProviderType `json:"_embedded"`
 	Page Page `json:"page"`
 	Links map[string]HateoasLink `json:"_links,omitempty"`
+	AdditionalProperties map[string]interface{}
 }
 
 type _PagedResponseModelModelProviderType PagedResponseModelModelProviderType
@@ -143,45 +142,12 @@ func (o PagedResponseModelModelProviderType) ToMap() (map[string]interface{}, er
 	if o.Links != nil {
 		toSerialize["_links"] = o.Links
 	}
+
+	for key, value := range o.AdditionalProperties {
+		toSerialize[key] = value
+	}
+
 	return toSerialize, nil
-}
-
-func (o *PagedResponseModelModelProviderType) UnmarshalJSON(data []byte) (err error) {
-	// This validates that all required properties are included in the JSON object
-	// by unmarshalling the object into a generic map with string keys and checking
-	// that every required field exists as a key in the generic map.
-	requiredProperties := []string{
-		"_embedded",
-		"page",
-	}
-
-	allProperties := make(map[string]interface{})
-
-	err = json.Unmarshal(data, &allProperties)
-
-	if err != nil {
-		return err;
-	}
-
-	for _, requiredProperty := range(requiredProperties) {
-		if _, exists := allProperties[requiredProperty]; !exists {
-			return fmt.Errorf("no value given for required property %v", requiredProperty)
-		}
-	}
-
-	varPagedResponseModelModelProviderType := _PagedResponseModelModelProviderType{}
-
-	decoder := json.NewDecoder(bytes.NewReader(data))
-	decoder.DisallowUnknownFields()
-	err = decoder.Decode(&varPagedResponseModelModelProviderType)
-
-	if err != nil {
-		return err
-	}
-
-	*o = PagedResponseModelModelProviderType(varPagedResponseModelModelProviderType)
-
-	return err
 }
 
 type NullablePagedResponseModelModelProviderType struct {

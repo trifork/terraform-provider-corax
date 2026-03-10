@@ -12,8 +12,6 @@ package api
 
 import (
 	"encoding/json"
-	"bytes"
-	"fmt"
 )
 
 // checks if the EvaluationExecutionData type satisfies the MappedNullable interface at compile time
@@ -26,6 +24,7 @@ type EvaluationExecutionData struct {
 	ActualOutput NullableString `json:"actual_output"`
 	Sources []string `json:"sources,omitempty"`
 	TimeInMillis NullableInt32 `json:"time_in_millis,omitempty"`
+	AdditionalProperties map[string]interface{}
 }
 
 type _EvaluationExecutionData EvaluationExecutionData
@@ -220,46 +219,12 @@ func (o EvaluationExecutionData) ToMap() (map[string]interface{}, error) {
 	if o.TimeInMillis.IsSet() {
 		toSerialize["time_in_millis"] = o.TimeInMillis.Get()
 	}
+
+	for key, value := range o.AdditionalProperties {
+		toSerialize[key] = value
+	}
+
 	return toSerialize, nil
-}
-
-func (o *EvaluationExecutionData) UnmarshalJSON(data []byte) (err error) {
-	// This validates that all required properties are included in the JSON object
-	// by unmarshalling the object into a generic map with string keys and checking
-	// that every required field exists as a key in the generic map.
-	requiredProperties := []string{
-		"input",
-		"expected_output",
-		"actual_output",
-	}
-
-	allProperties := make(map[string]interface{})
-
-	err = json.Unmarshal(data, &allProperties)
-
-	if err != nil {
-		return err;
-	}
-
-	for _, requiredProperty := range(requiredProperties) {
-		if _, exists := allProperties[requiredProperty]; !exists {
-			return fmt.Errorf("no value given for required property %v", requiredProperty)
-		}
-	}
-
-	varEvaluationExecutionData := _EvaluationExecutionData{}
-
-	decoder := json.NewDecoder(bytes.NewReader(data))
-	decoder.DisallowUnknownFields()
-	err = decoder.Decode(&varEvaluationExecutionData)
-
-	if err != nil {
-		return err
-	}
-
-	*o = EvaluationExecutionData(varEvaluationExecutionData)
-
-	return err
 }
 
 type NullableEvaluationExecutionData struct {

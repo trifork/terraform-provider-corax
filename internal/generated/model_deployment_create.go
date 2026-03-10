@@ -12,8 +12,6 @@ package api
 
 import (
 	"encoding/json"
-	"bytes"
-	"fmt"
 )
 
 // checks if the DeploymentCreate type satisfies the MappedNullable interface at compile time
@@ -27,6 +25,7 @@ type DeploymentCreate struct {
 	DisplayName string `json:"display_name"`
 	// Capability types: chat, completion, embedding
 	SupportedTasks []string `json:"supported_tasks"`
+	AdditionalProperties map[string]interface{}
 }
 
 type _DeploymentCreate DeploymentCreate
@@ -136,46 +135,12 @@ func (o DeploymentCreate) ToMap() (map[string]interface{}, error) {
 	toSerialize["model_id"] = o.ModelId
 	toSerialize["display_name"] = o.DisplayName
 	toSerialize["supported_tasks"] = o.SupportedTasks
+
+	for key, value := range o.AdditionalProperties {
+		toSerialize[key] = value
+	}
+
 	return toSerialize, nil
-}
-
-func (o *DeploymentCreate) UnmarshalJSON(data []byte) (err error) {
-	// This validates that all required properties are included in the JSON object
-	// by unmarshalling the object into a generic map with string keys and checking
-	// that every required field exists as a key in the generic map.
-	requiredProperties := []string{
-		"model_id",
-		"display_name",
-		"supported_tasks",
-	}
-
-	allProperties := make(map[string]interface{})
-
-	err = json.Unmarshal(data, &allProperties)
-
-	if err != nil {
-		return err;
-	}
-
-	for _, requiredProperty := range(requiredProperties) {
-		if _, exists := allProperties[requiredProperty]; !exists {
-			return fmt.Errorf("no value given for required property %v", requiredProperty)
-		}
-	}
-
-	varDeploymentCreate := _DeploymentCreate{}
-
-	decoder := json.NewDecoder(bytes.NewReader(data))
-	decoder.DisallowUnknownFields()
-	err = decoder.Decode(&varDeploymentCreate)
-
-	if err != nil {
-		return err
-	}
-
-	*o = DeploymentCreate(varDeploymentCreate)
-
-	return err
 }
 
 type NullableDeploymentCreate struct {

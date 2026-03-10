@@ -21,7 +21,10 @@ var _ MappedNullable = &DefaultModelDeploymentUpdate{}
 type DefaultModelDeploymentUpdate struct {
 	DefaultModelDeploymentId NullableString `json:"default_model_deployment_id,omitempty"`
 	ModelPoolId NullableString `json:"model_pool_id,omitempty"`
+	AdditionalProperties map[string]interface{}
 }
+
+type _DefaultModelDeploymentUpdate DefaultModelDeploymentUpdate
 
 // NewDefaultModelDeploymentUpdate instantiates a new DefaultModelDeploymentUpdate object
 // This constructor will assign default values to properties that have it defined,
@@ -140,6 +143,11 @@ func (o DefaultModelDeploymentUpdate) ToMap() (map[string]interface{}, error) {
 	if o.ModelPoolId.IsSet() {
 		toSerialize["model_pool_id"] = o.ModelPoolId.Get()
 	}
+
+	for key, value := range o.AdditionalProperties {
+		toSerialize[key] = value
+	}
+
 	return toSerialize, nil
 }
 

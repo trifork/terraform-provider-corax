@@ -12,8 +12,6 @@ package api
 
 import (
 	"encoding/json"
-	"bytes"
-	"fmt"
 )
 
 // checks if the EvaluationCriterionExecutionRepresentation type satisfies the MappedNullable interface at compile time
@@ -28,6 +26,7 @@ type EvaluationCriterionExecutionRepresentation struct {
 	Status EvaluationExecutionStatus `json:"status"`
 	Result NullableEvaluationCriterionExecutionResult `json:"result"`
 	CriterionId NullableString `json:"criterion_id"`
+	AdditionalProperties map[string]interface{}
 }
 
 type _EvaluationCriterionExecutionRepresentation EvaluationCriterionExecutionRepresentation
@@ -203,47 +202,12 @@ func (o EvaluationCriterionExecutionRepresentation) ToMap() (map[string]interfac
 	toSerialize["status"] = o.Status
 	toSerialize["result"] = o.Result.Get()
 	toSerialize["criterion_id"] = o.CriterionId.Get()
+
+	for key, value := range o.AdditionalProperties {
+		toSerialize[key] = value
+	}
+
 	return toSerialize, nil
-}
-
-func (o *EvaluationCriterionExecutionRepresentation) UnmarshalJSON(data []byte) (err error) {
-	// This validates that all required properties are included in the JSON object
-	// by unmarshalling the object into a generic map with string keys and checking
-	// that every required field exists as a key in the generic map.
-	requiredProperties := []string{
-		"id",
-		"status",
-		"result",
-		"criterion_id",
-	}
-
-	allProperties := make(map[string]interface{})
-
-	err = json.Unmarshal(data, &allProperties)
-
-	if err != nil {
-		return err;
-	}
-
-	for _, requiredProperty := range(requiredProperties) {
-		if _, exists := allProperties[requiredProperty]; !exists {
-			return fmt.Errorf("no value given for required property %v", requiredProperty)
-		}
-	}
-
-	varEvaluationCriterionExecutionRepresentation := _EvaluationCriterionExecutionRepresentation{}
-
-	decoder := json.NewDecoder(bytes.NewReader(data))
-	decoder.DisallowUnknownFields()
-	err = decoder.Decode(&varEvaluationCriterionExecutionRepresentation)
-
-	if err != nil {
-		return err
-	}
-
-	*o = EvaluationCriterionExecutionRepresentation(varEvaluationCriterionExecutionRepresentation)
-
-	return err
 }
 
 type NullableEvaluationCriterionExecutionRepresentation struct {

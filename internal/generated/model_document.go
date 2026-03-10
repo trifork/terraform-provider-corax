@@ -13,8 +13,6 @@ package api
 import (
 	"encoding/json"
 	"time"
-	"bytes"
-	"fmt"
 )
 
 // checks if the Document type satisfies the MappedNullable interface at compile time
@@ -40,6 +38,7 @@ type Document struct {
 	LastUpdated time.Time `json:"last_updated"`
 	LastAccessed NullableTime `json:"last_accessed,omitempty"`
 	Version int32 `json:"version"`
+	AdditionalProperties map[string]interface{}
 }
 
 type _Document Document
@@ -743,49 +742,12 @@ func (o Document) ToMap() (map[string]interface{}, error) {
 		toSerialize["last_accessed"] = o.LastAccessed.Get()
 	}
 	toSerialize["version"] = o.Version
+
+	for key, value := range o.AdditionalProperties {
+		toSerialize[key] = value
+	}
+
 	return toSerialize, nil
-}
-
-func (o *Document) UnmarshalJSON(data []byte) (err error) {
-	// This validates that all required properties are included in the JSON object
-	// by unmarshalling the object into a generic map with string keys and checking
-	// that every required field exists as a key in the generic map.
-	requiredProperties := []string{
-		"filename",
-		"id",
-		"collection_id",
-		"date_added",
-		"last_updated",
-		"version",
-	}
-
-	allProperties := make(map[string]interface{})
-
-	err = json.Unmarshal(data, &allProperties)
-
-	if err != nil {
-		return err;
-	}
-
-	for _, requiredProperty := range(requiredProperties) {
-		if _, exists := allProperties[requiredProperty]; !exists {
-			return fmt.Errorf("no value given for required property %v", requiredProperty)
-		}
-	}
-
-	varDocument := _Document{}
-
-	decoder := json.NewDecoder(bytes.NewReader(data))
-	decoder.DisallowUnknownFields()
-	err = decoder.Decode(&varDocument)
-
-	if err != nil {
-		return err
-	}
-
-	*o = Document(varDocument)
-
-	return err
 }
 
 type NullableDocument struct {

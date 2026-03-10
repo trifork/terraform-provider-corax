@@ -13,8 +13,6 @@ package api
 import (
 	"encoding/json"
 	"time"
-	"bytes"
-	"fmt"
 )
 
 // checks if the ApiKey type satisfies the MappedNullable interface at compile time
@@ -34,6 +32,7 @@ type ApiKey struct {
 	IsActive *bool `json:"is_active,omitempty"`
 	LastUsedAt NullableTime `json:"last_used_at,omitempty"`
 	UsageCount *int32 `json:"usage_count,omitempty"`
+	AdditionalProperties map[string]interface{}
 }
 
 type _ApiKey ApiKey
@@ -483,48 +482,12 @@ func (o ApiKey) ToMap() (map[string]interface{}, error) {
 	if !IsNil(o.UsageCount) {
 		toSerialize["usage_count"] = o.UsageCount
 	}
+
+	for key, value := range o.AdditionalProperties {
+		toSerialize[key] = value
+	}
+
 	return toSerialize, nil
-}
-
-func (o *ApiKey) UnmarshalJSON(data []byte) (err error) {
-	// This validates that all required properties are included in the JSON object
-	// by unmarshalling the object into a generic map with string keys and checking
-	// that every required field exists as a key in the generic map.
-	requiredProperties := []string{
-		"id",
-		"key",
-		"name",
-		"created_by",
-		"created_at",
-	}
-
-	allProperties := make(map[string]interface{})
-
-	err = json.Unmarshal(data, &allProperties)
-
-	if err != nil {
-		return err;
-	}
-
-	for _, requiredProperty := range(requiredProperties) {
-		if _, exists := allProperties[requiredProperty]; !exists {
-			return fmt.Errorf("no value given for required property %v", requiredProperty)
-		}
-	}
-
-	varApiKey := _ApiKey{}
-
-	decoder := json.NewDecoder(bytes.NewReader(data))
-	decoder.DisallowUnknownFields()
-	err = decoder.Decode(&varApiKey)
-
-	if err != nil {
-		return err
-	}
-
-	*o = ApiKey(varApiKey)
-
-	return err
 }
 
 type NullableApiKey struct {

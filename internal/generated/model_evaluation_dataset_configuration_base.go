@@ -12,8 +12,6 @@ package api
 
 import (
 	"encoding/json"
-	"bytes"
-	"fmt"
 )
 
 // checks if the EvaluationDatasetConfigurationBase type satisfies the MappedNullable interface at compile time
@@ -26,6 +24,7 @@ type EvaluationDatasetConfigurationBase struct {
 	// Output type of the dataset
 	OutputType EvaluationDatasetOutputType `json:"output_type"`
 	OutputSchemaDef map[string]interface{} `json:"output_schema_def,omitempty"`
+	AdditionalProperties map[string]interface{}
 }
 
 type _EvaluationDatasetConfigurationBase EvaluationDatasetConfigurationBase
@@ -200,44 +199,12 @@ func (o EvaluationDatasetConfigurationBase) ToMap() (map[string]interface{}, err
 	if o.OutputSchemaDef != nil {
 		toSerialize["output_schema_def"] = o.OutputSchemaDef
 	}
+
+	for key, value := range o.AdditionalProperties {
+		toSerialize[key] = value
+	}
+
 	return toSerialize, nil
-}
-
-func (o *EvaluationDatasetConfigurationBase) UnmarshalJSON(data []byte) (err error) {
-	// This validates that all required properties are included in the JSON object
-	// by unmarshalling the object into a generic map with string keys and checking
-	// that every required field exists as a key in the generic map.
-	requiredProperties := []string{
-		"output_type",
-	}
-
-	allProperties := make(map[string]interface{})
-
-	err = json.Unmarshal(data, &allProperties)
-
-	if err != nil {
-		return err;
-	}
-
-	for _, requiredProperty := range(requiredProperties) {
-		if _, exists := allProperties[requiredProperty]; !exists {
-			return fmt.Errorf("no value given for required property %v", requiredProperty)
-		}
-	}
-
-	varEvaluationDatasetConfigurationBase := _EvaluationDatasetConfigurationBase{}
-
-	decoder := json.NewDecoder(bytes.NewReader(data))
-	decoder.DisallowUnknownFields()
-	err = decoder.Decode(&varEvaluationDatasetConfigurationBase)
-
-	if err != nil {
-		return err
-	}
-
-	*o = EvaluationDatasetConfigurationBase(varEvaluationDatasetConfigurationBase)
-
-	return err
 }
 
 type NullableEvaluationDatasetConfigurationBase struct {

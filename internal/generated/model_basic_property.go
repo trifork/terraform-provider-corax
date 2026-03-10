@@ -12,8 +12,6 @@ package api
 
 import (
 	"encoding/json"
-	"bytes"
-	"fmt"
 )
 
 // checks if the BasicProperty type satisfies the MappedNullable interface at compile time
@@ -23,6 +21,7 @@ var _ MappedNullable = &BasicProperty{}
 type BasicProperty struct {
 	Type string `json:"type"`
 	Description string `json:"description"`
+	AdditionalProperties map[string]interface{}
 }
 
 type _BasicProperty BasicProperty
@@ -106,45 +105,12 @@ func (o BasicProperty) ToMap() (map[string]interface{}, error) {
 	toSerialize := map[string]interface{}{}
 	toSerialize["type"] = o.Type
 	toSerialize["description"] = o.Description
+
+	for key, value := range o.AdditionalProperties {
+		toSerialize[key] = value
+	}
+
 	return toSerialize, nil
-}
-
-func (o *BasicProperty) UnmarshalJSON(data []byte) (err error) {
-	// This validates that all required properties are included in the JSON object
-	// by unmarshalling the object into a generic map with string keys and checking
-	// that every required field exists as a key in the generic map.
-	requiredProperties := []string{
-		"type",
-		"description",
-	}
-
-	allProperties := make(map[string]interface{})
-
-	err = json.Unmarshal(data, &allProperties)
-
-	if err != nil {
-		return err;
-	}
-
-	for _, requiredProperty := range(requiredProperties) {
-		if _, exists := allProperties[requiredProperty]; !exists {
-			return fmt.Errorf("no value given for required property %v", requiredProperty)
-		}
-	}
-
-	varBasicProperty := _BasicProperty{}
-
-	decoder := json.NewDecoder(bytes.NewReader(data))
-	decoder.DisallowUnknownFields()
-	err = decoder.Decode(&varBasicProperty)
-
-	if err != nil {
-		return err
-	}
-
-	*o = BasicProperty(varBasicProperty)
-
-	return err
 }
 
 type NullableBasicProperty struct {

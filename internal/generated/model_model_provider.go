@@ -13,8 +13,6 @@ package api
 import (
 	"encoding/json"
 	"time"
-	"bytes"
-	"fmt"
 )
 
 // checks if the ModelProvider type satisfies the MappedNullable interface at compile time
@@ -31,6 +29,7 @@ type ModelProvider struct {
 	UpdatedAt NullableTime `json:"updated_at,omitempty"`
 	CreatedBy string `json:"created_by"`
 	UpdatedBy NullableString `json:"updated_by,omitempty"`
+	AdditionalProperties map[string]interface{}
 }
 
 type _ModelProvider ModelProvider
@@ -344,49 +343,12 @@ func (o ModelProvider) ToMap() (map[string]interface{}, error) {
 	if o.UpdatedBy.IsSet() {
 		toSerialize["updated_by"] = o.UpdatedBy.Get()
 	}
+
+	for key, value := range o.AdditionalProperties {
+		toSerialize[key] = value
+	}
+
 	return toSerialize, nil
-}
-
-func (o *ModelProvider) UnmarshalJSON(data []byte) (err error) {
-	// This validates that all required properties are included in the JSON object
-	// by unmarshalling the object into a generic map with string keys and checking
-	// that every required field exists as a key in the generic map.
-	requiredProperties := []string{
-		"name",
-		"provider_type",
-		"configuration",
-		"id",
-		"created_at",
-		"created_by",
-	}
-
-	allProperties := make(map[string]interface{})
-
-	err = json.Unmarshal(data, &allProperties)
-
-	if err != nil {
-		return err;
-	}
-
-	for _, requiredProperty := range(requiredProperties) {
-		if _, exists := allProperties[requiredProperty]; !exists {
-			return fmt.Errorf("no value given for required property %v", requiredProperty)
-		}
-	}
-
-	varModelProvider := _ModelProvider{}
-
-	decoder := json.NewDecoder(bytes.NewReader(data))
-	decoder.DisallowUnknownFields()
-	err = decoder.Decode(&varModelProvider)
-
-	if err != nil {
-		return err
-	}
-
-	*o = ModelProvider(varModelProvider)
-
-	return err
 }
 
 type NullableModelProvider struct {

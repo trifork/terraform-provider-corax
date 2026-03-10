@@ -12,8 +12,6 @@ package api
 
 import (
 	"encoding/json"
-	"bytes"
-	"fmt"
 )
 
 // checks if the BedrockConfiguration type satisfies the MappedNullable interface at compile time
@@ -24,6 +22,7 @@ type BedrockConfiguration struct {
 	AwsAccessKeyId string `json:"aws_access_key_id"`
 	AwsSecretAccessKey string `json:"aws_secret_access_key"`
 	AwsRegionName string `json:"aws_region_name"`
+	AdditionalProperties map[string]interface{}
 }
 
 type _BedrockConfiguration BedrockConfiguration
@@ -133,46 +132,12 @@ func (o BedrockConfiguration) ToMap() (map[string]interface{}, error) {
 	toSerialize["aws_access_key_id"] = o.AwsAccessKeyId
 	toSerialize["aws_secret_access_key"] = o.AwsSecretAccessKey
 	toSerialize["aws_region_name"] = o.AwsRegionName
+
+	for key, value := range o.AdditionalProperties {
+		toSerialize[key] = value
+	}
+
 	return toSerialize, nil
-}
-
-func (o *BedrockConfiguration) UnmarshalJSON(data []byte) (err error) {
-	// This validates that all required properties are included in the JSON object
-	// by unmarshalling the object into a generic map with string keys and checking
-	// that every required field exists as a key in the generic map.
-	requiredProperties := []string{
-		"aws_access_key_id",
-		"aws_secret_access_key",
-		"aws_region_name",
-	}
-
-	allProperties := make(map[string]interface{})
-
-	err = json.Unmarshal(data, &allProperties)
-
-	if err != nil {
-		return err;
-	}
-
-	for _, requiredProperty := range(requiredProperties) {
-		if _, exists := allProperties[requiredProperty]; !exists {
-			return fmt.Errorf("no value given for required property %v", requiredProperty)
-		}
-	}
-
-	varBedrockConfiguration := _BedrockConfiguration{}
-
-	decoder := json.NewDecoder(bytes.NewReader(data))
-	decoder.DisallowUnknownFields()
-	err = decoder.Decode(&varBedrockConfiguration)
-
-	if err != nil {
-		return err
-	}
-
-	*o = BedrockConfiguration(varBedrockConfiguration)
-
-	return err
 }
 
 type NullableBedrockConfiguration struct {

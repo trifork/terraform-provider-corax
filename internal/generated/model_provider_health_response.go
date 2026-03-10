@@ -13,8 +13,6 @@ package api
 import (
 	"encoding/json"
 	"time"
-	"bytes"
-	"fmt"
 )
 
 // checks if the ProviderHealthResponse type satisfies the MappedNullable interface at compile time
@@ -25,6 +23,7 @@ type ProviderHealthResponse struct {
 	Status string `json:"status"`
 	CheckedAt NullableTime `json:"checked_at,omitempty"`
 	ErrorMessage NullableString `json:"error_message,omitempty"`
+	AdditionalProperties map[string]interface{}
 }
 
 type _ProviderHealthResponse ProviderHealthResponse
@@ -172,44 +171,12 @@ func (o ProviderHealthResponse) ToMap() (map[string]interface{}, error) {
 	if o.ErrorMessage.IsSet() {
 		toSerialize["error_message"] = o.ErrorMessage.Get()
 	}
+
+	for key, value := range o.AdditionalProperties {
+		toSerialize[key] = value
+	}
+
 	return toSerialize, nil
-}
-
-func (o *ProviderHealthResponse) UnmarshalJSON(data []byte) (err error) {
-	// This validates that all required properties are included in the JSON object
-	// by unmarshalling the object into a generic map with string keys and checking
-	// that every required field exists as a key in the generic map.
-	requiredProperties := []string{
-		"status",
-	}
-
-	allProperties := make(map[string]interface{})
-
-	err = json.Unmarshal(data, &allProperties)
-
-	if err != nil {
-		return err;
-	}
-
-	for _, requiredProperty := range(requiredProperties) {
-		if _, exists := allProperties[requiredProperty]; !exists {
-			return fmt.Errorf("no value given for required property %v", requiredProperty)
-		}
-	}
-
-	varProviderHealthResponse := _ProviderHealthResponse{}
-
-	decoder := json.NewDecoder(bytes.NewReader(data))
-	decoder.DisallowUnknownFields()
-	err = decoder.Decode(&varProviderHealthResponse)
-
-	if err != nil {
-		return err
-	}
-
-	*o = ProviderHealthResponse(varProviderHealthResponse)
-
-	return err
 }
 
 type NullableProviderHealthResponse struct {
