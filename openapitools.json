@@ -16,7 +16,8 @@
           "structPrefix": true,
           "isGoSubmodule": true,
           "disallowAdditionalPropertiesIfNotPresent": false,
-          "generateUnmarshalJSON": false
+          "generateUnmarshalJSON": false,
+          "useOneOfDiscriminatorLookup": true
         },
         "globalProperty": {
           "apiTests": false,

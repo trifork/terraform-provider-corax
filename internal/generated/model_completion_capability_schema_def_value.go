@@ -55,88 +55,98 @@ func ObjectPropertyOutputAsCompletionCapabilitySchemaDefValue(v *ObjectPropertyO
 // Unmarshal JSON data into one of the pointers in the struct
 func (dst *CompletionCapabilitySchemaDefValue) UnmarshalJSON(data []byte) error {
 	var err error
-	match := 0
-	// try to unmarshal data into ArrayPropertyOutput
-	err = newStrictDecoder(data).Decode(&dst.ArrayPropertyOutput)
-	if err == nil {
-		jsonArrayPropertyOutput, _ := json.Marshal(dst.ArrayPropertyOutput)
-		if string(jsonArrayPropertyOutput) == "{}" { // empty struct
+	// use discriminator value to speed up the lookup
+	var jsonDict map[string]interface{}
+	err = newStrictDecoder(data).Decode(&jsonDict)
+	if err != nil {
+		return fmt.Errorf("failed to unmarshal JSON into map for the discriminator lookup")
+	}
+
+	// check if the discriminator value is 'array'
+	if jsonDict["type"] == "array" {
+		// try to unmarshal JSON data into ArrayPropertyOutput
+		err = json.Unmarshal(data, &dst.ArrayPropertyOutput)
+		if err == nil {
+			return nil // data stored in dst.ArrayPropertyOutput, return on the first match
+		} else {
 			dst.ArrayPropertyOutput = nil
-		} else {
-			if err = validator.Validate(dst.ArrayPropertyOutput); err != nil {
-				dst.ArrayPropertyOutput = nil
-			} else {
-				match++
-			}
+			return fmt.Errorf("failed to unmarshal CompletionCapabilitySchemaDefValue as ArrayPropertyOutput: %s", err.Error())
 		}
-	} else {
-		dst.ArrayPropertyOutput = nil
 	}
 
-	// try to unmarshal data into BasicProperty
-	err = newStrictDecoder(data).Decode(&dst.BasicProperty)
-	if err == nil {
-		jsonBasicProperty, _ := json.Marshal(dst.BasicProperty)
-		if string(jsonBasicProperty) == "{}" { // empty struct
+	// check if the discriminator value is 'boolean'
+	if jsonDict["type"] == "boolean" {
+		// try to unmarshal JSON data into BasicProperty
+		err = json.Unmarshal(data, &dst.BasicProperty)
+		if err == nil {
+			return nil // data stored in dst.BasicProperty, return on the first match
+		} else {
 			dst.BasicProperty = nil
-		} else {
-			if err = validator.Validate(dst.BasicProperty); err != nil {
-				dst.BasicProperty = nil
-			} else {
-				match++
-			}
+			return fmt.Errorf("failed to unmarshal CompletionCapabilitySchemaDefValue as BasicProperty: %s", err.Error())
 		}
-	} else {
-		dst.BasicProperty = nil
 	}
 
-	// try to unmarshal data into EnumProperty
-	err = newStrictDecoder(data).Decode(&dst.EnumProperty)
-	if err == nil {
-		jsonEnumProperty, _ := json.Marshal(dst.EnumProperty)
-		if string(jsonEnumProperty) == "{}" { // empty struct
+	// check if the discriminator value is 'enum'
+	if jsonDict["type"] == "enum" {
+		// try to unmarshal JSON data into EnumProperty
+		err = json.Unmarshal(data, &dst.EnumProperty)
+		if err == nil {
+			return nil // data stored in dst.EnumProperty, return on the first match
+		} else {
 			dst.EnumProperty = nil
-		} else {
-			if err = validator.Validate(dst.EnumProperty); err != nil {
-				dst.EnumProperty = nil
-			} else {
-				match++
-			}
+			return fmt.Errorf("failed to unmarshal CompletionCapabilitySchemaDefValue as EnumProperty: %s", err.Error())
 		}
-	} else {
-		dst.EnumProperty = nil
 	}
 
-	// try to unmarshal data into ObjectPropertyOutput
-	err = newStrictDecoder(data).Decode(&dst.ObjectPropertyOutput)
-	if err == nil {
-		jsonObjectPropertyOutput, _ := json.Marshal(dst.ObjectPropertyOutput)
-		if string(jsonObjectPropertyOutput) == "{}" { // empty struct
+	// check if the discriminator value is 'integer'
+	if jsonDict["type"] == "integer" {
+		// try to unmarshal JSON data into BasicProperty
+		err = json.Unmarshal(data, &dst.BasicProperty)
+		if err == nil {
+			return nil // data stored in dst.BasicProperty, return on the first match
+		} else {
+			dst.BasicProperty = nil
+			return fmt.Errorf("failed to unmarshal CompletionCapabilitySchemaDefValue as BasicProperty: %s", err.Error())
+		}
+	}
+
+	// check if the discriminator value is 'number'
+	if jsonDict["type"] == "number" {
+		// try to unmarshal JSON data into BasicProperty
+		err = json.Unmarshal(data, &dst.BasicProperty)
+		if err == nil {
+			return nil // data stored in dst.BasicProperty, return on the first match
+		} else {
+			dst.BasicProperty = nil
+			return fmt.Errorf("failed to unmarshal CompletionCapabilitySchemaDefValue as BasicProperty: %s", err.Error())
+		}
+	}
+
+	// check if the discriminator value is 'object'
+	if jsonDict["type"] == "object" {
+		// try to unmarshal JSON data into ObjectPropertyOutput
+		err = json.Unmarshal(data, &dst.ObjectPropertyOutput)
+		if err == nil {
+			return nil // data stored in dst.ObjectPropertyOutput, return on the first match
+		} else {
 			dst.ObjectPropertyOutput = nil
-		} else {
-			if err = validator.Validate(dst.ObjectPropertyOutput); err != nil {
-				dst.ObjectPropertyOutput = nil
-			} else {
-				match++
-			}
+			return fmt.Errorf("failed to unmarshal CompletionCapabilitySchemaDefValue as ObjectPropertyOutput: %s", err.Error())
 		}
-	} else {
-		dst.ObjectPropertyOutput = nil
 	}
 
-	if match > 1 { // more than 1 match
-		// reset to nil
-		dst.ArrayPropertyOutput = nil
-		dst.BasicProperty = nil
-		dst.EnumProperty = nil
-		dst.ObjectPropertyOutput = nil
-
-		return fmt.Errorf("data matches more than one schema in oneOf(CompletionCapabilitySchemaDefValue)")
-	} else if match == 1 {
-		return nil // exactly one match
-	} else { // no match
-		return fmt.Errorf("data failed to match schemas in oneOf(CompletionCapabilitySchemaDefValue)")
+	// check if the discriminator value is 'string'
+	if jsonDict["type"] == "string" {
+		// try to unmarshal JSON data into BasicProperty
+		err = json.Unmarshal(data, &dst.BasicProperty)
+		if err == nil {
+			return nil // data stored in dst.BasicProperty, return on the first match
+		} else {
+			dst.BasicProperty = nil
+			return fmt.Errorf("failed to unmarshal CompletionCapabilitySchemaDefValue as BasicProperty: %s", err.Error())
+		}
 	}
+
+	return nil
 }
 
 // Marshal data from the first non-nil pointers in the struct to JSON

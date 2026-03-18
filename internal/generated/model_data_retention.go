@@ -18,7 +18,7 @@ import (
 // DataRetention - Defines how long execution input and output data should be kept. Specify 'infinite' for indefinite retention or 'timed' with a specific deletion period in hours.
 type DataRetention struct {
 	InfiniteDataRetention *InfiniteDataRetention
-	TimedDataRetention    *TimedDataRetention
+	TimedDataRetention *TimedDataRetention
 }
 
 // InfiniteDataRetentionAsDataRetention is a convenience function that returns InfiniteDataRetention wrapped in DataRetention
@@ -35,31 +35,42 @@ func TimedDataRetentionAsDataRetention(v *TimedDataRetention) DataRetention {
 	}
 }
 
+
 // Unmarshal JSON data into one of the pointers in the struct
 func (dst *DataRetention) UnmarshalJSON(data []byte) error {
-	// Use discriminator field "type" to determine which schema to unmarshal into.
-	// The generated try-both approach fails because {"type": "infinite"} matches
-	// both InfiniteDataRetention (optional type + no other required fields) and
-	// TimedDataRetention (optional type + required hours defaults to zero value).
-	var discriminator struct {
-		Type string `json:"type"`
-	}
-	if err := json.Unmarshal(data, &discriminator); err != nil {
-		return fmt.Errorf("failed to determine DataRetention type: %w", err)
+	var err error
+	// use discriminator value to speed up the lookup
+	var jsonDict map[string]interface{}
+	err = newStrictDecoder(data).Decode(&jsonDict)
+	if err != nil {
+		return fmt.Errorf("failed to unmarshal JSON into map for the discriminator lookup")
 	}
 
-	switch discriminator.Type {
-	case "infinite":
-		dst.TimedDataRetention = nil
-		dst.InfiniteDataRetention = &InfiniteDataRetention{}
-		return json.Unmarshal(data, dst.InfiniteDataRetention)
-	case "timed":
-		dst.InfiniteDataRetention = nil
-		dst.TimedDataRetention = &TimedDataRetention{}
-		return json.Unmarshal(data, dst.TimedDataRetention)
-	default:
-		return fmt.Errorf("unknown DataRetention type %q, expected 'infinite' or 'timed'", discriminator.Type)
+	// check if the discriminator value is 'infinite'
+	if jsonDict["type"] == "infinite" {
+		// try to unmarshal JSON data into InfiniteDataRetention
+		err = json.Unmarshal(data, &dst.InfiniteDataRetention)
+		if err == nil {
+			return nil // data stored in dst.InfiniteDataRetention, return on the first match
+		} else {
+			dst.InfiniteDataRetention = nil
+			return fmt.Errorf("failed to unmarshal DataRetention as InfiniteDataRetention: %s", err.Error())
+		}
 	}
+
+	// check if the discriminator value is 'timed'
+	if jsonDict["type"] == "timed" {
+		// try to unmarshal JSON data into TimedDataRetention
+		err = json.Unmarshal(data, &dst.TimedDataRetention)
+		if err == nil {
+			return nil // data stored in dst.TimedDataRetention, return on the first match
+		} else {
+			dst.TimedDataRetention = nil
+			return fmt.Errorf("failed to unmarshal DataRetention as TimedDataRetention: %s", err.Error())
+		}
+	}
+
+	return nil
 }
 
 // Marshal data from the first non-nil pointers in the struct to JSON
@@ -76,7 +87,7 @@ func (src DataRetention) MarshalJSON() ([]byte, error) {
 }
 
 // Get the actual instance
-func (obj *DataRetention) GetActualInstance() interface{} {
+func (obj *DataRetention) GetActualInstance() (interface{}) {
 	if obj == nil {
 		return nil
 	}
@@ -93,7 +104,7 @@ func (obj *DataRetention) GetActualInstance() interface{} {
 }
 
 // Get the actual instance value
-func (obj DataRetention) GetActualInstanceValue() interface{} {
+func (obj DataRetention) GetActualInstanceValue() (interface{}) {
 	if obj.InfiniteDataRetention != nil {
 		return *obj.InfiniteDataRetention
 	}
@@ -141,3 +152,5 @@ func (v *NullableDataRetention) UnmarshalJSON(src []byte) error {
 	v.isSet = true
 	return json.Unmarshal(src, &v.value)
 }
+
+

@@ -55,88 +55,98 @@ func ObjectPropertyInputAsItems(v *ObjectPropertyInput) Items {
 // Unmarshal JSON data into one of the pointers in the struct
 func (dst *Items) UnmarshalJSON(data []byte) error {
 	var err error
-	match := 0
-	// try to unmarshal data into ArrayPropertyInput
-	err = newStrictDecoder(data).Decode(&dst.ArrayPropertyInput)
-	if err == nil {
-		jsonArrayPropertyInput, _ := json.Marshal(dst.ArrayPropertyInput)
-		if string(jsonArrayPropertyInput) == "{}" { // empty struct
+	// use discriminator value to speed up the lookup
+	var jsonDict map[string]interface{}
+	err = newStrictDecoder(data).Decode(&jsonDict)
+	if err != nil {
+		return fmt.Errorf("failed to unmarshal JSON into map for the discriminator lookup")
+	}
+
+	// check if the discriminator value is 'array'
+	if jsonDict["type"] == "array" {
+		// try to unmarshal JSON data into ArrayPropertyInput
+		err = json.Unmarshal(data, &dst.ArrayPropertyInput)
+		if err == nil {
+			return nil // data stored in dst.ArrayPropertyInput, return on the first match
+		} else {
 			dst.ArrayPropertyInput = nil
-		} else {
-			if err = validator.Validate(dst.ArrayPropertyInput); err != nil {
-				dst.ArrayPropertyInput = nil
-			} else {
-				match++
-			}
+			return fmt.Errorf("failed to unmarshal Items as ArrayPropertyInput: %s", err.Error())
 		}
-	} else {
-		dst.ArrayPropertyInput = nil
 	}
 
-	// try to unmarshal data into BasicProperty
-	err = newStrictDecoder(data).Decode(&dst.BasicProperty)
-	if err == nil {
-		jsonBasicProperty, _ := json.Marshal(dst.BasicProperty)
-		if string(jsonBasicProperty) == "{}" { // empty struct
+	// check if the discriminator value is 'boolean'
+	if jsonDict["type"] == "boolean" {
+		// try to unmarshal JSON data into BasicProperty
+		err = json.Unmarshal(data, &dst.BasicProperty)
+		if err == nil {
+			return nil // data stored in dst.BasicProperty, return on the first match
+		} else {
 			dst.BasicProperty = nil
-		} else {
-			if err = validator.Validate(dst.BasicProperty); err != nil {
-				dst.BasicProperty = nil
-			} else {
-				match++
-			}
+			return fmt.Errorf("failed to unmarshal Items as BasicProperty: %s", err.Error())
 		}
-	} else {
-		dst.BasicProperty = nil
 	}
 
-	// try to unmarshal data into EnumProperty
-	err = newStrictDecoder(data).Decode(&dst.EnumProperty)
-	if err == nil {
-		jsonEnumProperty, _ := json.Marshal(dst.EnumProperty)
-		if string(jsonEnumProperty) == "{}" { // empty struct
+	// check if the discriminator value is 'enum'
+	if jsonDict["type"] == "enum" {
+		// try to unmarshal JSON data into EnumProperty
+		err = json.Unmarshal(data, &dst.EnumProperty)
+		if err == nil {
+			return nil // data stored in dst.EnumProperty, return on the first match
+		} else {
 			dst.EnumProperty = nil
-		} else {
-			if err = validator.Validate(dst.EnumProperty); err != nil {
-				dst.EnumProperty = nil
-			} else {
-				match++
-			}
+			return fmt.Errorf("failed to unmarshal Items as EnumProperty: %s", err.Error())
 		}
-	} else {
-		dst.EnumProperty = nil
 	}
 
-	// try to unmarshal data into ObjectPropertyInput
-	err = newStrictDecoder(data).Decode(&dst.ObjectPropertyInput)
-	if err == nil {
-		jsonObjectPropertyInput, _ := json.Marshal(dst.ObjectPropertyInput)
-		if string(jsonObjectPropertyInput) == "{}" { // empty struct
+	// check if the discriminator value is 'integer'
+	if jsonDict["type"] == "integer" {
+		// try to unmarshal JSON data into BasicProperty
+		err = json.Unmarshal(data, &dst.BasicProperty)
+		if err == nil {
+			return nil // data stored in dst.BasicProperty, return on the first match
+		} else {
+			dst.BasicProperty = nil
+			return fmt.Errorf("failed to unmarshal Items as BasicProperty: %s", err.Error())
+		}
+	}
+
+	// check if the discriminator value is 'number'
+	if jsonDict["type"] == "number" {
+		// try to unmarshal JSON data into BasicProperty
+		err = json.Unmarshal(data, &dst.BasicProperty)
+		if err == nil {
+			return nil // data stored in dst.BasicProperty, return on the first match
+		} else {
+			dst.BasicProperty = nil
+			return fmt.Errorf("failed to unmarshal Items as BasicProperty: %s", err.Error())
+		}
+	}
+
+	// check if the discriminator value is 'object'
+	if jsonDict["type"] == "object" {
+		// try to unmarshal JSON data into ObjectPropertyInput
+		err = json.Unmarshal(data, &dst.ObjectPropertyInput)
+		if err == nil {
+			return nil // data stored in dst.ObjectPropertyInput, return on the first match
+		} else {
 			dst.ObjectPropertyInput = nil
-		} else {
-			if err = validator.Validate(dst.ObjectPropertyInput); err != nil {
-				dst.ObjectPropertyInput = nil
-			} else {
-				match++
-			}
+			return fmt.Errorf("failed to unmarshal Items as ObjectPropertyInput: %s", err.Error())
 		}
-	} else {
-		dst.ObjectPropertyInput = nil
 	}
 
-	if match > 1 { // more than 1 match
-		// reset to nil
-		dst.ArrayPropertyInput = nil
-		dst.BasicProperty = nil
-		dst.EnumProperty = nil
-		dst.ObjectPropertyInput = nil
-
-		return fmt.Errorf("data matches more than one schema in oneOf(Items)")
-	} else if match == 1 {
-		return nil // exactly one match
-	} else { // no match
-		return fmt.Errorf("data failed to match schemas in oneOf(Items)")
+	// check if the discriminator value is 'string'
+	if jsonDict["type"] == "string" {
+		// try to unmarshal JSON data into BasicProperty
+		err = json.Unmarshal(data, &dst.BasicProperty)
+		if err == nil {
+			return nil // data stored in dst.BasicProperty, return on the first match
+		} else {
+			dst.BasicProperty = nil
+			return fmt.Errorf("failed to unmarshal Items as BasicProperty: %s", err.Error())
+		}
 	}
+
+	return nil
 }
 
 // Marshal data from the first non-nil pointers in the struct to JSON

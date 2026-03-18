@@ -359,12 +359,3 @@ func newStrictDecoder(data []byte) *json.Decoder {
 func reportError(format string, a ...interface{}) error {
 	return fmt.Errorf(format, a...)
 }
-
-// validator is used to validate oneOf/anyOf discriminator matches
-var validator structValidator
-
-type structValidator struct{}
-
-func (v structValidator) Validate(obj interface{}) error {
-	return nil // no-op: accept all valid JSON matches
-}
