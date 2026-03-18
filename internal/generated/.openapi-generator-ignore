@@ -41,3 +41,6 @@ api_model_provider_types.go
 model_mcp_server_base.go
 model_mcp_server_response.go
 model_execution.go
+
+# Ignore files with manually fixed oneOf discriminator logic
+model_data_retention.go
