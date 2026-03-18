@@ -41,11 +41,3 @@ api_model_provider_types.go
 model_mcp_server_base.go
 model_mcp_server_response.go
 model_execution.go
-
-# Ignore files with manually fixed oneOf discriminator logic
-# (kept as backup — useOneOfDiscriminatorLookup should handle these now)
-# model_data_retention.go
-# model_completion_capability_create_schema_def_value.go
-# model_completion_capability_schema_def_value.go
-# model_items.go
-# model_items_1.go
