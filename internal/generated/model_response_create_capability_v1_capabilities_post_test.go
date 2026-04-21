@@ -12,13 +12,13 @@ func TestResponseCreateCapability_DispatchesOnType(t *testing.T) {
 	now := time.Date(2026, 4, 21, 12, 0, 0, 0, time.UTC)
 
 	tests := []struct {
-		name               string
-		capType            string
-		completionPrompt   string
-		wantChat           bool
-		wantCompletion     bool
-		wantExtraction     bool
-		wantSpeechToText   bool
+		name             string
+		capType          string
+		completionPrompt string
+		wantChat         bool
+		wantCompletion   bool
+		wantExtraction   bool
+		wantSpeechToText bool
 	}{
 		{name: "chat", capType: "chat", wantChat: true},
 		{name: "completion with non-empty prompt", capType: "completion", completionPrompt: "hello", wantCompletion: true},

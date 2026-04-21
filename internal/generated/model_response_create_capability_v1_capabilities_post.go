@@ -15,12 +15,11 @@ import (
 	"fmt"
 )
 
-
 // ResponseCreateCapabilityV1CapabilitiesPost struct for ResponseCreateCapabilityV1CapabilitiesPost
 type ResponseCreateCapabilityV1CapabilitiesPost struct {
-	ChatCapability *ChatCapability
-	CompletionCapability *CompletionCapability
-	ExtractionCapability *ExtractionCapability
+	ChatCapability         *ChatCapability
+	CompletionCapability   *CompletionCapability
+	ExtractionCapability   *ExtractionCapability
 	SpeechToTextCapability *SpeechToTextCapability
 }
 
@@ -75,7 +74,6 @@ func (src ResponseCreateCapabilityV1CapabilitiesPost) MarshalJSON() ([]byte, err
 	return nil, nil // no data in anyOf schemas
 }
 
-
 type NullableResponseCreateCapabilityV1CapabilitiesPost struct {
 	value *ResponseCreateCapabilityV1CapabilitiesPost
 	isSet bool
@@ -111,5 +109,3 @@ func (v *NullableResponseCreateCapabilityV1CapabilitiesPost) UnmarshalJSON(src [
 	v.isSet = true
 	return json.Unmarshal(src, &v.value)
 }
-
-
