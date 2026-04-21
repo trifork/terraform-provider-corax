@@ -24,62 +24,34 @@ type ResponseCreateCapabilityV1CapabilitiesPost struct {
 	SpeechToTextCapability *SpeechToTextCapability
 }
 
-// Unmarshal JSON data into any of the pointers in the struct
+// Unmarshal JSON data into any of the pointers in the struct.
+// The variants share many fields, so the generator's try-each-in-order approach
+// always matched the first (alphabetically: ChatCapability) regardless of the
+// actual payload. Dispatch on the `type` discriminator instead.
 func (dst *ResponseCreateCapabilityV1CapabilitiesPost) UnmarshalJSON(data []byte) error {
-	var err error
-	// try to unmarshal JSON data into ChatCapability
-	err = json.Unmarshal(data, &dst.ChatCapability);
-	if err == nil {
-		jsonChatCapability, _ := json.Marshal(dst.ChatCapability)
-		if string(jsonChatCapability) == "{}" { // empty struct
-			dst.ChatCapability = nil
-		} else {
-			return nil // data stored in dst.ChatCapability, return on the first match
-		}
-	} else {
-		dst.ChatCapability = nil
+	var discriminator struct {
+		Type string `json:"type"`
+	}
+	if err := json.Unmarshal(data, &discriminator); err != nil {
+		return fmt.Errorf("failed to determine capability type: %w", err)
 	}
 
-	// try to unmarshal JSON data into CompletionCapability
-	err = json.Unmarshal(data, &dst.CompletionCapability);
-	if err == nil {
-		jsonCompletionCapability, _ := json.Marshal(dst.CompletionCapability)
-		if string(jsonCompletionCapability) == "{}" { // empty struct
-			dst.CompletionCapability = nil
-		} else {
-			return nil // data stored in dst.CompletionCapability, return on the first match
-		}
-	} else {
-		dst.CompletionCapability = nil
+	switch discriminator.Type {
+	case "chat":
+		dst.ChatCapability = &ChatCapability{}
+		return json.Unmarshal(data, dst.ChatCapability)
+	case "completion":
+		dst.CompletionCapability = &CompletionCapability{}
+		return json.Unmarshal(data, dst.CompletionCapability)
+	case "extraction":
+		dst.ExtractionCapability = &ExtractionCapability{}
+		return json.Unmarshal(data, dst.ExtractionCapability)
+	case "speech_to_text":
+		dst.SpeechToTextCapability = &SpeechToTextCapability{}
+		return json.Unmarshal(data, dst.SpeechToTextCapability)
+	default:
+		return fmt.Errorf("unknown capability type %q in ResponseCreateCapabilityV1CapabilitiesPost", discriminator.Type)
 	}
-
-	// try to unmarshal JSON data into ExtractionCapability
-	err = json.Unmarshal(data, &dst.ExtractionCapability);
-	if err == nil {
-		jsonExtractionCapability, _ := json.Marshal(dst.ExtractionCapability)
-		if string(jsonExtractionCapability) == "{}" { // empty struct
-			dst.ExtractionCapability = nil
-		} else {
-			return nil // data stored in dst.ExtractionCapability, return on the first match
-		}
-	} else {
-		dst.ExtractionCapability = nil
-	}
-
-	// try to unmarshal JSON data into SpeechToTextCapability
-	err = json.Unmarshal(data, &dst.SpeechToTextCapability);
-	if err == nil {
-		jsonSpeechToTextCapability, _ := json.Marshal(dst.SpeechToTextCapability)
-		if string(jsonSpeechToTextCapability) == "{}" { // empty struct
-			dst.SpeechToTextCapability = nil
-		} else {
-			return nil // data stored in dst.SpeechToTextCapability, return on the first match
-		}
-	} else {
-		dst.SpeechToTextCapability = nil
-	}
-
-	return fmt.Errorf("data failed to match schemas in anyOf(ResponseCreateCapabilityV1CapabilitiesPost)")
 }
 
 // Marshal data from the first non-nil pointers in the struct to JSON
