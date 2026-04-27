@@ -830,6 +830,120 @@ func (c *Client) DeleteModelProvider(ctx context.Context, providerID string) err
 	return nil
 }
 
+// --- MCPServer Methods ---
+
+// convertMCPServer converts a generated MCPServerResponse to our custom MCPServer type.
+func convertMCPServer(gen *api.MCPServerResponse) *MCPServer {
+	if gen == nil {
+		return nil
+	}
+
+	result := &MCPServer{
+		ID:     gen.Id,
+		Name:   gen.Name,
+		URL:    gen.Url,
+		Config: gen.Config,
+		Owner:  gen.Owner,
+		Slug:   gen.Slug,
+	}
+
+	if gen.Type != nil {
+		result.Type = string(*gen.Type)
+	}
+
+	return result
+}
+
+// buildMCPServerBase constructs the generated MCPServerBase request payload from
+// our custom struct. Used for both create (POST) and update (PUT), since the
+// API reuses the same body schema.
+func buildMCPServerBase(name, urlStr, typeStr string, config map[string]interface{}) (*api.MCPServerBase, error) {
+	body := api.NewMCPServerBase(name, urlStr)
+	if typeStr != "" {
+		t, err := api.NewMCPConnectionTypeFromValue(typeStr)
+		if err != nil {
+			return nil, err
+		}
+		body.Type = t
+	}
+	if config != nil {
+		body.Config = config
+	}
+	return body, nil
+}
+
+// CreateMCPServer creates a new MCP server.
+// Corresponds to POST /v1/mcp-servers.
+func (c *Client) CreateMCPServer(ctx context.Context, data MCPServerCreate) (*MCPServer, error) {
+	body, err := buildMCPServerBase(data.Name, data.URL, data.Type, data.Config)
+	if err != nil {
+		return nil, err
+	}
+
+	result, resp, err := c.generated.MCPServersAPI.CreateMcpServerV1McpServersPost(c.withAuth(ctx)).
+		MCPServerBase(*body).
+		Execute()
+
+	if err != nil {
+		return nil, convertError(err, resp)
+	}
+
+	return convertMCPServer(result), nil
+}
+
+// GetMCPServer retrieves a specific MCP server by its ID.
+// Corresponds to GET /v1/mcp-servers/{server_id}.
+func (c *Client) GetMCPServer(ctx context.Context, serverID string) (*MCPServer, error) {
+	if strings.TrimSpace(serverID) == "" {
+		return nil, fmt.Errorf("serverID cannot be empty")
+	}
+
+	result, resp, err := c.generated.MCPServersAPI.GetMcpServerV1McpServersServerIdGet(c.withAuth(ctx), serverID).Execute()
+
+	if err != nil {
+		return nil, convertError(err, resp)
+	}
+
+	return convertMCPServer(result), nil
+}
+
+// UpdateMCPServer updates a specific MCP server by its ID.
+// Corresponds to PUT /v1/mcp-servers/{server_id}.
+func (c *Client) UpdateMCPServer(ctx context.Context, serverID string, data MCPServerUpdate) (*MCPServer, error) {
+	if strings.TrimSpace(serverID) == "" {
+		return nil, fmt.Errorf("serverID cannot be empty")
+	}
+
+	body, err := buildMCPServerBase(data.Name, data.URL, data.Type, data.Config)
+	if err != nil {
+		return nil, err
+	}
+
+	result, resp, err := c.generated.MCPServersAPI.UpdateMcpServerV1McpServersServerIdPut(c.withAuth(ctx), serverID).
+		MCPServerBase(*body).
+		Execute()
+
+	if err != nil {
+		return nil, convertError(err, resp)
+	}
+
+	return convertMCPServer(result), nil
+}
+
+// DeleteMCPServer deletes a specific MCP server by its ID.
+// Corresponds to DELETE /v1/mcp-servers/{server_id}.
+func (c *Client) DeleteMCPServer(ctx context.Context, serverID string) error {
+	if strings.TrimSpace(serverID) == "" {
+		return fmt.Errorf("serverID cannot be empty")
+	}
+
+	resp, err := c.generated.MCPServersAPI.DeleteMcpServerV1McpServersServerIdDelete(c.withAuth(ctx), serverID).Execute()
+	if err != nil {
+		return convertError(err, resp)
+	}
+	return nil
+}
+
 // --- CapabilityType Methods ---
 
 // GetCapabilityType retrieves a specific capability type definition.

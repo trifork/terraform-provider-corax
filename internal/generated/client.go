@@ -61,6 +61,8 @@ type APIClient struct {
 
 	KnowledgeCollectionsAPI *KnowledgeCollectionsAPIService
 
+	MCPServersAPI *MCPServersAPIService
+
 	ModelDeploymentsAPI *ModelDeploymentsAPIService
 
 	ModelDiscoveryAPI *ModelDiscoveryAPIService
@@ -94,6 +96,7 @@ func NewAPIClient(cfg *Configuration) *APIClient {
 	c.ConversationsAPI = (*ConversationsAPIService)(&c.common)
 	c.DefaultAPI = (*DefaultAPIService)(&c.common)
 	c.KnowledgeCollectionsAPI = (*KnowledgeCollectionsAPIService)(&c.common)
+	c.MCPServersAPI = (*MCPServersAPIService)(&c.common)
 	c.ModelDeploymentsAPI = (*ModelDeploymentsAPIService)(&c.common)
 	c.ModelDiscoveryAPI = (*ModelDiscoveryAPIService)(&c.common)
 	c.ModelProviderTypesAPI = (*ModelProviderTypesAPIService)(&c.common)
