@@ -24,62 +24,46 @@ type ResponseCreateCapabilityV1CapabilitiesPost struct {
 	SpeechToTextCapability *SpeechToTextCapability
 }
 
-// Unmarshal JSON data into any of the pointers in the struct
+// Unmarshal JSON data into one of the pointers in the struct.
+// The four capability schemas share most fields, so the generator's default
+// "try each in order" logic misclassifies any non-chat response as a
+// ChatCapability. Use the `type` discriminator to pick the correct branch.
 func (dst *ResponseCreateCapabilityV1CapabilitiesPost) UnmarshalJSON(data []byte) error {
-	var err error
-	// try to unmarshal JSON data into ChatCapability
-	err = json.Unmarshal(data, &dst.ChatCapability);
-	if err == nil {
-		jsonChatCapability, _ := json.Marshal(dst.ChatCapability)
-		if string(jsonChatCapability) == "{}" { // empty struct
+	var jsonDict map[string]interface{}
+	if err := json.Unmarshal(data, &jsonDict); err != nil {
+		return fmt.Errorf("failed to unmarshal JSON into map for the discriminator lookup")
+	}
+
+	typeValue, _ := jsonDict["type"].(string)
+
+	switch typeValue {
+	case "chat":
+		if err := json.Unmarshal(data, &dst.ChatCapability); err != nil {
 			dst.ChatCapability = nil
-		} else {
-			return nil // data stored in dst.ChatCapability, return on the first match
+			return fmt.Errorf("failed to unmarshal ResponseCreateCapabilityV1CapabilitiesPost as ChatCapability: %s", err.Error())
 		}
-	} else {
-		dst.ChatCapability = nil
-	}
-
-	// try to unmarshal JSON data into CompletionCapability
-	err = json.Unmarshal(data, &dst.CompletionCapability);
-	if err == nil {
-		jsonCompletionCapability, _ := json.Marshal(dst.CompletionCapability)
-		if string(jsonCompletionCapability) == "{}" { // empty struct
+		return nil
+	case "completion":
+		if err := json.Unmarshal(data, &dst.CompletionCapability); err != nil {
 			dst.CompletionCapability = nil
-		} else {
-			return nil // data stored in dst.CompletionCapability, return on the first match
+			return fmt.Errorf("failed to unmarshal ResponseCreateCapabilityV1CapabilitiesPost as CompletionCapability: %s", err.Error())
 		}
-	} else {
-		dst.CompletionCapability = nil
-	}
-
-	// try to unmarshal JSON data into ExtractionCapability
-	err = json.Unmarshal(data, &dst.ExtractionCapability);
-	if err == nil {
-		jsonExtractionCapability, _ := json.Marshal(dst.ExtractionCapability)
-		if string(jsonExtractionCapability) == "{}" { // empty struct
+		return nil
+	case "extraction":
+		if err := json.Unmarshal(data, &dst.ExtractionCapability); err != nil {
 			dst.ExtractionCapability = nil
-		} else {
-			return nil // data stored in dst.ExtractionCapability, return on the first match
+			return fmt.Errorf("failed to unmarshal ResponseCreateCapabilityV1CapabilitiesPost as ExtractionCapability: %s", err.Error())
 		}
-	} else {
-		dst.ExtractionCapability = nil
-	}
-
-	// try to unmarshal JSON data into SpeechToTextCapability
-	err = json.Unmarshal(data, &dst.SpeechToTextCapability);
-	if err == nil {
-		jsonSpeechToTextCapability, _ := json.Marshal(dst.SpeechToTextCapability)
-		if string(jsonSpeechToTextCapability) == "{}" { // empty struct
+		return nil
+	case "speech_to_text":
+		if err := json.Unmarshal(data, &dst.SpeechToTextCapability); err != nil {
 			dst.SpeechToTextCapability = nil
-		} else {
-			return nil // data stored in dst.SpeechToTextCapability, return on the first match
+			return fmt.Errorf("failed to unmarshal ResponseCreateCapabilityV1CapabilitiesPost as SpeechToTextCapability: %s", err.Error())
 		}
-	} else {
-		dst.SpeechToTextCapability = nil
+		return nil
 	}
 
-	return fmt.Errorf("data failed to match schemas in anyOf(ResponseCreateCapabilityV1CapabilitiesPost)")
+	return fmt.Errorf("data failed to match schemas in anyOf(ResponseCreateCapabilityV1CapabilitiesPost): unrecognized type discriminator %q", typeValue)
 }
 
 // Marshal data from the first non-nil pointers in the struct to JSON
