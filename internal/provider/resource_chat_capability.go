@@ -42,6 +42,7 @@ type ChatCapabilityResource struct {
 type ChatCapabilityResourceModel struct {
 	ID           types.String `tfsdk:"id"`
 	Name         types.String `tfsdk:"name"`
+	SemanticID   types.String `tfsdk:"semantic_id"` // Optional
 	IsPublic     types.Bool   `tfsdk:"is_public"`
 	ModelID      types.String `tfsdk:"model_id"`   // Nullable
 	Config       types.Object `tfsdk:"config"`     // Nullable
@@ -73,6 +74,12 @@ func (r *ChatCapabilityResource) Schema(ctx context.Context, req resource.Schema
 				Required:            true,
 				MarkdownDescription: "A user-defined name for the chat capability.",
 				Validators:          []validator.String{stringvalidator.LengthAtLeast(1)},
+			},
+			"semantic_id": schema.StringAttribute{
+				Optional:            true,
+				Computed:            true,
+				MarkdownDescription: "A semantic identifier for the chat capability that can be used for referencing.",
+				PlanModifiers:       []planmodifier.String{stringplanmodifier.UseStateForUnknown()},
 			},
 			"is_public": schema.BoolAttribute{
 				Optional:            true,
@@ -149,6 +156,7 @@ func (r *ChatCapabilityResource) Configure(ctx context.Context, req resource.Con
 // mapChatCapabilityRepresentationToModel maps an api.CapabilityRepresentation (from Get/Update) to the TF model.
 func mapChatCapabilityRepresentationToModel(apiCap *api.CapabilityRepresentation, model *ChatCapabilityResourceModel, diags *diag.Diagnostics, ctx context.Context) {
 	model.ID = types.StringValue(apiCap.Id)
+	model.SemanticID = types.StringValue(apiCap.SemanticId)
 	model.Name = types.StringValue(apiCap.Name)
 	model.IsPublic = types.BoolValue(apiCap.GetIsPublic())
 	model.Type = types.StringValue(apiCap.Type)
@@ -208,6 +216,11 @@ func mapChatCapabilityCreateResponseToModel(apiCap *api.ChatCapability, model *C
 	} else {
 		model.ProjectID = types.StringNull()
 	}
+	if semanticId, ok := apiCap.GetSemanticIdOk(); ok && semanticId != nil {
+		model.SemanticID = types.StringValue(*semanticId)
+	} else {
+		model.SemanticID = types.StringValue("")
+	}
 
 	model.SystemPrompt = types.StringValue(apiCap.SystemPrompt)
 
@@ -238,6 +251,9 @@ func (r *ChatCapabilityResource) Create(ctx context.Context, req resource.Create
 
 	if !plan.IsPublic.IsNull() && !plan.IsPublic.IsUnknown() {
 		apiPayload.SetIsPublic(plan.IsPublic.ValueBool())
+	}
+	if !plan.SemanticID.IsNull() && !plan.SemanticID.IsUnknown() {
+		apiPayload.SetSemanticId(plan.SemanticID.ValueString())
 	}
 	if !plan.ModelID.IsNull() && !plan.ModelID.IsUnknown() {
 		apiPayload.SetModelId(plan.ModelID.ValueString())
@@ -336,6 +352,11 @@ func (r *ChatCapabilityResource) Update(ctx context.Context, req resource.Update
 		updatePayload.SetIsPublic(plan.IsPublic.ValueBool())
 	} else {
 		updatePayload.SetIsPublic(false) // default
+	}
+
+	// SemanticID
+	if !plan.SemanticID.IsNull() && !plan.SemanticID.IsUnknown() {
+		updatePayload.SetSemanticId(plan.SemanticID.ValueString())
 	}
 
 	// ModelID
