@@ -13,12 +13,14 @@ Manages a Corax MCP (Model Context Protocol) server. MCP servers expose tools, r
 ## Example Usage
 
 ```terraform
+# Copyright (c) Trifork
+
 resource "corax_mcp_server" "corax_data" {
   name = "Corax Data"
   url  = "http://corax-data-mcp-cheetah-application.corax-ai.svc.cluster.local:8000/mcp"
   type = "streamablehttp"
 
-  config = jsonencode({
+  config = {
     token = {
       type    = "header"
       label   = "Authorization"
@@ -30,7 +32,33 @@ resource "corax_mcp_server" "corax_data" {
       default  = null
       required = false
     }
-  })
+    timeZone = {
+      type    = "header"
+      label   = "X-Time-Zone"
+      default = null
+    }
+    collectionId = {
+      type    = "header"
+      label   = "X-Collection-Id"
+      default = null
+    }
+    dataProducts = {
+      type    = "header"
+      label   = "X-Data-Products"
+      default = null
+    }
+    collectionType = {
+      type    = "header"
+      label   = "X-Collection-Type"
+      default = null
+    }
+    userPreferences = {
+      type     = "header"
+      label    = "X-User-Preferences"
+      default  = null
+      required = false
+    }
+  }
 }
 ```
 
@@ -52,11 +80,3 @@ resource "corax_mcp_server" "corax_data" {
 - `id` (String) The unique identifier for the MCP server (UUID).
 - `owner` (String) ID of the user that owns the MCP server.
 - `slug` (String) URL-safe slug derived from the name.
-
-## Import
-
-Import is supported using the following syntax:
-
-```shell
-terraform import corax_mcp_server.corax_data <server-uuid>
-```
