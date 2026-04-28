@@ -261,7 +261,7 @@ func boolFromAny(v interface{}) types.Bool {
 }
 
 // mapMCPServerToModel populates a TF model from the API response.
-func mapMCPServerToModel(ctx context.Context, server *coraxclient.MCPServer, model *MCPServerResourceModel) diag.Diagnostics {
+func mapMCPServerToModel(server *coraxclient.MCPServer, model *MCPServerResourceModel) diag.Diagnostics {
 	var diags diag.Diagnostics
 
 	model.ID = types.StringValue(server.ID)
@@ -310,7 +310,7 @@ func (r *MCPServerResource) Create(ctx context.Context, req resource.CreateReque
 		return
 	}
 
-	resp.Diagnostics.Append(mapMCPServerToModel(ctx, created, &plan)...)
+	resp.Diagnostics.Append(mapMCPServerToModel(created, &plan)...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
@@ -340,7 +340,7 @@ func (r *MCPServerResource) Read(ctx context.Context, req resource.ReadRequest, 
 		return
 	}
 
-	resp.Diagnostics.Append(mapMCPServerToModel(ctx, server, &state)...)
+	resp.Diagnostics.Append(mapMCPServerToModel(server, &state)...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
@@ -387,7 +387,7 @@ func (r *MCPServerResource) Update(ctx context.Context, req resource.UpdateReque
 		return
 	}
 
-	resp.Diagnostics.Append(mapMCPServerToModel(ctx, updated, &plan)...)
+	resp.Diagnostics.Append(mapMCPServerToModel(updated, &plan)...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
