@@ -16,9 +16,10 @@ Manages a Corax MCP (Model Context Protocol) server. MCP servers expose tools, r
 # Copyright (c) Trifork
 
 resource "corax_mcp_server" "corax_data" {
-  name = "Corax Data"
-  url  = "http://corax-data-mcp-cheetah-application.corax-ai.svc.cluster.local:8000/mcp"
-  type = "streamablehttp"
+  name      = "Corax Data"
+  url       = "http://corax-data-mcp-cheetah-application.corax-ai.svc.cluster.local:8000/mcp"
+  type      = "streamablehttp"
+  is_public = true
 
   config = {
     token = {
@@ -94,11 +95,3 @@ Optional:
 
 - `default` (String) Default value when the caller does not supply one. Pass `null` for no default.
 - `required` (Boolean) Whether the caller must supply this value. Server default is true.
-
-## Import
-
-Import is supported using the following syntax:
-
-```shell
-terraform import corax_mcp_server.corax_data <server-uuid>
-```
