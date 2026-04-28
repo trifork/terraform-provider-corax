@@ -9,6 +9,8 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
+	api "terraform-provider-corax/internal/generated"
 )
 
 // Helper to create a test server and client.
@@ -682,6 +684,119 @@ func TestAPIErrorIs(t *testing.T) {
 		err := &APIError{StatusCode: http.StatusBadRequest, Message: "bad request"}
 		if errors.Is(err, ErrNotFound) {
 			t.Error("Expected error to not match ErrNotFound")
+		}
+	})
+}
+
+// TestCreateCompletionCapability verifies that a completion-capability create
+// response is deserialized into *CompletionCapability rather than being
+// misclassified as a ChatCapability. The four capability schemas share most
+// fields, so the generator's default anyOf "try each in order" logic picks
+// ChatCapability for any response unless we use the type discriminator.
+func TestCreateCompletionCapability(t *testing.T) {
+	t.Run("response with type=completion deserializes as CompletionCapability", func(t *testing.T) {
+		handler := func(w http.ResponseWriter, r *http.Request) {
+			if r.Method != http.MethodPost {
+				t.Errorf("Expected POST, got %s", r.Method)
+			}
+			if r.URL.Path != "/v1/capabilities" {
+				t.Errorf("Expected /v1/capabilities, got %s", r.URL.Path)
+			}
+
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusCreated)
+			_ = json.NewEncoder(w).Encode(map[string]interface{}{
+				"id":                "cap-123",
+				"name":              "Event Analysis",
+				"type":              "completion",
+				"owner":             "user-1",
+				"is_public":         true,
+				"semantic_id":       "event-analysis",
+				"created_by":        "user-1",
+				"updated_by":        "user-1",
+				"created_at":        "2024-01-15T10:30:00Z",
+				"updated_at":        "2024-01-15T10:30:00Z",
+				"system_prompt":     "you are a helpful assistant",
+				"completion_prompt": "summarize: {events}",
+				"output_type":       "text",
+				"variables":         []string{"events"},
+			})
+		}
+
+		server, client := setupTestServer(t, handler)
+		defer server.Close()
+
+		create := api.CompletionCapabilityCreate{
+			Name:             "Event Analysis",
+			Type:             "completion",
+			SystemPrompt:     "you are a helpful assistant",
+			CompletionPrompt: "summarize: {events}",
+			OutputType:       "text",
+		}
+
+		result, err := client.CreateCompletionCapability(context.Background(), create)
+		if err != nil {
+			t.Fatalf("Unexpected error: %v", err)
+		}
+		if result == nil {
+			t.Fatal("Expected non-nil result")
+		}
+		if result.Id != "cap-123" {
+			t.Errorf("Expected ID 'cap-123', got %s", result.Id)
+		}
+		if result.CompletionPrompt != "summarize: {events}" {
+			t.Errorf("Expected completion_prompt to round-trip, got %q", result.CompletionPrompt)
+		}
+		if result.OutputType != "text" {
+			t.Errorf("Expected output_type 'text', got %q", result.OutputType)
+		}
+	})
+}
+
+// TestCreateChatCapability verifies a chat-capability create response is
+// deserialized as *ChatCapability via the type discriminator.
+func TestCreateChatCapability(t *testing.T) {
+	t.Run("response with type=chat deserializes as ChatCapability", func(t *testing.T) {
+		handler := func(w http.ResponseWriter, r *http.Request) {
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusCreated)
+			_ = json.NewEncoder(w).Encode(map[string]interface{}{
+				"id":             "cap-456",
+				"name":           "Corax Data",
+				"type":           "chat",
+				"owner":          "user-1",
+				"is_public":      true,
+				"semantic_id":    "corax-data-chatbot",
+				"created_by":     "user-1",
+				"updated_by":     "user-1",
+				"created_at":     "2024-01-15T10:30:00Z",
+				"updated_at":     "2024-01-15T10:30:00Z",
+				"system_prompt":  "you are corax",
+				"collection_ids": []string{"col-1", "col-2"},
+			})
+		}
+
+		server, client := setupTestServer(t, handler)
+		defer server.Close()
+
+		create := api.ChatCapabilityCreate{
+			Name:         "Corax Data",
+			Type:         "chat",
+			SystemPrompt: "you are corax",
+		}
+
+		result, err := client.CreateChatCapability(context.Background(), create)
+		if err != nil {
+			t.Fatalf("Unexpected error: %v", err)
+		}
+		if result == nil {
+			t.Fatal("Expected non-nil result")
+		}
+		if result.Id != "cap-456" {
+			t.Errorf("Expected ID 'cap-456', got %s", result.Id)
+		}
+		if len(result.CollectionIds) != 2 {
+			t.Errorf("Expected 2 collection_ids, got %d", len(result.CollectionIds))
 		}
 	})
 }
