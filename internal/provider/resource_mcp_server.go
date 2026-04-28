@@ -190,7 +190,7 @@ func configMapToAPI(ctx context.Context, configMap types.Map) (map[string]interf
 
 // configMapFromAPI builds a types.Map from the API response. Best-effort
 // type coercion: unknown shapes fall back to null fields.
-func configMapFromAPI(ctx context.Context, apiConfig map[string]interface{}) (types.Map, diag.Diagnostics) {
+func configMapFromAPI(apiConfig map[string]interface{}) (types.Map, diag.Diagnostics) {
 	objectType := types.ObjectType{AttrTypes: configEntryAttrTypes}
 
 	if apiConfig == nil {
@@ -272,7 +272,7 @@ func mapMCPServerToModel(ctx context.Context, server *coraxclient.MCPServer, mod
 	model.Owner = types.StringValue(server.Owner)
 	model.Slug = types.StringValue(server.Slug)
 
-	cfgVal, cfgDiags := configMapFromAPI(ctx, server.Config)
+	cfgVal, cfgDiags := configMapFromAPI(server.Config)
 	diags.Append(cfgDiags...)
 	model.Config = cfgVal
 
