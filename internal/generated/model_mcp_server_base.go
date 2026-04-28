@@ -26,6 +26,8 @@ type MCPServerBase struct {
 	Url    string                 `json:"url"`
 	Type   *MCPConnectionType     `json:"type,omitempty"`
 	Config map[string]interface{} `json:"config,omitempty"`
+	// Whether the server is publicly accessible
+	IsPublic *bool `json:"is_public,omitempty"`
 }
 
 type _MCPServerBase MCPServerBase
@@ -166,6 +168,38 @@ func (o *MCPServerBase) SetConfig(v map[string]interface{}) {
 	o.Config = v
 }
 
+// GetIsPublic returns the IsPublic field value if set, zero value otherwise.
+func (o *MCPServerBase) GetIsPublic() bool {
+	if o == nil || IsNil(o.IsPublic) {
+		var ret bool
+		return ret
+	}
+	return *o.IsPublic
+}
+
+// GetIsPublicOk returns a tuple with the IsPublic field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+func (o *MCPServerBase) GetIsPublicOk() (*bool, bool) {
+	if o == nil || IsNil(o.IsPublic) {
+		return nil, false
+	}
+	return o.IsPublic, true
+}
+
+// HasIsPublic returns a boolean if a field has been set.
+func (o *MCPServerBase) HasIsPublic() bool {
+	if o != nil && !IsNil(o.IsPublic) {
+		return true
+	}
+
+	return false
+}
+
+// SetIsPublic gets a reference to the given bool and assigns it to the IsPublic field.
+func (o *MCPServerBase) SetIsPublic(v bool) {
+	o.IsPublic = &v
+}
+
 func (o MCPServerBase) MarshalJSON() ([]byte, error) {
 	toSerialize, err := o.ToMap()
 	if err != nil {
@@ -183,6 +217,9 @@ func (o MCPServerBase) ToMap() (map[string]interface{}, error) {
 	}
 	if o.Config != nil {
 		toSerialize["config"] = o.Config
+	}
+	if !IsNil(o.IsPublic) {
+		toSerialize["is_public"] = o.IsPublic
 	}
 	return toSerialize, nil
 }

@@ -1,9 +1,10 @@
 # Copyright (c) Trifork
 
 resource "corax_mcp_server" "corax_data" {
-  name = "Corax Data"
-  url  = "http://corax-data-mcp-cheetah-application.corax-ai.svc.cluster.local:8000/mcp"
-  type = "streamablehttp"
+  name      = "Corax Data"
+  url       = "http://corax-data-mcp-cheetah-application.corax-ai.svc.cluster.local:8000/mcp"
+  type      = "streamablehttp"
+  is_public = true
 
   config = {
     token = {

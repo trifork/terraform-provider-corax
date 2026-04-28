@@ -839,12 +839,13 @@ func convertMCPServer(gen *api.MCPServerResponse) *MCPServer {
 	}
 
 	result := &MCPServer{
-		ID:     gen.Id,
-		Name:   gen.Name,
-		URL:    gen.Url,
-		Config: gen.Config,
-		Owner:  gen.Owner,
-		Slug:   gen.Slug,
+		ID:       gen.Id,
+		Name:     gen.Name,
+		URL:      gen.Url,
+		Config:   gen.Config,
+		IsPublic: gen.GetIsPublic(),
+		Owner:    gen.Owner,
+		Slug:     gen.Slug,
 	}
 
 	if gen.Type != nil {
@@ -857,7 +858,7 @@ func convertMCPServer(gen *api.MCPServerResponse) *MCPServer {
 // buildMCPServerBase constructs the generated MCPServerBase request payload from
 // our custom struct. Used for both create (POST) and update (PUT), since the
 // API reuses the same body schema.
-func buildMCPServerBase(name, urlStr, typeStr string, config map[string]interface{}) (*api.MCPServerBase, error) {
+func buildMCPServerBase(name, urlStr, typeStr string, config map[string]interface{}, isPublic *bool) (*api.MCPServerBase, error) {
 	body := api.NewMCPServerBase(name, urlStr)
 	if typeStr != "" {
 		t, err := api.NewMCPConnectionTypeFromValue(typeStr)
@@ -869,13 +870,16 @@ func buildMCPServerBase(name, urlStr, typeStr string, config map[string]interfac
 	if config != nil {
 		body.Config = config
 	}
+	if isPublic != nil {
+		body.IsPublic = isPublic
+	}
 	return body, nil
 }
 
 // CreateMCPServer creates a new MCP server.
 // Corresponds to POST /v1/mcp-servers.
 func (c *Client) CreateMCPServer(ctx context.Context, data MCPServerCreate) (*MCPServer, error) {
-	body, err := buildMCPServerBase(data.Name, data.URL, data.Type, data.Config)
+	body, err := buildMCPServerBase(data.Name, data.URL, data.Type, data.Config, data.IsPublic)
 	if err != nil {
 		return nil, err
 	}
@@ -914,7 +918,7 @@ func (c *Client) UpdateMCPServer(ctx context.Context, serverID string, data MCPS
 		return nil, fmt.Errorf("serverID cannot be empty")
 	}
 
-	body, err := buildMCPServerBase(data.Name, data.URL, data.Type, data.Config)
+	body, err := buildMCPServerBase(data.Name, data.URL, data.Type, data.Config, data.IsPublic)
 	if err != nil {
 		return nil, err
 	}

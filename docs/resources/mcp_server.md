@@ -72,7 +72,8 @@ resource "corax_mcp_server" "corax_data" {
 
 ### Optional
 
-- `config` (String) Server-specific configuration as a JSON-encoded object.
+- `config` (Attributes Map) Per-binding configuration, keyed by config name (e.g. `token`, `filters`). Each entry describes how a header or parameter is supplied to the MCP server. (see [below for nested schema](#nestedatt--config))
+- `is_public` (Boolean) Whether the server is publicly accessible. Defaults to false.
 - `type` (String) Transport protocol. One of `streamablehttp` (default) or `sse`.
 
 ### Read-Only
@@ -80,3 +81,24 @@ resource "corax_mcp_server" "corax_data" {
 - `id` (String) The unique identifier for the MCP server (UUID).
 - `owner` (String) ID of the user that owns the MCP server.
 - `slug` (String) URL-safe slug derived from the name.
+
+<a id="nestedatt--config"></a>
+### Nested Schema for `config`
+
+Required:
+
+- `label` (String) User-facing label or, for headers, the header name (e.g. `Authorization`, `X-Filters`).
+- `type` (String) Binding type, e.g. `header`.
+
+Optional:
+
+- `default` (String) Default value when the caller does not supply one. Pass `null` for no default.
+- `required` (Boolean) Whether the caller must supply this value. Server default is true.
+
+## Import
+
+Import is supported using the following syntax:
+
+```shell
+terraform import corax_mcp_server.corax_data <server-uuid>
+```

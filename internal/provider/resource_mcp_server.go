@@ -4,14 +4,17 @@ package provider
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"fmt"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+	"github.com/hashicorp/terraform-plugin-framework/attr"
+	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/mapplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
@@ -32,15 +35,34 @@ type MCPServerResource struct {
 	client *coraxclient.Client
 }
 
+// mcpServerConfigEntry is a single config entry — keyed by the user-defined
+// config name (e.g. "token", "filters") in the parent map.
+type mcpServerConfigEntry struct {
+	Type     types.String `tfsdk:"type"`
+	Label    types.String `tfsdk:"label"`
+	Default  types.String `tfsdk:"default"`
+	Required types.Bool   `tfsdk:"required"`
+}
+
+// configEntryAttrTypes mirrors the schema attribute types for one entry.
+// Used when constructing types.Map values from API responses.
+var configEntryAttrTypes = map[string]attr.Type{
+	"type":     types.StringType,
+	"label":    types.StringType,
+	"default":  types.StringType,
+	"required": types.BoolType,
+}
+
 // MCPServerResourceModel describes the resource data model.
 type MCPServerResourceModel struct {
-	ID     types.String `tfsdk:"id"`
-	Name   types.String `tfsdk:"name"`
-	URL    types.String `tfsdk:"url"`
-	Type   types.String `tfsdk:"type"`
-	Config types.String `tfsdk:"config"` // JSON-encoded map
-	Owner  types.String `tfsdk:"owner"`
-	Slug   types.String `tfsdk:"slug"`
+	ID       types.String `tfsdk:"id"`
+	Name     types.String `tfsdk:"name"`
+	URL      types.String `tfsdk:"url"`
+	Type     types.String `tfsdk:"type"`
+	Config   types.Map    `tfsdk:"config"`
+	IsPublic types.Bool   `tfsdk:"is_public"`
+	Owner    types.String `tfsdk:"owner"`
+	Slug     types.String `tfsdk:"slug"`
 }
 
 func (r *MCPServerResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -59,7 +81,7 @@ func (r *MCPServerResource) Schema(ctx context.Context, req resource.SchemaReque
 			"name": schema.StringAttribute{
 				Required:            true,
 				MarkdownDescription: "Display name for the MCP server. Up to 64 characters.",
-				Validators:          []validator.String{stringvalidator.LengthAtLeast(1)},
+				Validators:          []validator.String{stringvalidator.LengthAtLeast(1), stringvalidator.LengthAtMost(64)},
 			},
 			"url": schema.StringAttribute{
 				Required:            true,
@@ -70,14 +92,42 @@ func (r *MCPServerResource) Schema(ctx context.Context, req resource.SchemaReque
 				Optional:            true,
 				Computed:            true,
 				MarkdownDescription: "Transport protocol. One of `streamablehttp` (default) or `sse`.",
-				Validators: []validator.String{
-					stringvalidator.OneOf("streamablehttp", "sse"),
-				},
-				PlanModifiers: []planmodifier.String{stringplanmodifier.UseStateForUnknown()},
+				Validators:          []validator.String{stringvalidator.OneOf("streamablehttp", "sse")},
+				PlanModifiers:       []planmodifier.String{stringplanmodifier.UseStateForUnknown()},
 			},
-			"config": schema.StringAttribute{
+			"is_public": schema.BoolAttribute{
 				Optional:            true,
-				MarkdownDescription: "Server-specific configuration as a JSON-encoded object.",
+				Computed:            true,
+				MarkdownDescription: "Whether the server is publicly accessible. Defaults to false.",
+				PlanModifiers:       []planmodifier.Bool{boolplanmodifier.UseStateForUnknown()},
+			},
+			"config": schema.MapNestedAttribute{
+				Optional:            true,
+				Computed:            true,
+				MarkdownDescription: "Per-binding configuration, keyed by config name (e.g. `token`, `filters`). Each entry describes how a header or parameter is supplied to the MCP server.",
+				PlanModifiers:       []planmodifier.Map{mapplanmodifier.UseStateForUnknown()},
+				NestedObject: schema.NestedAttributeObject{
+					Attributes: map[string]schema.Attribute{
+						"type": schema.StringAttribute{
+							Required:            true,
+							MarkdownDescription: "Binding type, e.g. `header`.",
+						},
+						"label": schema.StringAttribute{
+							Required:            true,
+							MarkdownDescription: "User-facing label or, for headers, the header name (e.g. `Authorization`, `X-Filters`).",
+						},
+						"default": schema.StringAttribute{
+							Optional:            true,
+							Computed:            true,
+							MarkdownDescription: "Default value when the caller does not supply one. Pass `null` for no default.",
+						},
+						"required": schema.BoolAttribute{
+							Optional:            true,
+							Computed:            true,
+							MarkdownDescription: "Whether the caller must supply this value. Server default is true.",
+						},
+					},
+				},
 			},
 			"owner": schema.StringAttribute{
 				Computed:            true,
@@ -105,44 +155,128 @@ func (r *MCPServerResource) Configure(ctx context.Context, req resource.Configur
 	r.client = client
 }
 
-// parseConfigJSON decodes the config JSON string from a TF model into a map.
-// Returns nil for null/unknown/empty config.
-func parseConfigJSON(configField types.String) (map[string]interface{}, error) {
-	if configField.IsNull() || configField.IsUnknown() {
-		return nil, nil
+// configMapToAPI converts the TF nested-map config to the API's
+// map[string]interface{} payload. Returns nil when the map is null/unknown.
+func configMapToAPI(ctx context.Context, configMap types.Map) (map[string]interface{}, diag.Diagnostics) {
+	var diags diag.Diagnostics
+	if configMap.IsNull() || configMap.IsUnknown() {
+		return nil, diags
 	}
-	raw := configField.ValueString()
-	if raw == "" {
-		return nil, nil
+
+	entries := map[string]mcpServerConfigEntry{}
+	diags.Append(configMap.ElementsAs(ctx, &entries, false)...)
+	if diags.HasError() {
+		return nil, diags
 	}
-	var parsed map[string]interface{}
-	if err := json.Unmarshal([]byte(raw), &parsed); err != nil {
-		return nil, fmt.Errorf("config is not a valid JSON object: %w", err)
+
+	out := make(map[string]interface{}, len(entries))
+	for key, entry := range entries {
+		obj := map[string]interface{}{
+			"type":  entry.Type.ValueString(),
+			"label": entry.Label.ValueString(),
+		}
+		if entry.Default.IsNull() || entry.Default.IsUnknown() {
+			obj["default"] = nil
+		} else {
+			obj["default"] = entry.Default.ValueString()
+		}
+		if !entry.Required.IsNull() && !entry.Required.IsUnknown() {
+			obj["required"] = entry.Required.ValueBool()
+		}
+		out[key] = obj
 	}
-	return parsed, nil
+	return out, diags
+}
+
+// configMapFromAPI builds a types.Map from the API response. Best-effort
+// type coercion: unknown shapes fall back to null fields.
+func configMapFromAPI(ctx context.Context, apiConfig map[string]interface{}) (types.Map, diag.Diagnostics) {
+	objectType := types.ObjectType{AttrTypes: configEntryAttrTypes}
+
+	if apiConfig == nil {
+		return types.MapNull(objectType), nil
+	}
+
+	values := make(map[string]attr.Value, len(apiConfig))
+	var diags diag.Diagnostics
+
+	for key, raw := range apiConfig {
+		entryMap, ok := raw.(map[string]interface{})
+		if !ok {
+			diags.AddError("Unexpected config shape", fmt.Sprintf("config entry %q is not a JSON object", key))
+			continue
+		}
+
+		attrs := map[string]attr.Value{
+			"type":     stringFromAny(entryMap["type"]),
+			"label":    stringFromAny(entryMap["label"]),
+			"default":  stringFromAnyNullable(entryMap["default"]),
+			"required": boolFromAny(entryMap["required"]),
+		}
+		obj, objDiags := types.ObjectValue(configEntryAttrTypes, attrs)
+		diags.Append(objDiags...)
+		if objDiags.HasError() {
+			continue
+		}
+		values[key] = obj
+	}
+
+	if diags.HasError() {
+		return types.MapNull(objectType), diags
+	}
+
+	mapVal, mapDiags := types.MapValue(objectType, values)
+	diags.Append(mapDiags...)
+	return mapVal, diags
+}
+
+func stringFromAny(v interface{}) types.String {
+	if v == nil {
+		return types.StringNull()
+	}
+	if s, ok := v.(string); ok {
+		return types.StringValue(s)
+	}
+	return types.StringValue(fmt.Sprintf("%v", v))
+}
+
+func stringFromAnyNullable(v interface{}) types.String {
+	if v == nil {
+		return types.StringNull()
+	}
+	if s, ok := v.(string); ok {
+		return types.StringValue(s)
+	}
+	return types.StringValue(fmt.Sprintf("%v", v))
+}
+
+func boolFromAny(v interface{}) types.Bool {
+	if v == nil {
+		return types.BoolNull()
+	}
+	if b, ok := v.(bool); ok {
+		return types.BoolValue(b)
+	}
+	return types.BoolNull()
 }
 
 // mapMCPServerToModel populates a TF model from the API response.
-// Config is re-marshalled through encoding/json so map keys are sorted
-// deterministically.
-func mapMCPServerToModel(server *coraxclient.MCPServer, model *MCPServerResourceModel) error {
+func mapMCPServerToModel(ctx context.Context, server *coraxclient.MCPServer, model *MCPServerResourceModel) diag.Diagnostics {
+	var diags diag.Diagnostics
+
 	model.ID = types.StringValue(server.ID)
 	model.Name = types.StringValue(server.Name)
 	model.URL = types.StringValue(server.URL)
 	model.Type = types.StringValue(server.Type)
+	model.IsPublic = types.BoolValue(server.IsPublic)
 	model.Owner = types.StringValue(server.Owner)
 	model.Slug = types.StringValue(server.Slug)
 
-	if server.Config == nil {
-		model.Config = types.StringNull()
-		return nil
-	}
-	encoded, err := json.Marshal(server.Config)
-	if err != nil {
-		return fmt.Errorf("failed to encode config returned by API: %w", err)
-	}
-	model.Config = types.StringValue(string(encoded))
-	return nil
+	cfgVal, cfgDiags := configMapFromAPI(ctx, server.Config)
+	diags.Append(cfgDiags...)
+	model.Config = cfgVal
+
+	return diags
 }
 
 func (r *MCPServerResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
@@ -152,9 +286,9 @@ func (r *MCPServerResource) Create(ctx context.Context, req resource.CreateReque
 		return
 	}
 
-	configMap, err := parseConfigJSON(plan.Config)
-	if err != nil {
-		resp.Diagnostics.AddAttributeError(path.Root("config"), "Invalid config", err.Error())
+	configMap, cfgDiags := configMapToAPI(ctx, plan.Config)
+	resp.Diagnostics.Append(cfgDiags...)
+	if resp.Diagnostics.HasError() {
 		return
 	}
 
@@ -164,6 +298,10 @@ func (r *MCPServerResource) Create(ctx context.Context, req resource.CreateReque
 		Type:   plan.Type.ValueString(),
 		Config: configMap,
 	}
+	if !plan.IsPublic.IsNull() && !plan.IsPublic.IsUnknown() {
+		isPublic := plan.IsPublic.ValueBool()
+		payload.IsPublic = &isPublic
+	}
 
 	tflog.Debug(ctx, fmt.Sprintf("Creating MCP server: %s", payload.Name))
 	created, err := r.client.CreateMCPServer(ctx, payload)
@@ -172,8 +310,8 @@ func (r *MCPServerResource) Create(ctx context.Context, req resource.CreateReque
 		return
 	}
 
-	if err := mapMCPServerToModel(created, &plan); err != nil {
-		resp.Diagnostics.AddError("Mapping Error", err.Error())
+	resp.Diagnostics.Append(mapMCPServerToModel(ctx, created, &plan)...)
+	if resp.Diagnostics.HasError() {
 		return
 	}
 
@@ -202,8 +340,8 @@ func (r *MCPServerResource) Read(ctx context.Context, req resource.ReadRequest, 
 		return
 	}
 
-	if err := mapMCPServerToModel(server, &state); err != nil {
-		resp.Diagnostics.AddError("Mapping Error", err.Error())
+	resp.Diagnostics.Append(mapMCPServerToModel(ctx, server, &state)...)
+	if resp.Diagnostics.HasError() {
 		return
 	}
 
@@ -225,9 +363,9 @@ func (r *MCPServerResource) Update(ctx context.Context, req resource.UpdateReque
 
 	serverID := state.ID.ValueString()
 
-	configMap, err := parseConfigJSON(plan.Config)
-	if err != nil {
-		resp.Diagnostics.AddAttributeError(path.Root("config"), "Invalid config", err.Error())
+	configMap, cfgDiags := configMapToAPI(ctx, plan.Config)
+	resp.Diagnostics.Append(cfgDiags...)
+	if resp.Diagnostics.HasError() {
 		return
 	}
 
@@ -237,6 +375,10 @@ func (r *MCPServerResource) Update(ctx context.Context, req resource.UpdateReque
 		Type:   plan.Type.ValueString(),
 		Config: configMap,
 	}
+	if !plan.IsPublic.IsNull() && !plan.IsPublic.IsUnknown() {
+		isPublic := plan.IsPublic.ValueBool()
+		payload.IsPublic = &isPublic
+	}
 
 	tflog.Debug(ctx, fmt.Sprintf("Updating MCP server with ID: %s", serverID))
 	updated, err := r.client.UpdateMCPServer(ctx, serverID, payload)
@@ -245,8 +387,8 @@ func (r *MCPServerResource) Update(ctx context.Context, req resource.UpdateReque
 		return
 	}
 
-	if err := mapMCPServerToModel(updated, &plan); err != nil {
-		resp.Diagnostics.AddError("Mapping Error", err.Error())
+	resp.Diagnostics.Append(mapMCPServerToModel(ctx, updated, &plan)...)
+	if resp.Diagnostics.HasError() {
 		return
 	}
 
