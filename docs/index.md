@@ -16,7 +16,8 @@ Terraform provider for Corax API.
 # Copyright (c) HashiCorp, Inc.
 
 provider "corax" {
-  # example configuration here
+  api_endpoint = "https://api.corax.app"
+  api_key      = "<api-key>"
 }
 ```
 
