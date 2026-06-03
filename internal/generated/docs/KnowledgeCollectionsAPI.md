@@ -7,6 +7,7 @@ Method | HTTP request | Description
 [**CreateCollectionAsyncV1CollectionsPost**](KnowledgeCollectionsAPI.md#CreateCollectionAsyncV1CollectionsPost) | **Post** /v1/collections | Create Collection Async
 [**DeleteCollectionV1CollectionsCollectionIdDelete**](KnowledgeCollectionsAPI.md#DeleteCollectionV1CollectionsCollectionIdDelete) | **Delete** /v1/collections/{collection_id} | Delete Collection
 [**DeleteDocumentV1CollectionsCollectionIdDocumentsDocumentIdDelete**](KnowledgeCollectionsAPI.md#DeleteDocumentV1CollectionsCollectionIdDocumentsDocumentIdDelete) | **Delete** /v1/collections/{collection_id}/documents/{document_id} | Delete Document
+[**DownloadDocumentV1CollectionsCollectionIdDocumentsDocumentIdDownloadGet**](KnowledgeCollectionsAPI.md#DownloadDocumentV1CollectionsCollectionIdDocumentsDocumentIdDownloadGet) | **Get** /v1/collections/{collection_id}/documents/{document_id}/download | Download original document
 [**EmbedDocumentsToCollectionAsyncV1CollectionsCollectionIdEmbedPost**](KnowledgeCollectionsAPI.md#EmbedDocumentsToCollectionAsyncV1CollectionsCollectionIdEmbedPost) | **Post** /v1/collections/{collection_id}/embed | Embed Documents To Collection Async
 [**ReadCollectionAsyncV1CollectionsCollectionIdGet**](KnowledgeCollectionsAPI.md#ReadCollectionAsyncV1CollectionsCollectionIdGet) | **Get** /v1/collections/{collection_id} | Read Collection Async
 [**ReadCollectionDocumentsAsyncV1CollectionsCollectionIdDocumentsGet**](KnowledgeCollectionsAPI.md#ReadCollectionDocumentsAsyncV1CollectionsCollectionIdDocumentsGet) | **Get** /v1/collections/{collection_id}/documents | Read Collection Documents Async
@@ -214,6 +215,79 @@ Name | Type | Description  | Notes
 [[Back to README]](../README.md)
 
 
+## DownloadDocumentV1CollectionsCollectionIdDocumentsDocumentIdDownloadGet
+
+> interface{} DownloadDocumentV1CollectionsCollectionIdDocumentsDocumentIdDownloadGet(ctx, collectionId, documentId).Execute()
+
+Download original document
+
+
+
+### Example
+
+```go
+package main
+
+import (
+	"context"
+	"fmt"
+	"os"
+	openapiclient "github.com/GIT_USER_ID/GIT_REPO_ID/api"
+)
+
+func main() {
+	collectionId := "38400000-8cf0-11bd-b23e-10b96e4ef00d" // string | 
+	documentId := "38400000-8cf0-11bd-b23e-10b96e4ef00d" // string | 
+
+	configuration := openapiclient.NewConfiguration()
+	apiClient := openapiclient.NewAPIClient(configuration)
+	resp, r, err := apiClient.KnowledgeCollectionsAPI.DownloadDocumentV1CollectionsCollectionIdDocumentsDocumentIdDownloadGet(context.Background(), collectionId, documentId).Execute()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error when calling `KnowledgeCollectionsAPI.DownloadDocumentV1CollectionsCollectionIdDocumentsDocumentIdDownloadGet``: %v\n", err)
+		fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
+	}
+	// response from `DownloadDocumentV1CollectionsCollectionIdDocumentsDocumentIdDownloadGet`: interface{}
+	fmt.Fprintf(os.Stdout, "Response from `KnowledgeCollectionsAPI.DownloadDocumentV1CollectionsCollectionIdDocumentsDocumentIdDownloadGet`: %v\n", resp)
+}
+```
+
+### Path Parameters
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+**ctx** | **context.Context** | context for authentication, logging, cancellation, deadlines, tracing, etc.
+**collectionId** | **string** |  | 
+**documentId** | **string** |  | 
+
+### Other Parameters
+
+Other parameters are passed through a pointer to a apiDownloadDocumentV1CollectionsCollectionIdDocumentsDocumentIdDownloadGetRequest struct via the builder pattern
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+
+
+
+### Return type
+
+**interface{}**
+
+### Authorization
+
+[APIKeyHeader](../README.md#APIKeyHeader), [HTTPBearer](../README.md#HTTPBearer)
+
+### HTTP request headers
+
+- **Content-Type**: Not defined
+- **Accept**: application/json
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints)
+[[Back to Model list]](../README.md#documentation-for-models)
+[[Back to README]](../README.md)
+
+
 ## EmbedDocumentsToCollectionAsyncV1CollectionsCollectionIdEmbedPost
 
 > DocumentEmbeddingResponse EmbedDocumentsToCollectionAsyncV1CollectionsCollectionIdEmbedPost(ctx, collectionId).Files(files).Execute()
@@ -236,7 +310,7 @@ import (
 
 func main() {
 	collectionId := "38400000-8cf0-11bd-b23e-10b96e4ef00d" // string | 
-	files := []*os.File{"TODO"} // []*os.File | 
+	files := []string{"Inner_example"} // []string | 
 
 	configuration := openapiclient.NewConfiguration()
 	apiClient := openapiclient.NewAPIClient(configuration)
@@ -266,7 +340,7 @@ Other parameters are passed through a pointer to a apiEmbedDocumentsToCollection
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
 
- **files** | **[]*os.File** |  | 
+ **files** | **[]string** |  | 
 
 ### Return type
 

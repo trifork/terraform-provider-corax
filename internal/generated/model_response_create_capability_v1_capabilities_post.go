@@ -66,6 +66,24 @@ func (dst *ResponseCreateCapabilityV1CapabilitiesPost) UnmarshalJSON(data []byte
 	return fmt.Errorf("data failed to match schemas in anyOf(ResponseCreateCapabilityV1CapabilitiesPost): unrecognized type discriminator %q", typeValue)
 }
 
+// GetActualInstance returns the first non-nil capability pointer.
+// Required by the generated client's decode() to route through UnmarshalJSON.
+func (dst *ResponseCreateCapabilityV1CapabilitiesPost) GetActualInstance() interface{} {
+	if dst.ChatCapability != nil {
+		return dst.ChatCapability
+	}
+	if dst.CompletionCapability != nil {
+		return dst.CompletionCapability
+	}
+	if dst.ExtractionCapability != nil {
+		return dst.ExtractionCapability
+	}
+	if dst.SpeechToTextCapability != nil {
+		return dst.SpeechToTextCapability
+	}
+	return nil
+}
+
 // Marshal data from the first non-nil pointers in the struct to JSON
 func (src ResponseCreateCapabilityV1CapabilitiesPost) MarshalJSON() ([]byte, error) {
 	if src.ChatCapability != nil {

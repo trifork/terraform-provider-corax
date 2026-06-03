@@ -3,10 +3,27 @@
 openapi: 3.1.0
 info:
   title: Corax API
-  version: v2.131.0
+  version: v2.206.0
 servers:
 - url: /
 paths:
+  /v1/auth/me:
+    get:
+      description: Get the authenticated user profile.
+      operationId: get_me_v1_auth_me_get
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthMeResponse"
+          description: Successful Response
+      security:
+      - HTTPBearer: []
+      - APIKeyHeader: []
+      summary: Get Me
+      tags:
+      - Auth
   /v1/api-keys:
     get:
       description: Get all API keys for user
@@ -666,6 +683,47 @@ paths:
       - HTTPBearer: []
       - APIKeyHeader: []
       summary: Embed Documents To Collection Async
+      tags:
+      - Knowledge collections
+  /v1/collections/{collection_id}/documents/{document_id}/download:
+    get:
+      description: Download the original uploaded file from object storage.
+      operationId: download_document_v1_collections__collection_id__documents__document_id__download_get
+      parameters:
+      - explode: false
+        in: path
+        name: collection_id
+        required: true
+        schema:
+          format: uuid
+          title: Collection Id
+          type: string
+        style: simple
+      - explode: false
+        in: path
+        name: document_id
+        required: true
+        schema:
+          format: uuid
+          title: Document Id
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      - APIKeyHeader: []
+      summary: Download original document
       tags:
       - Knowledge collections
   /v1/capabilities:
@@ -1759,6 +1817,72 @@ paths:
       summary: Update Model Deployment
       tags:
       - Model Deployments
+  /v1/model-deployments/{deployment_id}/health:
+    get:
+      description: Get the cached health status for a model deployment.
+      operationId: get_model_deployment_health_v1_model_deployments__deployment_id__health_get
+      parameters:
+      - explode: false
+        in: path
+        name: deployment_id
+        required: true
+        schema:
+          format: uuid
+          title: Deployment Id
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DeploymentHealthResponse"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      - APIKeyHeader: []
+      summary: Get Model Deployment Health
+      tags:
+      - Model Deployments
+  /v1/model-deployments/{deployment_id}/health-check:
+    post:
+      description: Trigger an immediate health check for a model deployment.
+      operationId: trigger_model_deployment_health_check_v1_model_deployments__deployment_id__health_check_post
+      parameters:
+      - explode: false
+        in: path
+        name: deployment_id
+        required: true
+        schema:
+          format: uuid
+          title: Deployment Id
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DeploymentHealthResponse"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      - APIKeyHeader: []
+      summary: Trigger Model Deployment Health Check
+      tags:
+      - Model Deployments
   /v1/model-providers:
     get:
       description: List all model providers with pagination.
@@ -2360,6 +2484,2706 @@ paths:
       summary: Get Model Provider Deployment Configuration
       tags:
       - Model Provider Types
+  /v1/mcp-servers:
+    get:
+      description: Retrieve a paginated list of all MCP (Model Context Protocol) servers
+        owned by the current user. Supports sorting and filtering through pagination
+        parameters.
+      operationId: list_mcp_servers_v1_mcp_servers_get
+      parameters:
+      - explode: true
+        in: query
+        name: page
+        required: false
+        schema:
+          default: 1
+          minimum: 1
+          title: Page
+          type: integer
+        style: form
+      - explode: true
+        in: query
+        name: size
+        required: false
+        schema:
+          default: 10
+          maximum: 100
+          minimum: 1
+          title: Size
+          type: integer
+        style: form
+      - explode: true
+        in: query
+        name: sort
+        required: false
+        schema:
+          default: id
+          title: Sort
+          type: string
+        style: form
+      - explode: true
+        in: query
+        name: filter
+        required: false
+        schema:
+          nullable: true
+          pattern: "(.+::[^|]+)(|.+::[^|]+)*"
+          type: string
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PagedResponseModel_MCPServerResponse_"
+          description: Successfully retrieved paginated list of MCP servers
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      - APIKeyHeader: []
+      summary: List MCP servers
+      tags:
+      - MCP Servers
+    post:
+      description: Create a new MCP (Model Context Protocol) server configuration.
+        The server will be owned by the authenticated user.
+      operationId: create_mcp_server_v1_mcp_servers_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MCPServerBase"
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MCPServerResponse"
+          description: MCP Server successfully created
+          headers:
+            Location:
+              description: URL of the newly created MCP server
+              explode: false
+              schema:
+                format: uri
+                type: string
+              style: simple
+        "400":
+          description: Invalid MCP Server configuration or malformed request body
+        "422":
+          description: Validation error in request data
+        "409":
+          description: MCP Server with this name already exists for the user
+      security:
+      - HTTPBearer: []
+      - APIKeyHeader: []
+      summary: Create a new MCP server
+      tags:
+      - MCP Servers
+  /v1/mcp-servers/{server_id}:
+    delete:
+      description: Permanently delete an MCP server configuration. Only the server
+        owner can delete the server. The server cannot be deleted if it is currently
+        being used by any capabilities.
+      operationId: delete_mcp_server_v1_mcp_servers__server_id__delete
+      parameters:
+      - explode: false
+        in: path
+        name: server_id
+        required: true
+        schema:
+          format: uuid
+          title: Server Id
+          type: string
+        style: simple
+      responses:
+        "204":
+          description: MCP Server successfully deleted
+        "404":
+          description: MCP Server not found or user does not have access
+        "403":
+          description: User does not have permission to delete this MCP server
+        "409":
+          description: MCP Server cannot be deleted as it is currently in use by capabilities
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      - APIKeyHeader: []
+      summary: Delete an MCP server
+      tags:
+      - MCP Servers
+    get:
+      description: Retrieve detailed information about a specific MCP server by its
+        unique identifier. Only returns servers owned by the authenticated user.
+      operationId: get_mcp_server_v1_mcp_servers__server_id__get
+      parameters:
+      - explode: false
+        in: path
+        name: server_id
+        required: true
+        schema:
+          format: uuid
+          title: Server Id
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MCPServerResponse"
+          description: Successfully retrieved MCP server details
+        "404":
+          description: MCP Server not found or user does not have access
+        "403":
+          description: User does not have permission to access this MCP server
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      - APIKeyHeader: []
+      summary: Get MCP server by ID
+      tags:
+      - MCP Servers
+    put:
+      description: Update the configuration of an existing MCP server. Only the server
+        owner can update the configuration.
+      operationId: update_mcp_server_v1_mcp_servers__server_id__put
+      parameters:
+      - explode: false
+        in: path
+        name: server_id
+        required: true
+        schema:
+          format: uuid
+          title: Server Id
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MCPServerBase"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MCPServerResponse"
+          description: MCP Server successfully updated
+        "404":
+          description: MCP Server not found or user does not have access
+        "400":
+          description: Invalid MCP Server configuration or malformed request body
+        "422":
+          description: Validation error in request data
+        "403":
+          description: User does not have permission to update this MCP server
+      security:
+      - HTTPBearer: []
+      - APIKeyHeader: []
+      summary: Update an existing MCP server
+      tags:
+      - MCP Servers
+  /v1/mcp-servers/{server_id}/entities:
+    get:
+      description: "Retrieve all available entities (tools, resources, and prompts)\
+        \ from the specified MCP server. This includes function definitions, resource\
+        \ templates, and prompt templates."
+      operationId: get_mcp_server_entities_v1_mcp_servers__server_id__entities_get
+      parameters:
+      - explode: false
+        in: path
+        name: server_id
+        required: true
+        schema:
+          format: uuid
+          title: Server Id
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  additionalProperties: true
+                  type: object
+                type: array
+          description: "Successfully retrieved list of MCP entities (tools, resources,\
+            \ prompts)"
+        "404":
+          description: MCP Server not found or user does not have access
+        "503":
+          description: MCP Server is unreachable or not responding
+        "408":
+          description: Request to MCP Server timed out
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      - APIKeyHeader: []
+      summary: Get all entities from an MCP server
+      tags:
+      - MCP Servers
+  /v1/mcp-servers/{server_id}/tools:
+    get:
+      description: Retrieve all available tools (functions) from the specified MCP
+        server. Tools are executable functions that can be called by capabilities
+        to perform specific tasks.
+      operationId: get_mcp_server_tools_v1_mcp_servers__server_id__tools_get
+      parameters:
+      - explode: false
+        in: path
+        name: server_id
+        required: true
+        schema:
+          format: uuid
+          title: Server Id
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  additionalProperties: true
+                  type: object
+                type: array
+          description: Successfully retrieved list of MCP tools (functions)
+        "404":
+          description: MCP Server not found or user does not have access
+        "503":
+          description: MCP Server is unreachable or not responding
+        "408":
+          description: Request to MCP Server timed out
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      - APIKeyHeader: []
+      summary: Get all tools from an MCP server
+      tags:
+      - MCP Servers
+  /v1/mcp-servers/{server_id}/resources:
+    get:
+      description: "Retrieve all available resources and resource templates from the\
+        \ specified MCP server. Resources provide access to external data sources,\
+        \ files, or APIs that capabilities can read from."
+      operationId: get_mcp_server_resources_v1_mcp_servers__server_id__resources_get
+      parameters:
+      - explode: false
+        in: path
+        name: server_id
+        required: true
+        schema:
+          format: uuid
+          title: Server Id
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  additionalProperties: true
+                  nullable: true
+                  type: object
+                type: array
+          description: Successfully retrieved list of MCP resources and resource templates
+        "404":
+          description: MCP Server not found or user does not have access
+        "503":
+          description: MCP Server is unreachable or not responding
+        "408":
+          description: Request to MCP Server timed out
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      - APIKeyHeader: []
+      summary: Get all resources from an MCP server
+      tags:
+      - MCP Servers
+  /v1/mcp-servers/{server_id}/prompts:
+    get:
+      description: Retrieve all available prompts and prompt templates from the specified
+        MCP server. Prompts are reusable templates that can be used to generate consistent
+        AI interactions.
+      operationId: get_mcp_server_prompts_v1_mcp_servers__server_id__prompts_get
+      parameters:
+      - explode: false
+        in: path
+        name: server_id
+        required: true
+        schema:
+          format: uuid
+          title: Server Id
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  additionalProperties: true
+                  nullable: true
+                  type: object
+                type: array
+          description: Successfully retrieved list of MCP prompts and prompt templates
+        "404":
+          description: MCP Server not found or user does not have access
+        "503":
+          description: MCP Server is unreachable or not responding
+        "408":
+          description: Request to MCP Server timed out
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      - APIKeyHeader: []
+      summary: Get all prompts from an MCP server
+      tags:
+      - MCP Servers
+  /v1/mcp-servers/{server_id}/connected-capabilities:
+    get:
+      description: Retrieve all capabilities that reference this MCP server. Only
+        the server owner can view this information. Useful for impact analysis before
+        changing server visibility.
+      operationId: get_mcp_server_connected_capabilities_v1_mcp_servers__server_id__connected_capabilities_get
+      parameters:
+      - explode: false
+        in: path
+        name: server_id
+        required: true
+        schema:
+          format: uuid
+          title: Server Id
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: "#/components/schemas/ConnectedCapabilityResponse"
+                type: array
+          description: List of capabilities connected to this MCP server
+        "404":
+          description: MCP Server not found or user does not have access
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      - APIKeyHeader: []
+      summary: Get capabilities connected to this MCP server
+      tags:
+      - MCP Servers
+  /v1/mcp-servers/{server_id}/health:
+    get:
+      description: Perform a health check on the specified MCP server by attempting
+        to connect and retrieve available entities. Returns detailed status information
+        and entity counts.
+      operationId: check_mcp_server_health_v1_mcp_servers__server_id__health_get
+      parameters:
+      - explode: false
+        in: path
+        name: server_id
+        required: true
+        schema:
+          format: uuid
+          title: Server Id
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              example:
+                status: healthy
+                server_id: 123e4567-e89b-12d3-a456-426614174000
+                server_name: filesystem-server
+                server_url: http://localhost:3000
+                available_entities: 5
+                tools_count: 3
+                resources_count: 1
+                prompts_count: 1
+                last_checked: 2025-06-13T10:30:00Z
+              schema:
+                additionalProperties: {}
+                title: Response Check Mcp Server Health V1 Mcp Servers  Server Id  Health
+                  Get
+          description: MCP Server is healthy and responding
+        "404":
+          description: MCP Server not found or user does not have access
+        "503":
+          content:
+            application/json:
+              example:
+                status: unhealthy
+                server_id: 123e4567-e89b-12d3-a456-426614174000
+                server_name: filesystem-server
+                server_url: http://localhost:3000
+                error: Connection refused
+                last_checked: 2025-06-13T10:30:00Z
+          description: MCP Server is unreachable or not responding
+        "408":
+          description: Health check request timed out
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      - APIKeyHeader: []
+      summary: Check MCP server health status
+      tags:
+      - MCP Servers
+  /v1/mcp-servers/{server_id}/resources/read:
+    post:
+      description: Read a specific resource from an MCP server by its URI. This is
+        used by MCP App iframes to fetch HTML content for rendering.
+      operationId: read_mcp_server_resource_v1_mcp_servers__server_id__resources_read_post
+      parameters:
+      - explode: false
+        in: path
+        name: server_id
+        required: true
+        schema:
+          format: uuid
+          title: Server Id
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MCPResourceReadRequest"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MCPResourceReadResponse"
+          description: Successfully read the MCP resource
+        "404":
+          description: MCP Server not found or user does not have access
+        "503":
+          description: MCP Server is unreachable or not responding
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      - APIKeyHeader: []
+      summary: Read a resource from an MCP server
+      tags:
+      - MCP Servers
+  /v1/mcp-servers/{server_id}/tools/call:
+    post:
+      description: Execute a tool directly on an MCP server. This is used by MCP App
+        iframes to proxy tool calls through the backend.
+      operationId: call_mcp_server_tool_v1_mcp_servers__server_id__tools_call_post
+      parameters:
+      - explode: false
+        in: path
+        name: server_id
+        required: true
+        schema:
+          format: uuid
+          title: Server Id
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MCPToolCallRequest"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MCPToolCallResponse"
+          description: Successfully called the MCP tool
+        "404":
+          description: MCP Server not found or user does not have access
+        "503":
+          description: MCP Server is unreachable or not responding
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      - APIKeyHeader: []
+      summary: Call a tool directly on an MCP server
+      tags:
+      - MCP Servers
+  /v1/capability-evaluations:
+    get:
+      description: Get all evaluations.
+      operationId: list_evaluations_v1_capability_evaluations_get
+      parameters:
+      - explode: true
+        in: query
+        name: page
+        required: false
+        schema:
+          default: 1
+          minimum: 1
+          title: Page
+          type: integer
+        style: form
+      - explode: true
+        in: query
+        name: size
+        required: false
+        schema:
+          default: 10
+          maximum: 100
+          minimum: 1
+          title: Size
+          type: integer
+        style: form
+      - explode: true
+        in: query
+        name: sort
+        required: false
+        schema:
+          default: id
+          title: Sort
+          type: string
+        style: form
+      - explode: true
+        in: query
+        name: filter
+        required: false
+        schema:
+          nullable: true
+          pattern: "(.+::[^|]+)(|.+::[^|]+)*"
+          type: string
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PagedResponseModel_CapabilityEvaluationRepresentation_"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      - APIKeyHeader: []
+      summary: List Evaluations
+      tags:
+      - Capability Evaluations
+    post:
+      description: Create a new evaluation.
+      operationId: create_evaluation_v1_capability_evaluations_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CapabilityEvaluationCreate"
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CapabilityEvaluationRepresentation"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      - APIKeyHeader: []
+      summary: Create Evaluation
+      tags:
+      - Capability Evaluations
+  /v1/capability-evaluations/{evaluation_id}:
+    delete:
+      description: Delete an evaluation dataset by ID.
+      operationId: delete_evaluation_v1_capability_evaluations__evaluation_id__delete
+      parameters:
+      - explode: false
+        in: path
+        name: evaluation_id
+        required: true
+        schema:
+          format: uuid
+          title: Evaluation Id
+          type: string
+        style: simple
+      responses:
+        "204":
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      - APIKeyHeader: []
+      summary: Delete Evaluation
+      tags:
+      - Capability Evaluations
+    get:
+      description: Get an evaluation dataset by ID.
+      operationId: get_evaluation_v1_capability_evaluations__evaluation_id__get
+      parameters:
+      - explode: false
+        in: path
+        name: evaluation_id
+        required: true
+        schema:
+          format: uuid
+          title: Evaluation Id
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CapabilityEvaluationRepresentation"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      - APIKeyHeader: []
+      summary: Get Evaluation
+      tags:
+      - Capability Evaluations
+    put:
+      description: Update an evaluation.
+      operationId: update_evaluation_v1_capability_evaluations__evaluation_id__put
+      parameters:
+      - explode: false
+        in: path
+        name: evaluation_id
+        required: true
+        schema:
+          format: uuid
+          title: Evaluation Id
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CapabilityEvaluationUpdate"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CapabilityEvaluationRepresentation"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      - APIKeyHeader: []
+      summary: Update Evaluation
+      tags:
+      - Capability Evaluations
+  /v1/capability-evaluations/{evaluation_id}/criteria:
+    get:
+      description: Get all criteria for an evaluation dataset by ID.
+      operationId: get_evaluation_criteria_v1_capability_evaluations__evaluation_id__criteria_get
+      parameters:
+      - explode: false
+        in: path
+        name: evaluation_id
+        required: true
+        schema:
+          format: uuid
+          title: Evaluation Id
+          type: string
+        style: simple
+      - explode: true
+        in: query
+        name: page
+        required: false
+        schema:
+          default: 1
+          minimum: 1
+          title: Page
+          type: integer
+        style: form
+      - explode: true
+        in: query
+        name: size
+        required: false
+        schema:
+          default: 10
+          maximum: 100
+          minimum: 1
+          title: Size
+          type: integer
+        style: form
+      - explode: true
+        in: query
+        name: sort
+        required: false
+        schema:
+          default: id
+          title: Sort
+          type: string
+        style: form
+      - explode: true
+        in: query
+        name: filter
+        required: false
+        schema:
+          nullable: true
+          pattern: "(.+::[^|]+)(|.+::[^|]+)*"
+          type: string
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PagedResponseModel_CapabilityEvaluationCriterionRepresentation_"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      - APIKeyHeader: []
+      summary: Get Evaluation Criteria
+      tags:
+      - Capability Evaluations
+    post:
+      description: Create a new criterion for an evaluation dataset by ID.
+      operationId: create_evaluation_criterion_v1_capability_evaluations__evaluation_id__criteria_post
+      parameters:
+      - explode: false
+        in: path
+        name: evaluation_id
+        required: true
+        schema:
+          format: uuid
+          title: Evaluation Id
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CapabilityEvaluationCriterionCreate"
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CapabilityEvaluationCriterionRepresentation"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      - APIKeyHeader: []
+      summary: Create Evaluation Criterion
+      tags:
+      - Capability Evaluations
+  /v1/capability-evaluations/{evaluation_id}/criteria/{criterion_id}:
+    delete:
+      description: Delete a specific criterion for an evaluation dataset by ID.
+      operationId: delete_evaluation_criterion_v1_capability_evaluations__evaluation_id__criteria__criterion_id__delete
+      parameters:
+      - explode: false
+        in: path
+        name: evaluation_id
+        required: true
+        schema:
+          format: uuid
+          title: Evaluation Id
+          type: string
+        style: simple
+      - explode: false
+        in: path
+        name: criterion_id
+        required: true
+        schema:
+          format: uuid
+          title: Criterion Id
+          type: string
+        style: simple
+      responses:
+        "204":
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      - APIKeyHeader: []
+      summary: Delete Evaluation Criterion
+      tags:
+      - Capability Evaluations
+    get:
+      description: Get a specific criterion for an evaluation dataset by ID.
+      operationId: get_evaluation_criterion_v1_capability_evaluations__evaluation_id__criteria__criterion_id__get
+      parameters:
+      - explode: false
+        in: path
+        name: evaluation_id
+        required: true
+        schema:
+          format: uuid
+          title: Evaluation Id
+          type: string
+        style: simple
+      - explode: false
+        in: path
+        name: criterion_id
+        required: true
+        schema:
+          format: uuid
+          title: Criterion Id
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CapabilityEvaluationCriterionRepresentation"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      - APIKeyHeader: []
+      summary: Get Evaluation Criterion
+      tags:
+      - Capability Evaluations
+    put:
+      description: Update a specific criterion for an evaluation dataset by ID.
+      operationId: update_evaluation_criterion_v1_capability_evaluations__evaluation_id__criteria__criterion_id__put
+      parameters:
+      - explode: false
+        in: path
+        name: evaluation_id
+        required: true
+        schema:
+          format: uuid
+          title: Evaluation Id
+          type: string
+        style: simple
+      - explode: false
+        in: path
+        name: criterion_id
+        required: true
+        schema:
+          format: uuid
+          title: Criterion Id
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CapabilityEvaluationCriterionCreate"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CapabilityEvaluationCriterionRepresentation"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      - APIKeyHeader: []
+      summary: Update Evaluation Criterion
+      tags:
+      - Capability Evaluations
+  /v1/capability-evaluations/{evaluation_id}/executions:
+    get:
+      description: Get an evaluation execution by ID.
+      operationId: get_evaluation_executions_v1_capability_evaluations__evaluation_id__executions_get
+      parameters:
+      - explode: false
+        in: path
+        name: evaluation_id
+        required: true
+        schema:
+          format: uuid
+          nullable: true
+          type: string
+        style: simple
+      - explode: true
+        in: query
+        name: capability_id
+        required: false
+        schema:
+          format: uuid
+          nullable: true
+          type: string
+        style: form
+      - explode: true
+        in: query
+        name: page
+        required: false
+        schema:
+          default: 1
+          minimum: 1
+          title: Page
+          type: integer
+        style: form
+      - explode: true
+        in: query
+        name: size
+        required: false
+        schema:
+          default: 10
+          maximum: 100
+          minimum: 1
+          title: Size
+          type: integer
+        style: form
+      - explode: true
+        in: query
+        name: sort
+        required: false
+        schema:
+          default: id
+          title: Sort
+          type: string
+        style: form
+      - explode: true
+        in: query
+        name: filter
+        required: false
+        schema:
+          nullable: true
+          pattern: "(.+::[^|]+)(|.+::[^|]+)*"
+          type: string
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PagedResponseModel_EvaluationExecutionRepresentation_"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      - APIKeyHeader: []
+      summary: Get Evaluation Executions
+      tags:
+      - Capability Evaluations
+    post:
+      description: Start an evaluation execution.
+      operationId: execute_evaluation_v1_capability_evaluations__evaluation_id__executions_post
+      parameters:
+      - explode: false
+        in: path
+        name: evaluation_id
+        required: true
+        schema:
+          format: uuid
+          title: Evaluation Id
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EvaluationExecutionCreate"
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EvaluationExecutionRepresentation"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      - APIKeyHeader: []
+      summary: Execute Evaluation
+      tags:
+      - Capability Evaluations
+  /v1/capability-evaluations/{evaluation_id}/executions/{evaluation_execution_id}:
+    get:
+      description: Get an evaluation execution by ID.
+      operationId: get_evaluation_execution_v1_capability_evaluations__evaluation_id__executions__evaluation_execution_id__get
+      parameters:
+      - explode: false
+        in: path
+        name: evaluation_id
+        required: true
+        schema:
+          format: uuid
+          title: Evaluation Id
+          type: string
+        style: simple
+      - explode: false
+        in: path
+        name: evaluation_execution_id
+        required: true
+        schema:
+          format: uuid
+          title: Evaluation Execution Id
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EvaluationExecutionRepresentation"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      - APIKeyHeader: []
+      summary: Get Evaluation Execution
+      tags:
+      - Capability Evaluations
+  /v1/capability-evaluations/{evaluation_id}/executions/{evaluation_execution_id}/criteria-executions:
+    get:
+      description: |-
+        Get all criteria executions for a specific evaluation execution.
+
+        Args:
+            request: The HTTP request object.
+            evaluation_id: The ID of the evaluation.
+            evaluation_execution_id: The ID of the evaluation execution to retrieve criteria executions for.
+            page_params: Pagination parameters.
+            service: The evaluation execution service to use.
+
+        Returns:
+            A list of criteria executions for the specified evaluation execution.
+      operationId: get_evaluation_execution_criteria_executions_v1_capability_evaluations__evaluation_id__executions__evaluation_execution_id__criteria_executions_get
+      parameters:
+      - explode: false
+        in: path
+        name: evaluation_id
+        required: true
+        schema:
+          format: uuid
+          title: Evaluation Id
+          type: string
+        style: simple
+      - explode: false
+        in: path
+        name: evaluation_execution_id
+        required: true
+        schema:
+          format: uuid
+          title: Evaluation Execution Id
+          type: string
+        style: simple
+      - explode: true
+        in: query
+        name: page
+        required: false
+        schema:
+          default: 1
+          minimum: 1
+          title: Page
+          type: integer
+        style: form
+      - explode: true
+        in: query
+        name: size
+        required: false
+        schema:
+          default: 10
+          maximum: 100
+          minimum: 1
+          title: Size
+          type: integer
+        style: form
+      - explode: true
+        in: query
+        name: sort
+        required: false
+        schema:
+          default: id
+          title: Sort
+          type: string
+        style: form
+      - explode: true
+        in: query
+        name: filter
+        required: false
+        schema:
+          nullable: true
+          pattern: "(.+::[^|]+)(|.+::[^|]+)*"
+          type: string
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PagedResponseModel_EvaluationCriterionExecutionRepresentation_"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      - APIKeyHeader: []
+      summary: Get Evaluation Execution Criteria Executions
+      tags:
+      - Capability Evaluations
+  /v1/criterion-types:
+    get:
+      description: Get all evaluation criteria types.
+      operationId: list_evaluation_criteria_types_v1_criterion_types_get
+      parameters:
+      - explode: true
+        in: query
+        name: page
+        required: false
+        schema:
+          default: 1
+          minimum: 1
+          title: Page
+          type: integer
+        style: form
+      - explode: true
+        in: query
+        name: size
+        required: false
+        schema:
+          default: 10
+          maximum: 100
+          minimum: 1
+          title: Size
+          type: integer
+        style: form
+      - explode: true
+        in: query
+        name: sort
+        required: false
+        schema:
+          default: id
+          title: Sort
+          type: string
+        style: form
+      - explode: true
+        in: query
+        name: filter
+        required: false
+        schema:
+          nullable: true
+          pattern: "(.+::[^|]+)(|.+::[^|]+)*"
+          type: string
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PagedResponseModel_CapabilityEvaluationCriterionTypeRepresentation_"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      - APIKeyHeader: []
+      summary: List Evaluation Criteria Types
+      tags:
+      - Criterion Types
+  /v1/criterion-types/{criterion_type}:
+    get:
+      description: Get a specific evaluation criterion type by ID.
+      operationId: get_evaluation_criterion_type_v1_criterion_types__criterion_type__get
+      parameters:
+      - explode: false
+        in: path
+        name: criterion_type
+        required: true
+        schema:
+          title: Criterion Type
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CapabilityEvaluationCriterionTypeRepresentation"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      - APIKeyHeader: []
+      summary: Get Evaluation Criterion Type
+      tags:
+      - Criterion Types
+  /v1/evaluation-datasets:
+    get:
+      description: Get all evaluation datasets.
+      operationId: list_evaluation_datasets_v1_evaluation_datasets_get
+      parameters:
+      - explode: true
+        in: query
+        name: page
+        required: false
+        schema:
+          default: 1
+          minimum: 1
+          title: Page
+          type: integer
+        style: form
+      - explode: true
+        in: query
+        name: size
+        required: false
+        schema:
+          default: 10
+          maximum: 100
+          minimum: 1
+          title: Size
+          type: integer
+        style: form
+      - explode: true
+        in: query
+        name: sort
+        required: false
+        schema:
+          default: id
+          title: Sort
+          type: string
+        style: form
+      - explode: true
+        in: query
+        name: filter
+        required: false
+        schema:
+          nullable: true
+          pattern: "(.+::[^|]+)(|.+::[^|]+)*"
+          type: string
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PagedResponseModel_EvaluationDatasetRepresentation_"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      - APIKeyHeader: []
+      summary: List Evaluation Datasets
+      tags:
+      - Evaluation Datasets
+    post:
+      description: Create a new evaluation dataset.
+      operationId: create_evaluation_dataset_v1_evaluation_datasets_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EvaluationDatasetCreate"
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EvaluationDatasetRepresentation"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      - APIKeyHeader: []
+      summary: Create Evaluation Dataset
+      tags:
+      - Evaluation Datasets
+  /v1/evaluation-datasets/{dataset_id}:
+    delete:
+      description: Delete an evaluation dataset.
+      operationId: delete_evaluation_dataset_v1_evaluation_datasets__dataset_id__delete
+      parameters:
+      - explode: false
+        in: path
+        name: dataset_id
+        required: true
+        schema:
+          format: uuid
+          title: Dataset Id
+          type: string
+        style: simple
+      responses:
+        "204":
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      - APIKeyHeader: []
+      summary: Delete Evaluation Dataset
+      tags:
+      - Evaluation Datasets
+    get:
+      description: Get an evaluation dataset by ID.
+      operationId: get_evaluation_dataset_v1_evaluation_datasets__dataset_id__get
+      parameters:
+      - explode: false
+        in: path
+        name: dataset_id
+        required: true
+        schema:
+          format: uuid
+          title: Dataset Id
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EvaluationDatasetRepresentation"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      - APIKeyHeader: []
+      summary: Get Evaluation Dataset
+      tags:
+      - Evaluation Datasets
+    put:
+      description: Update an evaluation dataset.
+      operationId: update_evaluation_dataset_v1_evaluation_datasets__dataset_id__put
+      parameters:
+      - explode: false
+        in: path
+        name: dataset_id
+        required: true
+        schema:
+          format: uuid
+          title: Dataset Id
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EvaluationDatasetUpdate"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EvaluationDatasetRepresentation"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      - APIKeyHeader: []
+      summary: Update Evaluation Dataset
+      tags:
+      - Evaluation Datasets
+  /v1/evaluation-datasets/{dataset_id}/items:
+    get:
+      description: Get items in an evaluation dataset.
+      operationId: list_evaluation_dataset_items_v1_evaluation_datasets__dataset_id__items_get
+      parameters:
+      - explode: false
+        in: path
+        name: dataset_id
+        required: true
+        schema:
+          format: uuid
+          title: Dataset Id
+          type: string
+        style: simple
+      - explode: true
+        in: query
+        name: page
+        required: false
+        schema:
+          default: 1
+          minimum: 1
+          title: Page
+          type: integer
+        style: form
+      - explode: true
+        in: query
+        name: size
+        required: false
+        schema:
+          default: 10
+          maximum: 100
+          minimum: 1
+          title: Size
+          type: integer
+        style: form
+      - explode: true
+        in: query
+        name: sort
+        required: false
+        schema:
+          default: id
+          title: Sort
+          type: string
+        style: form
+      - explode: true
+        in: query
+        name: filter
+        required: false
+        schema:
+          nullable: true
+          pattern: "(.+::[^|]+)(|.+::[^|]+)*"
+          type: string
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PagedResponseModel_EvaluationDatasetItemRepresentation_"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      - APIKeyHeader: []
+      summary: List Evaluation Dataset Items
+      tags:
+      - Evaluation Datasets
+    post:
+      description: Add items to an evaluation dataset.
+      operationId: add_items_to_evaluation_dataset_v1_evaluation_datasets__dataset_id__items_post
+      parameters:
+      - explode: false
+        in: path
+        name: dataset_id
+        required: true
+        schema:
+          format: uuid
+          title: Dataset Id
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EvaluationDatasetItemCreate"
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EvaluationDatasetItemRepresentation"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      - APIKeyHeader: []
+      summary: Add Items To Evaluation Dataset
+      tags:
+      - Evaluation Datasets
+  /v1/evaluation-datasets/{dataset_id}/items/{item_id}:
+    delete:
+      description: Delete an item in an evaluation dataset.
+      operationId: delete_evaluation_dataset_item_v1_evaluation_datasets__dataset_id__items__item_id__delete
+      parameters:
+      - explode: false
+        in: path
+        name: dataset_id
+        required: true
+        schema:
+          format: uuid
+          title: Dataset Id
+          type: string
+        style: simple
+      - explode: false
+        in: path
+        name: item_id
+        required: true
+        schema:
+          format: uuid
+          title: Item Id
+          type: string
+        style: simple
+      responses:
+        "204":
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      - APIKeyHeader: []
+      summary: Delete Evaluation Dataset Item
+      tags:
+      - Evaluation Datasets
+    get:
+      description: Get an item in an evaluation dataset by ID.
+      operationId: get_evaluation_dataset_item_v1_evaluation_datasets__dataset_id__items__item_id__get
+      parameters:
+      - explode: false
+        in: path
+        name: dataset_id
+        required: true
+        schema:
+          format: uuid
+          title: Dataset Id
+          type: string
+        style: simple
+      - explode: false
+        in: path
+        name: item_id
+        required: true
+        schema:
+          format: uuid
+          title: Item Id
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EvaluationDatasetItemRepresentation"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      - APIKeyHeader: []
+      summary: Get Evaluation Dataset Item
+      tags:
+      - Evaluation Datasets
+    put:
+      description: Update an item in an evaluation dataset.
+      operationId: update_evaluation_dataset_item_v1_evaluation_datasets__dataset_id__items__item_id__put
+      parameters:
+      - explode: false
+        in: path
+        name: dataset_id
+        required: true
+        schema:
+          format: uuid
+          title: Dataset Id
+          type: string
+        style: simple
+      - explode: false
+        in: path
+        name: item_id
+        required: true
+        schema:
+          format: uuid
+          title: Item Id
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EvaluationDatasetItemUpdate"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EvaluationDatasetItemRepresentation"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      - APIKeyHeader: []
+      summary: Update Evaluation Dataset Item
+      tags:
+      - Evaluation Datasets
+  /v1/compliance/policies:
+    get:
+      operationId: list_policies_v1_compliance_policies_get
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: "#/components/schemas/PolicyResponse"
+                type: array
+          description: Successful Response
+      security:
+      - HTTPBearer: []
+      - APIKeyHeader: []
+      summary: List Policies
+      tags:
+      - Compliance
+    post:
+      operationId: create_policy_v1_compliance_policies_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PolicyCreate"
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PolicyResponse"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      - APIKeyHeader: []
+      summary: Create Policy
+      tags:
+      - Compliance
+  /v1/compliance/policies/{policy_id}:
+    delete:
+      operationId: delete_policy_v1_compliance_policies__policy_id__delete
+      parameters:
+      - explode: false
+        in: path
+        name: policy_id
+        required: true
+        schema:
+          format: uuid
+          title: Policy Id
+          type: string
+        style: simple
+      responses:
+        "204":
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      - APIKeyHeader: []
+      summary: Delete Policy
+      tags:
+      - Compliance
+    get:
+      operationId: get_policy_v1_compliance_policies__policy_id__get
+      parameters:
+      - explode: false
+        in: path
+        name: policy_id
+        required: true
+        schema:
+          format: uuid
+          title: Policy Id
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PolicyResponse"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      - APIKeyHeader: []
+      summary: Get Policy
+      tags:
+      - Compliance
+    patch:
+      operationId: update_policy_v1_compliance_policies__policy_id__patch
+      parameters:
+      - explode: false
+        in: path
+        name: policy_id
+        required: true
+        schema:
+          format: uuid
+          title: Policy Id
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PolicyUpdate"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PolicyResponse"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      - APIKeyHeader: []
+      summary: Update Policy
+      tags:
+      - Compliance
+  /v1/compliance/policies/{policy_id}/impact:
+    get:
+      description: "Preview policy impact: how many assets affected and non-compliant."
+      operationId: get_policy_impact_v1_compliance_policies__policy_id__impact_get
+      parameters:
+      - explode: false
+        in: path
+        name: policy_id
+        required: true
+        schema:
+          format: uuid
+          title: Policy Id
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PolicyImpactResponse"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      - APIKeyHeader: []
+      summary: Get Policy Impact
+      tags:
+      - Compliance
+  /v1/compliance/policies/{policy_id}/copies:
+    post:
+      description: "Create a copy of an existing policy with a new name, inactive\
+        \ by default."
+      operationId: duplicate_policy_v1_compliance_policies__policy_id__copies_post
+      parameters:
+      - explode: false
+        in: path
+        name: policy_id
+        required: true
+        schema:
+          format: uuid
+          title: Policy Id
+          type: string
+        style: simple
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PolicyResponse"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      - APIKeyHeader: []
+      summary: Duplicate Policy
+      tags:
+      - Compliance
+  /v1/compliance/policies/{policy_id}/applications:
+    post:
+      description: Apply a policy's controls to all non-compliant capabilities in
+        its scope.
+      operationId: apply_policy_to_all_v1_compliance_policies__policy_id__applications_post
+      parameters:
+      - explode: false
+        in: path
+        name: policy_id
+        required: true
+        schema:
+          format: uuid
+          title: Policy Id
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      - APIKeyHeader: []
+      summary: Apply Policy To All
+      tags:
+      - Compliance
+  /v1/compliance/assets:
+    get:
+      operationId: list_assets_v1_compliance_assets_get
+      parameters:
+      - explode: true
+        in: query
+        name: project_id
+        required: false
+        schema:
+          format: uuid
+          nullable: true
+          type: string
+        style: form
+      - explode: true
+        in: query
+        name: status
+        required: false
+        schema:
+          allOf:
+          - $ref: "#/components/schemas/ComplianceStatus"
+          nullable: true
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: "#/components/schemas/AssetResponse"
+                type: array
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      - APIKeyHeader: []
+      summary: List Assets
+      tags:
+      - Compliance
+  /v1/compliance/assets/{capability_id}/badge:
+    get:
+      description: Lightweight compliance status for capability detail page.
+      operationId: get_compliance_badge_v1_compliance_assets__capability_id__badge_get
+      parameters:
+      - explode: false
+        in: path
+        name: capability_id
+        required: true
+        schema:
+          format: uuid
+          title: Capability Id
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BadgeResponse"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      - APIKeyHeader: []
+      summary: Get Compliance Badge
+      tags:
+      - Compliance
+  /v1/compliance/assets/{capability_id}:
+    get:
+      operationId: get_asset_detail_v1_compliance_assets__capability_id__get
+      parameters:
+      - explode: false
+        in: path
+        name: capability_id
+        required: true
+        schema:
+          format: uuid
+          title: Capability Id
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AssetResponse"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      - APIKeyHeader: []
+      summary: Get Asset Detail
+      tags:
+      - Compliance
+  /v1/compliance/guardrails:
+    get:
+      operationId: get_guardrails_v1_compliance_guardrails_get
+      parameters:
+      - explode: true
+        in: query
+        name: project_id
+        required: false
+        schema:
+          format: uuid
+          nullable: true
+          type: string
+        style: form
+      - explode: true
+        in: query
+        name: sort_by
+        required: false
+        schema:
+          default: capability_name
+          title: Sort By
+          type: string
+        style: form
+      - explode: true
+        in: query
+        name: sort_order
+        required: false
+        schema:
+          default: asc
+          enum:
+          - asc
+          - desc
+          title: Sort Order
+          type: string
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: "#/components/schemas/GuardrailRow"
+                type: array
+          description: Successful Response
+        "422":
+          description: Validation error
+      security:
+      - HTTPBearer: []
+      - APIKeyHeader: []
+      summary: Get Guardrails
+      tags:
+      - Compliance
+  /v1/compliance/capabilities/{capability_id}/policies:
+    get:
+      description: List all active policies applicable to this capability with applied
+        status.
+      operationId: get_applicable_policies_v1_compliance_capabilities__capability_id__policies_get
+      parameters:
+      - explode: false
+        in: path
+        name: capability_id
+        required: true
+        schema:
+          format: uuid
+          title: Capability Id
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: "#/components/schemas/ApplicablePolicyResponse"
+                type: array
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      - APIKeyHeader: []
+      summary: Get Applicable Policies
+      tags:
+      - Compliance
+  /v1/compliance/capabilities/{capability_id}/policies/{policy_id}:
+    delete:
+      description: Remove a policy's controls from a capability's version config.
+      operationId: remove_controls_v1_compliance_capabilities__capability_id__policies__policy_id__delete
+      parameters:
+      - explode: false
+        in: path
+        name: capability_id
+        required: true
+        schema:
+          format: uuid
+          title: Capability Id
+          type: string
+        style: simple
+      - explode: false
+        in: path
+        name: policy_id
+        required: true
+        schema:
+          format: uuid
+          title: Policy Id
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RemoveControlsResponse"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      - APIKeyHeader: []
+      summary: Remove Controls
+      tags:
+      - Compliance
+    put:
+      description: Apply a policy's controls to a capability's version config.
+      operationId: apply_controls_v1_compliance_capabilities__capability_id__policies__policy_id__put
+      parameters:
+      - explode: false
+        in: path
+        name: capability_id
+        required: true
+        schema:
+          format: uuid
+          title: Capability Id
+          type: string
+        style: simple
+      - explode: false
+        in: path
+        name: policy_id
+        required: true
+        schema:
+          format: uuid
+          title: Policy Id
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApplyControlsResponse"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      - APIKeyHeader: []
+      summary: Apply Controls
+      tags:
+      - Compliance
+  /v1/compliance/guardrail-events:
+    get:
+      description: Query guardrail block events with filtering and pagination.
+      operationId: list_guardrail_events_v1_compliance_guardrail_events_get
+      parameters:
+      - explode: true
+        in: query
+        name: capability_id
+        required: false
+        schema:
+          format: uuid
+          nullable: true
+          type: string
+        style: form
+      - explode: true
+        in: query
+        name: policy_id
+        required: false
+        schema:
+          format: uuid
+          nullable: true
+          type: string
+        style: form
+      - explode: true
+        in: query
+        name: control_type
+        required: false
+        schema:
+          allOf:
+          - $ref: "#/components/schemas/ScanCategory"
+          nullable: true
+        style: form
+      - explode: true
+        in: query
+        name: direction
+        required: false
+        schema:
+          allOf:
+          - $ref: "#/components/schemas/ScanDirection"
+          nullable: true
+        style: form
+      - explode: true
+        in: query
+        name: from_date
+        required: false
+        schema:
+          format: date-time
+          nullable: true
+          type: string
+        style: form
+      - explode: true
+        in: query
+        name: to_date
+        required: false
+        schema:
+          format: date-time
+          nullable: true
+          type: string
+        style: form
+      - explode: true
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 50
+          maximum: 200
+          minimum: 1
+          title: Limit
+          type: integer
+        style: form
+      - explode: true
+        in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          minimum: 0
+          title: Offset
+          type: integer
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GuardrailEventListResponse"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      - APIKeyHeader: []
+      summary: List Guardrail Events
+      tags:
+      - Compliance
+  /v1/compliance/guardrail-scans:
+    post:
+      description: Test guardrail configuration against sample text without executing
+        or persisting.
+      operationId: dry_run_guardrails_v1_compliance_guardrail_scans_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DryRunRequest"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DryRunResponse"
+          description: Successful Response
+        "422":
+          description: Validation error
+      security:
+      - HTTPBearer: []
+      - APIKeyHeader: []
+      summary: Dry Run Guardrails
+      tags:
+      - Compliance
+  /v1/admin/permissions:
+    get:
+      operationId: list_permissions_v1_admin_permissions_get
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: "#/components/schemas/PermissionItem"
+                type: array
+          description: Successful Response
+      security:
+      - HTTPBearer: []
+      - APIKeyHeader: []
+      summary: List Permissions
+      tags:
+      - RBAC Admin
+  /v1/admin/roles:
+    get:
+      operationId: list_roles_v1_admin_roles_get
+      parameters:
+      - explode: true
+        in: query
+        name: page
+        required: false
+        schema:
+          default: 1
+          minimum: 1
+          title: Page
+          type: integer
+        style: form
+      - explode: true
+        in: query
+        name: size
+        required: false
+        schema:
+          default: 10
+          maximum: 100
+          minimum: 1
+          title: Size
+          type: integer
+        style: form
+      - explode: true
+        in: query
+        name: sort
+        required: false
+        schema:
+          default: id
+          title: Sort
+          type: string
+        style: form
+      - explode: true
+        in: query
+        name: filter
+        required: false
+        schema:
+          nullable: true
+          pattern: "(.+::[^|]+)(|.+::[^|]+)*"
+          type: string
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PagedResponseModel_Role_"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      - APIKeyHeader: []
+      summary: List Roles
+      tags:
+      - RBAC Admin
+    post:
+      operationId: create_role_v1_admin_roles_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RoleCreate"
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Role"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      - APIKeyHeader: []
+      summary: Create Role
+      tags:
+      - RBAC Admin
+  /v1/admin/roles/{role_id}:
+    delete:
+      operationId: delete_role_v1_admin_roles__role_id__delete
+      parameters:
+      - explode: false
+        in: path
+        name: role_id
+        required: true
+        schema:
+          format: uuid
+          title: Role Id
+          type: string
+        style: simple
+      responses:
+        "204":
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      - APIKeyHeader: []
+      summary: Delete Role
+      tags:
+      - RBAC Admin
+    put:
+      operationId: update_role_v1_admin_roles__role_id__put
+      parameters:
+      - explode: false
+        in: path
+        name: role_id
+        required: true
+        schema:
+          format: uuid
+          title: Role Id
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RoleUpdate"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Role"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      - APIKeyHeader: []
+      summary: Update Role
+      tags:
+      - RBAC Admin
+  /v1/admin/users:
+    get:
+      operationId: list_users_v1_admin_users_get
+      parameters:
+      - explode: true
+        in: query
+        name: page
+        required: false
+        schema:
+          default: 1
+          minimum: 1
+          title: Page
+          type: integer
+        style: form
+      - explode: true
+        in: query
+        name: size
+        required: false
+        schema:
+          default: 10
+          maximum: 100
+          minimum: 1
+          title: Size
+          type: integer
+        style: form
+      - explode: true
+        in: query
+        name: sort
+        required: false
+        schema:
+          default: id
+          title: Sort
+          type: string
+        style: form
+      - explode: true
+        in: query
+        name: filter
+        required: false
+        schema:
+          nullable: true
+          pattern: "(.+::[^|]+)(|.+::[^|]+)*"
+          type: string
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PagedResponseModel_UserRBAC_"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      - APIKeyHeader: []
+      summary: List Users
+      tags:
+      - RBAC Admin
+  /v1/admin/users/{user_id}:
+    patch:
+      operationId: update_user_v1_admin_users__user_id__patch
+      parameters:
+      - explode: false
+        in: path
+        name: user_id
+        required: true
+        schema:
+          title: User Id
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserUpdate"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserRBAC"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      - APIKeyHeader: []
+      summary: Update User
+      tags:
+      - RBAC Admin
   /:
     get:
       operationId: healthcheck__get
@@ -2460,20 +5284,24 @@ components:
       title: AnthropicProviderWithDeploymentsCreate
     ApiKey:
       example:
-        last_used_at: 2000-01-23T04:56:07.000+00:00
-        usage_count: 0
-        expires_at: 2000-01-23T04:56:07.000+00:00
         is_active: true
-        updated_at: 2000-01-23T04:56:07.000+00:00
         _links:
           key:
             href: href
             type: ""
         prefix: corax-sk-
-        name: name
+        description: description
         created_at: 2000-01-23T04:56:07.000+00:00
-        id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
         created_by: created_by
+        last_used_at: 2000-01-23T04:56:07.000+00:00
+        usage_count: 0
+        expires_at: 2000-01-23T04:56:07.000+00:00
+        updated_at: 2000-01-23T04:56:07.000+00:00
+        permissions:
+        - permissions
+        - permissions
+        name: name
+        id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
         key: key
       properties:
         _links:
@@ -2494,6 +5322,14 @@ components:
         name:
           title: Name
           type: string
+        description:
+          nullable: true
+          type: string
+        permissions:
+          items:
+            type: string
+          nullable: true
+          type: array
         expires_at:
           format: date-time
           nullable: true
@@ -2531,20 +5367,103 @@ components:
     ApiKeyCreate:
       example:
         expires_at: 2000-01-23T04:56:07.000+00:00
+        permissions:
+        - permissions
+        - permissions
         name: name
+        description: description
       properties:
         name:
           minLength: 1
           title: Name
           type: string
+        description:
+          nullable: true
+          type: string
+        permissions:
+          items:
+            type: string
+          nullable: true
+          type: array
         expires_at:
           format: date-time
-          title: Expires At
+          nullable: true
           type: string
       required:
-      - expires_at
       - name
       title: ApiKeyCreate
+    ApplicablePolicyResponse:
+      example:
+        controls_summary:
+        - controls_summary
+        - controls_summary
+        name: name
+        description: description
+        id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        is_applied: true
+        scope_type: global
+      properties:
+        id:
+          format: uuid
+          title: Id
+          type: string
+        name:
+          title: Name
+          type: string
+        description:
+          nullable: true
+          type: string
+        scope_type:
+          $ref: "#/components/schemas/PolicyScopeType"
+        controls_summary:
+          items:
+            type: string
+          type: array
+        is_applied:
+          title: Is Applied
+          type: boolean
+      required:
+      - controls_summary
+      - id
+      - is_applied
+      - name
+      - scope_type
+      title: ApplicablePolicyResponse
+    AppliedControl:
+      example:
+        policy_name: policy_name
+        control: control
+      properties:
+        control:
+          title: Control
+          type: string
+        policy_name:
+          title: Policy Name
+          type: string
+      required:
+      - control
+      - policy_name
+      title: AppliedControl
+    ApplyControlsResponse:
+      example:
+        applied_controls:
+        - policy_name: policy_name
+          control: control
+        - policy_name: policy_name
+          control: control
+        message: message
+      properties:
+        applied_controls:
+          items:
+            $ref: "#/components/schemas/AppliedControl"
+          type: array
+        message:
+          title: Message
+          type: string
+      required:
+      - applied_controls
+      - message
+      title: ApplyControlsResponse
     ArrayProperty-Input:
       properties:
         type:
@@ -2579,6 +5498,110 @@ components:
       - items
       - type
       title: ArrayProperty
+    AssetResponse:
+      example:
+        capability_name: capability_name
+        project_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        capability_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        policy_results:
+        - policy_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          policy_name: policy_name
+          compliant: true
+          control_results:
+          - compliant: true
+            actual_value: actual_value
+            control_name: control_name
+            required_value: required_value
+          - compliant: true
+            actual_value: actual_value
+            control_name: control_name
+            required_value: required_value
+        - policy_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          policy_name: policy_name
+          compliant: true
+          control_results:
+          - compliant: true
+            actual_value: actual_value
+            control_name: control_name
+            required_value: required_value
+          - compliant: true
+            actual_value: actual_value
+            control_name: control_name
+            required_value: required_value
+        policy_count: 0
+        project_name: project_name
+        compliance_status: protected
+      properties:
+        capability_id:
+          format: uuid
+          title: Capability Id
+          type: string
+        capability_name:
+          title: Capability Name
+          type: string
+        project_id:
+          format: uuid
+          nullable: true
+          type: string
+        project_name:
+          nullable: true
+          type: string
+        compliance_status:
+          $ref: "#/components/schemas/ComplianceStatus"
+        policy_count:
+          title: Policy Count
+          type: integer
+        policy_results:
+          items:
+            $ref: "#/components/schemas/PolicyComplianceResult"
+          nullable: true
+          type: array
+      required:
+      - capability_id
+      - capability_name
+      - compliance_status
+      - policy_count
+      title: AssetResponse
+    AuthMeResponse:
+      example:
+        role_name: role_name
+        is_superuser: false
+        user_id: user_id
+        permissions:
+        - permissions
+        - permissions
+        auth_source: jwt
+        username: username
+      properties:
+        user_id:
+          title: User Id
+          type: string
+        username:
+          title: Username
+          type: string
+        role_name:
+          nullable: true
+          type: string
+        permissions:
+          items:
+            type: string
+          type: array
+        is_superuser:
+          default: false
+          title: Is Superuser
+          type: boolean
+        auth_source:
+          enum:
+          - jwt
+          - api_key
+          - legacy_api_key
+          title: Auth Source
+          type: string
+      required:
+      - auth_source
+      - user_id
+      - username
+      title: AuthMeResponse
     AvailableModel:
       description: A model available from a provider.
       example:
@@ -2755,6 +5778,19 @@ components:
       - name
       - provider_type
       title: AzureSpeechProviderWithDeploymentsCreate
+    BadgeResponse:
+      example:
+        is_compliant: true
+        status: protected
+      properties:
+        status:
+          $ref: "#/components/schemas/ComplianceStatus"
+        is_compliant:
+          nullable: true
+          type: boolean
+      required:
+      - status
+      title: BadgeResponse
     BasicProperty:
       properties:
         type:
@@ -2851,6 +5887,11 @@ components:
           - image/png
           - image/jpeg
           - application/pdf
+          - application/vnd.openxmlformats-officedocument.wordprocessingml.document
+          - application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
+          - application/vnd.openxmlformats-officedocument.presentationml.presentation
+          - text/html
+          - text/markdown
           items:
             type: string
           type: array
@@ -2859,7 +5900,6 @@ components:
       properties:
         files:
           items:
-            format: binary
             type: string
           type: array
       required:
@@ -3011,6 +6051,347 @@ components:
           nullable: true
           type: array
       title: CapabilityConfig
+    CapabilityCriterionOperationType:
+      description: What is the operation being evaluated?
+      enum:
+      - general
+      - generation
+      - retrieval
+      title: CapabilityCriterionOperationType
+      type: string
+    CapabilityCriterionType:
+      enum:
+      - correctness
+      - answer_relevancy
+      - semantic_similarity
+      - time_threshold
+      - bleu
+      - rouge
+      - levenshtein
+      - contains
+      - custom_g_eval
+      title: CapabilityCriterionType
+      type: string
+    CapabilityEvaluationConfiguration:
+      properties:
+        description:
+          nullable: true
+          type: string
+        success_threshold:
+          default: 1.0
+          description: Percentage of criteria that need to be successful for the evaluation
+            to be considered successful. Defaults to 1.0 (100%)
+          maximum: 1.0
+          minimum: 0.0
+          title: Success Threshold
+          type: number
+      title: CapabilityEvaluationConfiguration
+    CapabilityEvaluationCreate:
+      example:
+        project_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        capability_version: 0
+        evaluation_dataset_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        configuration: ""
+        capability_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        name: name
+        is_public: true
+      properties:
+        name:
+          description: Name of the evaluation
+          title: Name
+          type: string
+        project_id:
+          format: uuid
+          nullable: true
+          type: string
+        is_public:
+          nullable: true
+          type: boolean
+        capability_id:
+          description: ID of the capability to be evaluated
+          format: uuid
+          title: Capability Id
+          type: string
+        capability_version:
+          nullable: true
+          type: integer
+        evaluation_dataset_id:
+          description: ID of the dataset to be used for the evaluation
+          format: uuid
+          title: Evaluation Dataset Id
+          type: string
+        configuration:
+          allOf:
+          - $ref: "#/components/schemas/CapabilityEvaluationConfiguration"
+          description: Configuration for the capability evaluation
+      required:
+      - capability_id
+      - configuration
+      - evaluation_dataset_id
+      - name
+      title: CapabilityEvaluationCreate
+    CapabilityEvaluationCriterionCreate:
+      example:
+        configuration:
+          key: ""
+        type: ""
+        model_deployment_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+      properties:
+        type:
+          allOf:
+          - $ref: "#/components/schemas/CapabilityCriterionType"
+          description: Type of the capability evaluation criterion
+        configuration:
+          additionalProperties: true
+          description: Configuration for the capability evaluation criterion
+          title: Configuration
+          type: object
+        model_deployment_id:
+          format: uuid
+          nullable: true
+          type: string
+      required:
+      - configuration
+      - type
+      title: CapabilityEvaluationCriterionCreate
+    CapabilityEvaluationCriterionRepresentation:
+      example:
+        _links:
+          key:
+            href: href
+            type: ""
+        configuration:
+          key: ""
+        id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        type: ""
+        model_deployment_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+      properties:
+        _links:
+          additionalProperties:
+            $ref: "#/components/schemas/HateoasLink"
+          nullable: true
+        type:
+          allOf:
+          - $ref: "#/components/schemas/CapabilityCriterionType"
+          description: Type of the capability evaluation criterion
+        configuration:
+          additionalProperties: true
+          description: Configuration for the capability evaluation criterion
+          title: Configuration
+          type: object
+        model_deployment_id:
+          format: uuid
+          nullable: true
+          type: string
+        id:
+          format: uuid
+          nullable: true
+          type: string
+      required:
+      - configuration
+      - type
+      title: CapabilityEvaluationCriterionRepresentation
+    CapabilityEvaluationCriterionTypeRepresentation:
+      example:
+        _links:
+          key:
+            href: href
+            type: ""
+        name: name
+        description: description
+        configuration_fields:
+        - default: Default
+          min: 1
+          max: 6
+          name: name
+          pattern: pattern
+          description: description
+          step: 5
+          label: label
+          placeholder: placeholder
+          type: text
+          required: true
+          order: 0
+        - default: Default
+          min: 1
+          max: 6
+          name: name
+          pattern: pattern
+          description: description
+          step: 5
+          label: label
+          placeholder: placeholder
+          type: text
+          required: true
+          order: 0
+        valid_capability_types:
+        - chat
+        - chat
+        type: ""
+        operation: ""
+      properties:
+        _links:
+          additionalProperties:
+            $ref: "#/components/schemas/HateoasLink"
+          nullable: true
+        name:
+          description: Name of the evaluation criterion
+          title: Name
+          type: string
+        configuration_fields:
+          items:
+            $ref: "#/components/schemas/ConfigurationField"
+          nullable: true
+          type: array
+        operation:
+          allOf:
+          - $ref: "#/components/schemas/CapabilityCriterionOperationType"
+          description: Operation type of the capability evaluation criterion
+        type:
+          allOf:
+          - $ref: "#/components/schemas/CapabilityCriterionType"
+          description: Type of the capability evaluation criterion
+        valid_capability_types:
+          description: List of valid supported tasks for the criterion
+          items:
+            $ref: "#/components/schemas/CapabilityType"
+          type: array
+        description:
+          description: Description of the capability evaluation criterion
+          title: Description
+          type: string
+      required:
+      - description
+      - name
+      - operation
+      - type
+      - valid_capability_types
+      title: CapabilityEvaluationCriterionTypeRepresentation
+    CapabilityEvaluationRepresentation:
+      example:
+        _links:
+          key:
+            href: href
+            type: ""
+        evaluation_dataset_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        configuration: ""
+        created_at: 2000-01-23T04:56:07.000+00:00
+        created_by: created_by
+        updated_at: 2000-01-23T04:56:07.000+00:00
+        project_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        capability_version: 0
+        capability_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        name: name
+        is_public: true
+        updated_by: updated_by
+        evaluation_criteria_count: 6
+        id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+      properties:
+        _links:
+          additionalProperties:
+            $ref: "#/components/schemas/HateoasLink"
+          nullable: true
+        name:
+          description: Name of the evaluation
+          title: Name
+          type: string
+        project_id:
+          format: uuid
+          nullable: true
+          type: string
+        is_public:
+          nullable: true
+          type: boolean
+        capability_id:
+          format: uuid
+          nullable: true
+          type: string
+        capability_version:
+          nullable: true
+          type: integer
+        evaluation_dataset_id:
+          format: uuid
+          nullable: true
+          type: string
+        configuration:
+          allOf:
+          - $ref: "#/components/schemas/CapabilityEvaluationConfiguration"
+          description: Configuration for the capability evaluation
+        id:
+          description: ID of the capability evaluation
+          format: uuid
+          title: Id
+          type: string
+        created_at:
+          format: date-time
+          title: Created At
+          type: string
+        updated_at:
+          format: date-time
+          nullable: true
+          type: string
+        created_by:
+          title: Created By
+          type: string
+        updated_by:
+          nullable: true
+          type: string
+        evaluation_criteria_count:
+          default: 0
+          description: Number of criteria in the capability evaluation
+          title: Evaluation Criteria Count
+          type: integer
+      required:
+      - configuration
+      - created_at
+      - created_by
+      - id
+      - name
+      title: CapabilityEvaluationRepresentation
+    CapabilityEvaluationUpdate:
+      example:
+        project_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        capability_version: 0
+        evaluation_dataset_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        configuration: ""
+        capability_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        name: name
+        is_public: true
+      properties:
+        name:
+          description: Name of the evaluation
+          title: Name
+          type: string
+        project_id:
+          format: uuid
+          nullable: true
+          type: string
+        is_public:
+          nullable: true
+          type: boolean
+        capability_id:
+          description: ID of the capability to be evaluated
+          format: uuid
+          title: Capability Id
+          type: string
+        capability_version:
+          nullable: true
+          type: integer
+        evaluation_dataset_id:
+          description: ID of the dataset to be used for the evaluation
+          format: uuid
+          title: Evaluation Dataset Id
+          type: string
+        configuration:
+          allOf:
+          - $ref: "#/components/schemas/CapabilityEvaluationConfiguration"
+          description: Configuration for the capability evaluation
+      required:
+      - capability_id
+      - configuration
+      - evaluation_dataset_id
+      - name
+      title: CapabilityEvaluationUpdate
     CapabilityRepresentation:
       example:
         owner: owner
@@ -3994,6 +7375,28 @@ components:
       - name
       - type
       title: CompletionCapabilityUpdate
+    ComplianceStatus:
+      enum:
+      - protected
+      - not_protected
+      title: ComplianceStatus
+      type: string
+    ComplianceSummary:
+      properties:
+        total_assets:
+          title: Total Assets
+          type: integer
+        compliant_count:
+          title: Compliant Count
+          type: integer
+        non_compliant_count:
+          title: Non Compliant Count
+          type: integer
+      required:
+      - compliant_count
+      - non_compliant_count
+      - total_assets
+      title: ComplianceSummary
     Configuration:
       example:
         _links:
@@ -4090,6 +7493,107 @@ components:
       - required
       - type
       title: ConfigurationField
+    ConnectedCapabilityResponse:
+      description: A capability connected to an MCP server.
+      example:
+        owner: owner
+        name: name
+        is_public: true
+        id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+      properties:
+        id:
+          format: uuid
+          title: Id
+          type: string
+        name:
+          title: Name
+          type: string
+        owner:
+          title: Owner
+          type: string
+        is_public:
+          title: Is Public
+          type: boolean
+      required:
+      - id
+      - is_public
+      - name
+      - owner
+      title: ConnectedCapabilityResponse
+    ContentFilterCategory:
+      enum:
+      - violence
+      - sexual
+      - hate
+      - self_harm
+      title: ContentFilterCategory
+      type: string
+    ContentFilterRequirement:
+      properties:
+        enabled:
+          default: true
+          title: Enabled
+          type: boolean
+        severity_thresholds:
+          additionalProperties:
+            $ref: "#/components/schemas/SeverityLevel"
+          title: Severity Thresholds
+      required:
+      - severity_thresholds
+      title: ContentFilterRequirement
+    ContentTracingRequirement:
+      properties:
+        required:
+          title: Required
+          type: boolean
+      required:
+      - required
+      title: ContentTracingRequirement
+    ControlComplianceStatus:
+      enum:
+      - compliant
+      - non_compliant
+      title: ControlComplianceStatus
+      type: string
+    ControlResult:
+      example:
+        compliant: true
+        actual_value: actual_value
+        control_name: control_name
+        required_value: required_value
+      properties:
+        control_name:
+          title: Control Name
+          type: string
+        compliant:
+          title: Compliant
+          type: boolean
+        required_value:
+          title: Required Value
+          type: string
+        actual_value:
+          title: Actual Value
+          type: string
+      required:
+      - actual_value
+      - compliant
+      - control_name
+      - required_value
+      title: ControlResult
+    DataRetentionRequirement:
+      properties:
+        required_type:
+          enum:
+          - infinite
+          - timed
+          title: Required Type
+          type: string
+        minimum_hours:
+          nullable: true
+          type: integer
+      required:
+      - required_type
+      title: DataRetentionRequirement
     DefaultModelDeploymentUpdate:
       example:
         default_model_deployment_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
@@ -4131,6 +7635,30 @@ components:
       - model_id
       - supported_tasks
       title: DeploymentCreate
+    DeploymentHealthResponse:
+      description: Health check response for an individual model deployment.
+      example:
+        error_message: error_message
+        checked_at: 2000-01-23T04:56:07.000+00:00
+        status: healthy
+      properties:
+        status:
+          enum:
+          - healthy
+          - unhealthy
+          - unknown
+          title: Status
+          type: string
+        checked_at:
+          format: date-time
+          nullable: true
+          type: string
+        error_message:
+          nullable: true
+          type: string
+      required:
+      - status
+      title: DeploymentHealthResponse
     Document:
       example:
         owner: owner
@@ -4274,6 +7802,61 @@ components:
       - collection_id
       - document_ids
       title: DocumentEmbeddingResponse
+    DryRunRequest:
+      example:
+        controls: ""
+        policy_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        text: text
+      properties:
+        text:
+          minLength: 1
+          title: Text
+          type: string
+        controls:
+          allOf:
+          - $ref: "#/components/schemas/PolicyControls-Input"
+          nullable: true
+        policy_id:
+          format: uuid
+          nullable: true
+          type: string
+      required:
+      - text
+      title: DryRunRequest
+    DryRunResponse:
+      example:
+        summary: summary
+        results:
+        - reason: reason
+          score: 0.8008281904610115
+          detected_items:
+          - detected_items
+          - detected_items
+          scanner_warning: false
+          passed: true
+          category: content_filter
+          sanitized_text: sanitized_text
+        - reason: reason
+          score: 0.8008281904610115
+          detected_items:
+          - detected_items
+          - detected_items
+          scanner_warning: false
+          passed: true
+          category: content_filter
+          sanitized_text: sanitized_text
+      properties:
+        results:
+          items:
+            $ref: "#/components/schemas/ScanResult"
+          type: array
+        summary:
+          title: Summary
+          type: string
+      required:
+      - results
+      - summary
+      title: DryRunResponse
     EnumProperty:
       example:
         description: description
@@ -4299,6 +7882,517 @@ components:
       - enum
       - type
       title: EnumProperty
+    EvaluationCriterionExecutionRepresentation:
+      example:
+        result: ""
+        _links:
+          key:
+            href: href
+            type: ""
+        id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        criterion_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        status: ""
+      properties:
+        _links:
+          additionalProperties:
+            $ref: "#/components/schemas/HateoasLink"
+          nullable: true
+        id:
+          description: ID of the evaluation criterion execution
+          format: uuid
+          title: Id
+          type: string
+        status:
+          allOf:
+          - $ref: "#/components/schemas/EvaluationExecutionStatus"
+          description: Status of the evaluation criterion execution
+        result:
+          allOf:
+          - $ref: "#/components/schemas/EvaluationCriterionExecutionResult"
+          nullable: true
+        criterion_id:
+          format: uuid
+          nullable: true
+          type: string
+      required:
+      - criterion_id
+      - id
+      - result
+      - status
+      title: EvaluationCriterionExecutionRepresentation
+    EvaluationCriterionExecutionResult:
+      properties:
+        test_results:
+          items:
+            $ref: "#/components/schemas/TestResult"
+          type: array
+        successful:
+          nullable: true
+          type: boolean
+      required:
+      - test_results
+      title: EvaluationCriterionExecutionResult
+    EvaluationDatasetConfigurationBase:
+      properties:
+        description:
+          nullable: true
+          type: string
+        input_variables:
+          items:
+            type: string
+          nullable: true
+          type: array
+        output_type:
+          allOf:
+          - $ref: "#/components/schemas/EvaluationDatasetOutputType"
+          description: Output type of the dataset
+        output_schema_def:
+          additionalProperties: true
+          nullable: true
+          type: object
+      required:
+      - output_type
+      title: EvaluationDatasetConfigurationBase
+    EvaluationDatasetCreate:
+      example:
+        project_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        configuration: ""
+        name: name
+        is_public: true
+      properties:
+        name:
+          description: Name of the dataset
+          title: Name
+          type: string
+        project_id:
+          format: uuid
+          nullable: true
+          type: string
+        is_public:
+          nullable: true
+          type: boolean
+        configuration:
+          allOf:
+          - $ref: "#/components/schemas/EvaluationDatasetConfigurationBase"
+          description: Configuration for the dataset
+      required:
+      - configuration
+      - name
+      title: EvaluationDatasetCreate
+    EvaluationDatasetItemCreate:
+      example:
+        output:
+          key: ""
+        input:
+          key: input
+        sources:
+        - sources
+        - sources
+      properties:
+        input:
+          additionalProperties:
+            type: string
+          description: Input for the dataset item
+          title: Input
+        output:
+          additionalProperties: true
+          description: Output for the dataset item
+          title: Output
+          type: object
+        sources:
+          items:
+            type: string
+          nullable: true
+          type: array
+      required:
+      - input
+      - output
+      title: EvaluationDatasetItemCreate
+    EvaluationDatasetItemRepresentation:
+      example:
+        output:
+          key: ""
+        input:
+          key: input
+        sources:
+        - sources
+        - sources
+        _links:
+          key:
+            href: href
+            type: ""
+        created_at: 2000-01-23T04:56:07.000+00:00
+        id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+      properties:
+        _links:
+          additionalProperties:
+            $ref: "#/components/schemas/HateoasLink"
+          nullable: true
+        input:
+          additionalProperties:
+            type: string
+          description: Input for the dataset item
+          title: Input
+        output:
+          additionalProperties: true
+          description: Output for the dataset item
+          title: Output
+          type: object
+        sources:
+          items:
+            type: string
+          nullable: true
+          type: array
+        id:
+          description: ID of the dataset item
+          format: uuid
+          title: Id
+          type: string
+        created_at:
+          format: date-time
+          nullable: true
+          type: string
+      required:
+      - id
+      - input
+      - output
+      title: EvaluationDatasetItemRepresentation
+    EvaluationDatasetItemUpdate:
+      example:
+        output:
+          key: ""
+        input:
+          key: input
+        sources:
+        - sources
+        - sources
+        id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+      properties:
+        input:
+          additionalProperties:
+            type: string
+          description: Input for the dataset item
+          title: Input
+        output:
+          additionalProperties: true
+          description: Output for the dataset item
+          title: Output
+          type: object
+        sources:
+          items:
+            type: string
+          nullable: true
+          type: array
+        id:
+          description: ID of the dataset item
+          format: uuid
+          title: Id
+          type: string
+      required:
+      - id
+      - input
+      - output
+      title: EvaluationDatasetItemUpdate
+    EvaluationDatasetOutputType:
+      enum:
+      - text
+      - json
+      title: EvaluationDatasetOutputType
+      type: string
+    EvaluationDatasetRepresentation:
+      example:
+        items_count: 0
+        updated_at: 2000-01-23T04:56:07.000+00:00
+        _links:
+          key:
+            href: href
+            type: ""
+        project_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        configuration: ""
+        name: name
+        is_public: true
+        id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+      properties:
+        _links:
+          additionalProperties:
+            $ref: "#/components/schemas/HateoasLink"
+          nullable: true
+        name:
+          description: Name of the dataset
+          title: Name
+          type: string
+        project_id:
+          format: uuid
+          nullable: true
+          type: string
+        is_public:
+          nullable: true
+          type: boolean
+        configuration:
+          allOf:
+          - $ref: "#/components/schemas/EvaluationDatasetConfigurationBase"
+          description: Configuration for the dataset
+        id:
+          description: ID of the evaluation dataset
+          format: uuid
+          title: Id
+          type: string
+        items_count:
+          default: 0
+          description: Number of items in the evaluation dataset
+          title: Items Count
+          type: integer
+        updated_at:
+          format: date-time
+          nullable: true
+          type: string
+      required:
+      - configuration
+      - id
+      - name
+      title: EvaluationDatasetRepresentation
+    EvaluationDatasetUpdate:
+      example:
+        project_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        configuration: ""
+        name: name
+        is_public: true
+        id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+      properties:
+        name:
+          description: Name of the dataset
+          title: Name
+          type: string
+        project_id:
+          format: uuid
+          nullable: true
+          type: string
+        is_public:
+          nullable: true
+          type: boolean
+        configuration:
+          allOf:
+          - $ref: "#/components/schemas/EvaluationDatasetConfigurationBase"
+          description: Configuration for the dataset
+        id:
+          description: ID of the dataset to be updated
+          format: uuid
+          title: Id
+          type: string
+      required:
+      - configuration
+      - id
+      - name
+      title: EvaluationDatasetUpdate
+    EvaluationExecutionConfiguration:
+      properties:
+        mode:
+          allOf:
+          - $ref: "#/components/schemas/EvaluationExecutionMode"
+          default: full
+          description: Whether the execution runs the full dataset or a selected subset
+        dataset_item_ids:
+          items:
+            format: uuid
+            type: string
+          nullable: true
+          type: array
+      title: EvaluationExecutionConfiguration
+    EvaluationExecutionCreate:
+      example:
+        evaluation_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        configuration: ""
+      properties:
+        evaluation_id:
+          description: ID of the evaluation to be executed
+          format: uuid
+          title: Evaluation Id
+          type: string
+        configuration:
+          allOf:
+          - $ref: "#/components/schemas/EvaluationExecutionConfiguration"
+          nullable: true
+      required:
+      - evaluation_id
+      title: EvaluationExecutionCreate
+    EvaluationExecutionData:
+      example:
+        input: input
+        sources:
+        - sources
+        - sources
+        expected_output: expected_output
+        time_in_millis: 0
+        actual_output: actual_output
+      properties:
+        input:
+          title: Input
+          type: string
+        expected_output:
+          nullable: true
+          type: string
+        actual_output:
+          nullable: true
+          type: string
+        sources:
+          items:
+            type: string
+          nullable: true
+          type: array
+        time_in_millis:
+          nullable: true
+          type: integer
+      required:
+      - actual_output
+      - expected_output
+      - input
+      title: EvaluationExecutionData
+    EvaluationExecutionMode:
+      enum:
+      - full
+      - subset
+      title: EvaluationExecutionMode
+      type: string
+    EvaluationExecutionProgress:
+      properties:
+        total:
+          description: Total number of criteria to be evaluated
+          title: Total
+          type: integer
+        pending:
+          description: Number of criteria that are pending evaluation
+          title: Pending
+          type: integer
+        successful:
+          description: Number of criteria that have been evaluated
+          title: Successful
+          type: integer
+        failed:
+          description: Number of criteria that have failed evaluation
+          title: Failed
+          type: integer
+      required:
+      - failed
+      - pending
+      - successful
+      - total
+      title: EvaluationExecutionProgress
+    EvaluationExecutionRepresentation:
+      example:
+        evaluation_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        status_display: status_display
+        data:
+        - input: input
+          sources:
+          - sources
+          - sources
+          expected_output: expected_output
+          time_in_millis: 0
+          actual_output: actual_output
+        - input: input
+          sources:
+          - sources
+          - sources
+          expected_output: expected_output
+          time_in_millis: 0
+          actual_output: actual_output
+        _links:
+          key:
+            href: href
+            type: ""
+        configuration: ""
+        created_at: 2000-01-23T04:56:07.000+00:00
+        is_test_run: true
+        criteria_execution_count: 6
+        selected_dataset_item_count: 5
+        progress: ""
+        id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        passed: true
+        success_rate: 1.4658129805029452
+        status: ""
+      properties:
+        _links:
+          additionalProperties:
+            $ref: "#/components/schemas/HateoasLink"
+          nullable: true
+        id:
+          description: ID of the evaluation execution
+          format: uuid
+          title: Id
+          type: string
+        status:
+          allOf:
+          - $ref: "#/components/schemas/EvaluationExecutionStatus"
+          description: Status of the evaluation execution
+        progress:
+          allOf:
+          - $ref: "#/components/schemas/EvaluationExecutionProgress"
+          description: Progress of the evaluation execution
+        data:
+          items:
+            $ref: "#/components/schemas/EvaluationExecutionData"
+          nullable: true
+          type: array
+        evaluation_id:
+          format: uuid
+          nullable: true
+          type: string
+        configuration:
+          allOf:
+          - $ref: "#/components/schemas/EvaluationExecutionConfiguration"
+          description: "Execution-specific configuration, including test-run subset\
+            \ selection"
+        criteria_execution_count:
+          default: 0
+          description: Number of criteria in the evaluation execution
+          title: Criteria Execution Count
+          type: integer
+        created_at:
+          format: date-time
+          title: Created At
+          type: string
+        passed:
+          nullable: true
+          readOnly: true
+          type: boolean
+        success_rate:
+          nullable: true
+          readOnly: true
+          type: number
+        status_display:
+          description: "Human-readable status: 'Pending', 'In Progress', 'Passed',\
+            \ 'Not Passed', or 'Failed'."
+          readOnly: true
+          title: Status Display
+          type: string
+        is_test_run:
+          readOnly: true
+          title: Is Test Run
+          type: boolean
+        selected_dataset_item_count:
+          readOnly: true
+          title: Selected Dataset Item Count
+          type: integer
+      required:
+      - created_at
+      - id
+      - is_test_run
+      - passed
+      - progress
+      - selected_dataset_item_count
+      - status
+      - status_display
+      - success_rate
+      title: EvaluationExecutionRepresentation
+    EvaluationExecutionStatus:
+      enum:
+      - pending
+      - in_progress
+      - completed
+      - failed
+      - cancelled
+      title: EvaluationExecutionStatus
+      type: string
     Execution:
       example:
         _links:
@@ -4797,6 +8891,246 @@ components:
       - name
       - provider_type
       title: GeminiProviderWithDeploymentsCreate
+    GroundednessRequirement:
+      properties:
+        enabled:
+          default: true
+          title: Enabled
+          type: boolean
+      title: GroundednessRequirement
+    GuardrailEventListResponse:
+      example:
+        total: 0
+        offset: 1
+        limit: 6
+        events:
+        - reason: reason
+          policy_id: policy_id
+          policy_name: policy_name
+          execution_id: execution_id
+          capability_name: capability_name
+          detected_items:
+          - detected_items
+          - detected_items
+          capability_id: capability_id
+          id: id
+          scanner_version: scanner_version
+          user_context: user_context
+          timestamp: 2000-01-23T04:56:07.000+00:00
+          control_type: control_type
+          direction: direction
+        - reason: reason
+          policy_id: policy_id
+          policy_name: policy_name
+          execution_id: execution_id
+          capability_name: capability_name
+          detected_items:
+          - detected_items
+          - detected_items
+          capability_id: capability_id
+          id: id
+          scanner_version: scanner_version
+          user_context: user_context
+          timestamp: 2000-01-23T04:56:07.000+00:00
+          control_type: control_type
+          direction: direction
+      properties:
+        events:
+          items:
+            $ref: "#/components/schemas/GuardrailEventResponse"
+          type: array
+        total:
+          title: Total
+          type: integer
+        limit:
+          title: Limit
+          type: integer
+        offset:
+          title: Offset
+          type: integer
+      required:
+      - events
+      - limit
+      - offset
+      - total
+      title: GuardrailEventListResponse
+    GuardrailEventResponse:
+      example:
+        reason: reason
+        policy_id: policy_id
+        policy_name: policy_name
+        execution_id: execution_id
+        capability_name: capability_name
+        detected_items:
+        - detected_items
+        - detected_items
+        capability_id: capability_id
+        id: id
+        scanner_version: scanner_version
+        user_context: user_context
+        timestamp: 2000-01-23T04:56:07.000+00:00
+        control_type: control_type
+        direction: direction
+      properties:
+        id:
+          title: Id
+          type: string
+        timestamp:
+          format: date-time
+          title: Timestamp
+          type: string
+        capability_id:
+          title: Capability Id
+          type: string
+        capability_name:
+          title: Capability Name
+          type: string
+        execution_id:
+          title: Execution Id
+          type: string
+        policy_id:
+          title: Policy Id
+          type: string
+        policy_name:
+          title: Policy Name
+          type: string
+        control_type:
+          title: Control Type
+          type: string
+        direction:
+          title: Direction
+          type: string
+        reason:
+          title: Reason
+          type: string
+        detected_items:
+          items:
+            type: string
+          type: array
+        user_context:
+          nullable: true
+          type: string
+        scanner_version:
+          title: Scanner Version
+          type: string
+      required:
+      - capability_id
+      - capability_name
+      - control_type
+      - detected_items
+      - direction
+      - execution_id
+      - id
+      - policy_id
+      - policy_name
+      - reason
+      - scanner_version
+      - timestamp
+      title: GuardrailEventResponse
+    GuardrailRow:
+      example:
+        topic_restriction_topics:
+        - topic_restriction_topics
+        - topic_restriction_topics
+        control_compliance:
+          key: compliant
+        pii_detection_enabled: true
+        groundedness_enabled: true
+        data_retention_type: infinite
+        pii_detection_mode: ""
+        pii_detection_output_mode: ""
+        pii_detection_input_mode: ""
+        project_name: project_name
+        topic_restriction_threshold: 6.027456183070403
+        content_tracing: true
+        topic_restriction_enabled: true
+        capability_name: capability_name
+        project_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        capability_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        content_filter_enabled: true
+        data_retention_hours: 0
+        prompt_shield_enabled: true
+        content_filter_thresholds:
+          key: low
+        topic_restriction_mode: ""
+      properties:
+        capability_id:
+          format: uuid
+          title: Capability Id
+          type: string
+        capability_name:
+          title: Capability Name
+          type: string
+        project_id:
+          format: uuid
+          nullable: true
+          type: string
+        project_name:
+          nullable: true
+          type: string
+        data_retention_type:
+          enum:
+          - infinite
+          - timed
+          nullable: true
+          type: string
+        data_retention_hours:
+          nullable: true
+          type: integer
+        content_tracing:
+          nullable: true
+          type: boolean
+        content_filter_enabled:
+          nullable: true
+          type: boolean
+        content_filter_thresholds:
+          additionalProperties:
+            $ref: "#/components/schemas/SeverityLevel"
+          nullable: true
+        prompt_shield_enabled:
+          nullable: true
+          type: boolean
+        pii_detection_enabled:
+          nullable: true
+          type: boolean
+        pii_detection_mode:
+          allOf:
+          - $ref: "#/components/schemas/PiiEnforcementMode"
+          nullable: true
+        pii_detection_input_mode:
+          allOf:
+          - $ref: "#/components/schemas/PiiEnforcementMode"
+          nullable: true
+        pii_detection_output_mode:
+          allOf:
+          - $ref: "#/components/schemas/PiiEnforcementMode"
+          nullable: true
+        topic_restriction_enabled:
+          nullable: true
+          type: boolean
+        topic_restriction_mode:
+          allOf:
+          - $ref: "#/components/schemas/TopicRestrictionMode"
+          nullable: true
+        topic_restriction_topics:
+          items:
+            type: string
+          nullable: true
+          type: array
+        topic_restriction_threshold:
+          nullable: true
+          type: number
+        groundedness_enabled:
+          nullable: true
+          type: boolean
+        control_compliance:
+          additionalProperties:
+            $ref: "#/components/schemas/ControlComplianceStatus"
+          nullable: true
+      required:
+      - capability_id
+      - capability_name
+      title: GuardrailRow
     HTTPMethod:
       description: |-
         HTTP methods and descriptions
@@ -4824,11 +9158,15 @@ components:
           loc:
           - ValidationError_loc_inner
           - ValidationError_loc_inner
+          input: ""
+          ctx: "{}"
           type: type
         - msg: msg
           loc:
           - ValidationError_loc_inner
           - ValidationError_loc_inner
+          input: ""
+          ctx: "{}"
           type: type
       properties:
         detail:
@@ -4860,6 +9198,199 @@ components:
           title: Type
           type: string
       title: InfiniteDataRetention
+    MCPConnectionType:
+      description: Supported transport protocols for MCP servers
+      enum:
+      - streamablehttp
+      - sse
+      title: MCPConnectionType
+      type: string
+    MCPResourceReadRequest:
+      description: Request to read a resource from an MCP server.
+      example:
+        uri: uri
+      properties:
+        uri:
+          description: The resource URI to read
+          title: Uri
+          type: string
+      required:
+      - uri
+      title: MCPResourceReadRequest
+    MCPResourceReadResponse:
+      description: Response from reading an MCP resource.
+      example:
+        content: content
+      properties:
+        content:
+          description: The resource content
+          title: Content
+          type: string
+      required:
+      - content
+      title: MCPResourceReadResponse
+    MCPServerBase:
+      example:
+        name: name
+        is_public: false
+        type: ""
+        config:
+          key: ""
+        url: url
+      properties:
+        name:
+          description: "Name must be a valid identifier, up to 64 characters long"
+          maxLength: 64
+          minLength: 1
+          title: Name
+          type: string
+        url:
+          title: Url
+          type: string
+        type:
+          allOf:
+          - $ref: "#/components/schemas/MCPConnectionType"
+          default: streamablehttp
+        config:
+          additionalProperties: true
+          nullable: true
+          type: object
+        is_public:
+          default: false
+          description: Whether the server is publicly accessible
+          title: Is Public
+          type: boolean
+      required:
+      - name
+      - url
+      title: MCPServerBase
+    MCPServerResponse:
+      description: MCP Server response model with HATEOAS links
+      example:
+        owner: owner
+        _links:
+          key:
+            href: href
+            type: ""
+        name: name
+        is_public: false
+        id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        type: ""
+        config:
+          key: ""
+        url: url
+        slug: slug
+      properties:
+        _links:
+          additionalProperties:
+            $ref: "#/components/schemas/HateoasLink"
+          nullable: true
+        name:
+          description: "Name must be a valid identifier, up to 64 characters long"
+          maxLength: 64
+          minLength: 1
+          title: Name
+          type: string
+        url:
+          title: Url
+          type: string
+        type:
+          allOf:
+          - $ref: "#/components/schemas/MCPConnectionType"
+          default: streamablehttp
+        config:
+          additionalProperties: true
+          nullable: true
+          type: object
+        is_public:
+          default: false
+          description: Whether the server is publicly accessible
+          title: Is Public
+          type: boolean
+        id:
+          format: uuid
+          title: Id
+          type: string
+        owner:
+          title: Owner
+          type: string
+        slug:
+          title: Slug
+          type: string
+      required:
+      - id
+      - name
+      - owner
+      - slug
+      - url
+      title: MCPServerResponse
+    MCPToolCallRequest:
+      description: Request to call a tool directly on an MCP server.
+      example:
+        name: name
+        arguments:
+          key: ""
+      properties:
+        name:
+          description: The tool name (without server prefix)
+          title: Name
+          type: string
+        arguments:
+          additionalProperties: true
+          nullable: true
+          type: object
+      required:
+      - name
+      title: MCPToolCallRequest
+    MCPToolCallResponse:
+      description: Response from a direct MCP tool call.
+      example:
+        meta:
+          key: ""
+        is_error: false
+        content: ""
+        structured_content:
+          key: ""
+      properties:
+        content:
+          default: ""
+          description: The tool result content
+          title: Content
+          type: string
+        structured_content:
+          additionalProperties: true
+          nullable: true
+          type: object
+        meta:
+          additionalProperties: true
+          nullable: true
+          type: object
+        is_error:
+          default: false
+          description: Whether the tool call resulted in an error
+          title: Is Error
+          type: boolean
+      title: MCPToolCallResponse
+    MLLMImage:
+      properties:
+        url:
+          title: Url
+          type: string
+        local:
+          nullable: true
+          type: boolean
+        filename:
+          nullable: true
+          type: string
+        mimeType:
+          nullable: true
+          type: string
+        dataBase64:
+          nullable: true
+          type: string
+      required:
+      - url
+      title: MLLMImage
     Message:
       example:
         role: system
@@ -4919,6 +9450,43 @@ components:
       required:
       - role
       title: Message
+    MetricData:
+      properties:
+        name:
+          title: Name
+          type: string
+        threshold:
+          title: Threshold
+          type: number
+        success:
+          title: Success
+          type: boolean
+        score:
+          nullable: true
+          type: number
+        reason:
+          nullable: true
+          type: string
+        strictMode:
+          nullable: true
+          type: boolean
+        evaluationModel:
+          nullable: true
+          type: string
+        error:
+          nullable: true
+          type: string
+        evaluationCost:
+          nullable: true
+          type: number
+        verboseLogs:
+          nullable: true
+          type: string
+      required:
+      - name
+      - success
+      - threshold
+      title: MetricData
     MistralProviderValidationRequest:
       properties:
         configuration:
@@ -5594,35 +10162,43 @@ components:
     PagedResponseModel_ApiKey_:
       example:
         _embedded:
-        - last_used_at: 2000-01-23T04:56:07.000+00:00
-          usage_count: 0
-          expires_at: 2000-01-23T04:56:07.000+00:00
-          is_active: true
-          updated_at: 2000-01-23T04:56:07.000+00:00
+        - is_active: true
           _links:
             key:
               href: href
               type: ""
           prefix: corax-sk-
-          name: name
+          description: description
           created_at: 2000-01-23T04:56:07.000+00:00
-          id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
           created_by: created_by
+          last_used_at: 2000-01-23T04:56:07.000+00:00
+          usage_count: 0
+          expires_at: 2000-01-23T04:56:07.000+00:00
+          updated_at: 2000-01-23T04:56:07.000+00:00
+          permissions:
+          - permissions
+          - permissions
+          name: name
+          id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
           key: key
-        - last_used_at: 2000-01-23T04:56:07.000+00:00
-          usage_count: 0
-          expires_at: 2000-01-23T04:56:07.000+00:00
-          is_active: true
-          updated_at: 2000-01-23T04:56:07.000+00:00
+        - is_active: true
           _links:
             key:
               href: href
               type: ""
           prefix: corax-sk-
-          name: name
+          description: description
           created_at: 2000-01-23T04:56:07.000+00:00
-          id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
           created_by: created_by
+          last_used_at: 2000-01-23T04:56:07.000+00:00
+          usage_count: 0
+          expires_at: 2000-01-23T04:56:07.000+00:00
+          updated_at: 2000-01-23T04:56:07.000+00:00
+          permissions:
+          - permissions
+          - permissions
+          name: name
+          id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
           key: key
         _links:
           key:
@@ -5648,6 +10224,211 @@ components:
       - _embedded
       - page
       title: "PagedResponseModel[ApiKey]"
+    PagedResponseModel_CapabilityEvaluationCriterionRepresentation_:
+      example:
+        _embedded:
+        - _links:
+            key:
+              href: href
+              type: ""
+          configuration:
+            key: ""
+          id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          type: ""
+          model_deployment_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        - _links:
+            key:
+              href: href
+              type: ""
+          configuration:
+            key: ""
+          id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          type: ""
+          model_deployment_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        _links:
+          key:
+            href: href
+            type: ""
+        page:
+          number: 6
+          size: 1
+          total_elements: 5
+          total_pages: 5
+      properties:
+        _embedded:
+          items:
+            $ref: "#/components/schemas/CapabilityEvaluationCriterionRepresentation"
+          type: array
+        page:
+          $ref: "#/components/schemas/Page"
+        _links:
+          additionalProperties:
+            $ref: "#/components/schemas/HateoasLink"
+          nullable: true
+      required:
+      - _embedded
+      - page
+      title: "PagedResponseModel[CapabilityEvaluationCriterionRepresentation]"
+    PagedResponseModel_CapabilityEvaluationCriterionTypeRepresentation_:
+      example:
+        _embedded:
+        - _links:
+            key:
+              href: href
+              type: ""
+          name: name
+          description: description
+          configuration_fields:
+          - default: Default
+            min: 1
+            max: 6
+            name: name
+            pattern: pattern
+            description: description
+            step: 5
+            label: label
+            placeholder: placeholder
+            type: text
+            required: true
+            order: 0
+          - default: Default
+            min: 1
+            max: 6
+            name: name
+            pattern: pattern
+            description: description
+            step: 5
+            label: label
+            placeholder: placeholder
+            type: text
+            required: true
+            order: 0
+          valid_capability_types:
+          - chat
+          - chat
+          type: ""
+          operation: ""
+        - _links:
+            key:
+              href: href
+              type: ""
+          name: name
+          description: description
+          configuration_fields:
+          - default: Default
+            min: 1
+            max: 6
+            name: name
+            pattern: pattern
+            description: description
+            step: 5
+            label: label
+            placeholder: placeholder
+            type: text
+            required: true
+            order: 0
+          - default: Default
+            min: 1
+            max: 6
+            name: name
+            pattern: pattern
+            description: description
+            step: 5
+            label: label
+            placeholder: placeholder
+            type: text
+            required: true
+            order: 0
+          valid_capability_types:
+          - chat
+          - chat
+          type: ""
+          operation: ""
+        _links:
+          key:
+            href: href
+            type: ""
+        page:
+          number: 6
+          size: 1
+          total_elements: 5
+          total_pages: 5
+      properties:
+        _embedded:
+          items:
+            $ref: "#/components/schemas/CapabilityEvaluationCriterionTypeRepresentation"
+          type: array
+        page:
+          $ref: "#/components/schemas/Page"
+        _links:
+          additionalProperties:
+            $ref: "#/components/schemas/HateoasLink"
+          nullable: true
+      required:
+      - _embedded
+      - page
+      title: "PagedResponseModel[CapabilityEvaluationCriterionTypeRepresentation]"
+    PagedResponseModel_CapabilityEvaluationRepresentation_:
+      example:
+        _embedded:
+        - _links:
+            key:
+              href: href
+              type: ""
+          evaluation_dataset_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          configuration: ""
+          created_at: 2000-01-23T04:56:07.000+00:00
+          created_by: created_by
+          updated_at: 2000-01-23T04:56:07.000+00:00
+          project_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          capability_version: 0
+          capability_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          name: name
+          is_public: true
+          updated_by: updated_by
+          evaluation_criteria_count: 6
+          id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        - _links:
+            key:
+              href: href
+              type: ""
+          evaluation_dataset_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          configuration: ""
+          created_at: 2000-01-23T04:56:07.000+00:00
+          created_by: created_by
+          updated_at: 2000-01-23T04:56:07.000+00:00
+          project_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          capability_version: 0
+          capability_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          name: name
+          is_public: true
+          updated_by: updated_by
+          evaluation_criteria_count: 6
+          id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        _links:
+          key:
+            href: href
+            type: ""
+        page:
+          number: 6
+          size: 1
+          total_elements: 5
+          total_pages: 5
+      properties:
+        _embedded:
+          items:
+            $ref: "#/components/schemas/CapabilityEvaluationRepresentation"
+          type: array
+        page:
+          $ref: "#/components/schemas/Page"
+        _links:
+          additionalProperties:
+            $ref: "#/components/schemas/HateoasLink"
+          nullable: true
+      required:
+      - _embedded
+      - page
+      title: "PagedResponseModel[CapabilityEvaluationRepresentation]"
     PagedResponseModel_CapabilityVersion_:
       example:
         _embedded:
@@ -6041,6 +10822,240 @@ components:
       - _embedded
       - page
       title: "PagedResponseModel[Document]"
+    PagedResponseModel_EvaluationCriterionExecutionRepresentation_:
+      example:
+        _embedded:
+        - result: ""
+          _links:
+            key:
+              href: href
+              type: ""
+          id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          criterion_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          status: ""
+        - result: ""
+          _links:
+            key:
+              href: href
+              type: ""
+          id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          criterion_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          status: ""
+        _links:
+          key:
+            href: href
+            type: ""
+        page:
+          number: 6
+          size: 1
+          total_elements: 5
+          total_pages: 5
+      properties:
+        _embedded:
+          items:
+            $ref: "#/components/schemas/EvaluationCriterionExecutionRepresentation"
+          type: array
+        page:
+          $ref: "#/components/schemas/Page"
+        _links:
+          additionalProperties:
+            $ref: "#/components/schemas/HateoasLink"
+          nullable: true
+      required:
+      - _embedded
+      - page
+      title: "PagedResponseModel[EvaluationCriterionExecutionRepresentation]"
+    PagedResponseModel_EvaluationDatasetItemRepresentation_:
+      example:
+        _embedded:
+        - output:
+            key: ""
+          input:
+            key: input
+          sources:
+          - sources
+          - sources
+          _links:
+            key:
+              href: href
+              type: ""
+          created_at: 2000-01-23T04:56:07.000+00:00
+          id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        - output:
+            key: ""
+          input:
+            key: input
+          sources:
+          - sources
+          - sources
+          _links:
+            key:
+              href: href
+              type: ""
+          created_at: 2000-01-23T04:56:07.000+00:00
+          id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        _links:
+          key:
+            href: href
+            type: ""
+        page:
+          number: 6
+          size: 1
+          total_elements: 5
+          total_pages: 5
+      properties:
+        _embedded:
+          items:
+            $ref: "#/components/schemas/EvaluationDatasetItemRepresentation"
+          type: array
+        page:
+          $ref: "#/components/schemas/Page"
+        _links:
+          additionalProperties:
+            $ref: "#/components/schemas/HateoasLink"
+          nullable: true
+      required:
+      - _embedded
+      - page
+      title: "PagedResponseModel[EvaluationDatasetItemRepresentation]"
+    PagedResponseModel_EvaluationDatasetRepresentation_:
+      example:
+        _embedded:
+        - items_count: 0
+          updated_at: 2000-01-23T04:56:07.000+00:00
+          _links:
+            key:
+              href: href
+              type: ""
+          project_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          configuration: ""
+          name: name
+          is_public: true
+          id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        - items_count: 0
+          updated_at: 2000-01-23T04:56:07.000+00:00
+          _links:
+            key:
+              href: href
+              type: ""
+          project_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          configuration: ""
+          name: name
+          is_public: true
+          id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        _links:
+          key:
+            href: href
+            type: ""
+        page:
+          number: 6
+          size: 1
+          total_elements: 5
+          total_pages: 5
+      properties:
+        _embedded:
+          items:
+            $ref: "#/components/schemas/EvaluationDatasetRepresentation"
+          type: array
+        page:
+          $ref: "#/components/schemas/Page"
+        _links:
+          additionalProperties:
+            $ref: "#/components/schemas/HateoasLink"
+          nullable: true
+      required:
+      - _embedded
+      - page
+      title: "PagedResponseModel[EvaluationDatasetRepresentation]"
+    PagedResponseModel_EvaluationExecutionRepresentation_:
+      example:
+        _embedded:
+        - evaluation_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          status_display: status_display
+          data:
+          - input: input
+            sources:
+            - sources
+            - sources
+            expected_output: expected_output
+            time_in_millis: 0
+            actual_output: actual_output
+          - input: input
+            sources:
+            - sources
+            - sources
+            expected_output: expected_output
+            time_in_millis: 0
+            actual_output: actual_output
+          _links:
+            key:
+              href: href
+              type: ""
+          configuration: ""
+          created_at: 2000-01-23T04:56:07.000+00:00
+          is_test_run: true
+          criteria_execution_count: 6
+          selected_dataset_item_count: 5
+          progress: ""
+          id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          passed: true
+          success_rate: 1.4658129805029452
+          status: ""
+        - evaluation_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          status_display: status_display
+          data:
+          - input: input
+            sources:
+            - sources
+            - sources
+            expected_output: expected_output
+            time_in_millis: 0
+            actual_output: actual_output
+          - input: input
+            sources:
+            - sources
+            - sources
+            expected_output: expected_output
+            time_in_millis: 0
+            actual_output: actual_output
+          _links:
+            key:
+              href: href
+              type: ""
+          configuration: ""
+          created_at: 2000-01-23T04:56:07.000+00:00
+          is_test_run: true
+          criteria_execution_count: 6
+          selected_dataset_item_count: 5
+          progress: ""
+          id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          passed: true
+          success_rate: 1.4658129805029452
+          status: ""
+        _links:
+          key:
+            href: href
+            type: ""
+        page:
+          number: 6
+          size: 1
+          total_elements: 5
+          total_pages: 5
+      properties:
+        _embedded:
+          items:
+            $ref: "#/components/schemas/EvaluationExecutionRepresentation"
+          type: array
+        page:
+          $ref: "#/components/schemas/Page"
+        _links:
+          additionalProperties:
+            $ref: "#/components/schemas/HateoasLink"
+          nullable: true
+      required:
+      - _embedded
+      - page
+      title: "PagedResponseModel[EvaluationExecutionRepresentation]"
     PagedResponseModel_Execution_:
       example:
         _embedded:
@@ -6104,6 +11119,59 @@ components:
       - _embedded
       - page
       title: "PagedResponseModel[Execution]"
+    PagedResponseModel_MCPServerResponse_:
+      example:
+        _embedded:
+        - owner: owner
+          _links:
+            key:
+              href: href
+              type: ""
+          name: name
+          is_public: false
+          id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          type: ""
+          config:
+            key: ""
+          url: url
+          slug: slug
+        - owner: owner
+          _links:
+            key:
+              href: href
+              type: ""
+          name: name
+          is_public: false
+          id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          type: ""
+          config:
+            key: ""
+          url: url
+          slug: slug
+        _links:
+          key:
+            href: href
+            type: ""
+        page:
+          number: 6
+          size: 1
+          total_elements: 5
+          total_pages: 5
+      properties:
+        _embedded:
+          items:
+            $ref: "#/components/schemas/MCPServerResponse"
+          type: array
+        page:
+          $ref: "#/components/schemas/Page"
+        _links:
+          additionalProperties:
+            $ref: "#/components/schemas/HateoasLink"
+          nullable: true
+      required:
+      - _embedded
+      - page
+      title: "PagedResponseModel[MCPServerResponse]"
     PagedResponseModel_ModelDeployment_:
       example:
         _embedded:
@@ -6420,6 +11488,522 @@ components:
       - _embedded
       - page
       title: "PagedResponseModel[Project]"
+    PagedResponseModel_Role_:
+      example:
+        _embedded:
+        - is_superuser: true
+          updated_at: 2000-01-23T04:56:07.000+00:00
+          _links:
+            key:
+              href: href
+              type: ""
+          permissions:
+          - projects:read
+          - projects:read
+          name: name
+          description: description
+          created_at: 2000-01-23T04:56:07.000+00:00
+          is_built_in: true
+          id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          created_by: created_by
+        - is_superuser: true
+          updated_at: 2000-01-23T04:56:07.000+00:00
+          _links:
+            key:
+              href: href
+              type: ""
+          permissions:
+          - projects:read
+          - projects:read
+          name: name
+          description: description
+          created_at: 2000-01-23T04:56:07.000+00:00
+          is_built_in: true
+          id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          created_by: created_by
+        _links:
+          key:
+            href: href
+            type: ""
+        page:
+          number: 6
+          size: 1
+          total_elements: 5
+          total_pages: 5
+      properties:
+        _embedded:
+          items:
+            $ref: "#/components/schemas/Role"
+          type: array
+        page:
+          $ref: "#/components/schemas/Page"
+        _links:
+          additionalProperties:
+            $ref: "#/components/schemas/HateoasLink"
+          nullable: true
+      required:
+      - _embedded
+      - page
+      title: "PagedResponseModel[Role]"
+    PagedResponseModel_UserRBAC_:
+      example:
+        _embedded:
+        - role_name: role_name
+          last_login_at: 2000-01-23T04:56:07.000+00:00
+          is_active: true
+          is_superuser: false
+          idp: idp
+          _links:
+            key:
+              href: href
+              type: ""
+          role_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          permissions:
+          - projects:read
+          - projects:read
+          deactivated_at: 2000-01-23T04:56:07.000+00:00
+          created_at: 2000-01-23T04:56:07.000+00:00
+          id: id
+          username: username
+        - role_name: role_name
+          last_login_at: 2000-01-23T04:56:07.000+00:00
+          is_active: true
+          is_superuser: false
+          idp: idp
+          _links:
+            key:
+              href: href
+              type: ""
+          role_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          permissions:
+          - projects:read
+          - projects:read
+          deactivated_at: 2000-01-23T04:56:07.000+00:00
+          created_at: 2000-01-23T04:56:07.000+00:00
+          id: id
+          username: username
+        _links:
+          key:
+            href: href
+            type: ""
+        page:
+          number: 6
+          size: 1
+          total_elements: 5
+          total_pages: 5
+      properties:
+        _embedded:
+          items:
+            $ref: "#/components/schemas/UserRBAC"
+          type: array
+        page:
+          $ref: "#/components/schemas/Page"
+        _links:
+          additionalProperties:
+            $ref: "#/components/schemas/HateoasLink"
+          nullable: true
+      required:
+      - _embedded
+      - page
+      title: "PagedResponseModel[UserRBAC]"
+    Permission:
+      enum:
+      - projects:read
+      - projects:write
+      - projects:delete
+      - capabilities:read
+      - capabilities:write
+      - capabilities:execute
+      - collections:read
+      - collections:write
+      - models:read
+      - models:manage
+      - api_keys:manage
+      - mcp_servers:read
+      - mcp_servers:write
+      - evaluations:read
+      - evaluations:write
+      - evaluations:execute
+      - compliance:read
+      - compliance:write
+      - users:manage
+      - roles:manage
+      title: Permission
+      type: string
+    PermissionItem:
+      example:
+        description: description
+        id: id
+        category: category
+      properties:
+        id:
+          title: Id
+          type: string
+        description:
+          title: Description
+          type: string
+        category:
+          title: Category
+          type: string
+      required:
+      - category
+      - description
+      - id
+      title: PermissionItem
+    PiiDetectionDirectionRequirement:
+      properties:
+        mode:
+          $ref: "#/components/schemas/PiiEnforcementMode"
+      required:
+      - mode
+      title: PiiDetectionDirectionRequirement
+    PiiDetectionRequirement-Input:
+      properties:
+        enabled:
+          default: true
+          title: Enabled
+          type: boolean
+        input:
+          $ref: "#/components/schemas/PiiDetectionDirectionRequirement"
+        output:
+          $ref: "#/components/schemas/PiiDetectionDirectionRequirement"
+      required:
+      - input
+      - output
+      title: PiiDetectionRequirement
+    PiiDetectionRequirement-Output:
+      properties:
+        enabled:
+          default: true
+          title: Enabled
+          type: boolean
+        input:
+          $ref: "#/components/schemas/PiiDetectionDirectionRequirement"
+        output:
+          $ref: "#/components/schemas/PiiDetectionDirectionRequirement"
+      required:
+      - input
+      - output
+      title: PiiDetectionRequirement
+    PiiEnforcementMode:
+      enum:
+      - allow
+      - block
+      - redact
+      title: PiiEnforcementMode
+      type: string
+    PolicyComplianceResult:
+      example:
+        policy_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        policy_name: policy_name
+        compliant: true
+        control_results:
+        - compliant: true
+          actual_value: actual_value
+          control_name: control_name
+          required_value: required_value
+        - compliant: true
+          actual_value: actual_value
+          control_name: control_name
+          required_value: required_value
+      properties:
+        policy_id:
+          format: uuid
+          title: Policy Id
+          type: string
+        policy_name:
+          title: Policy Name
+          type: string
+        compliant:
+          title: Compliant
+          type: boolean
+        control_results:
+          items:
+            $ref: "#/components/schemas/ControlResult"
+          type: array
+      required:
+      - compliant
+      - control_results
+      - policy_id
+      - policy_name
+      title: PolicyComplianceResult
+    PolicyControls-Input:
+      example:
+        content_tracing: ""
+        content_filter: ""
+        pii_detection: ""
+        groundedness: ""
+        topic_restriction: ""
+        data_retention: ""
+        prompt_shield: ""
+      properties:
+        data_retention:
+          allOf:
+          - $ref: "#/components/schemas/DataRetentionRequirement"
+          nullable: true
+        content_tracing:
+          allOf:
+          - $ref: "#/components/schemas/ContentTracingRequirement"
+          nullable: true
+        content_filter:
+          allOf:
+          - $ref: "#/components/schemas/ContentFilterRequirement"
+          nullable: true
+        prompt_shield:
+          allOf:
+          - $ref: "#/components/schemas/PromptShieldRequirement"
+          nullable: true
+        pii_detection:
+          allOf:
+          - $ref: "#/components/schemas/PiiDetectionRequirement-Input"
+          nullable: true
+        topic_restriction:
+          allOf:
+          - $ref: "#/components/schemas/TopicRestrictionRequirement"
+          nullable: true
+        groundedness:
+          allOf:
+          - $ref: "#/components/schemas/GroundednessRequirement"
+          nullable: true
+      title: PolicyControls
+    PolicyControls-Output:
+      example:
+        content_tracing: ""
+        content_filter: ""
+        pii_detection: ""
+        groundedness: ""
+        topic_restriction: ""
+        data_retention: ""
+        prompt_shield: ""
+      properties:
+        data_retention:
+          allOf:
+          - $ref: "#/components/schemas/DataRetentionRequirement"
+          nullable: true
+        content_tracing:
+          allOf:
+          - $ref: "#/components/schemas/ContentTracingRequirement"
+          nullable: true
+        content_filter:
+          allOf:
+          - $ref: "#/components/schemas/ContentFilterRequirement"
+          nullable: true
+        prompt_shield:
+          allOf:
+          - $ref: "#/components/schemas/PromptShieldRequirement"
+          nullable: true
+        pii_detection:
+          allOf:
+          - $ref: "#/components/schemas/PiiDetectionRequirement-Output"
+          nullable: true
+        topic_restriction:
+          allOf:
+          - $ref: "#/components/schemas/TopicRestrictionRequirement"
+          nullable: true
+        groundedness:
+          allOf:
+          - $ref: "#/components/schemas/GroundednessRequirement"
+          nullable: true
+      title: PolicyControls
+    PolicyCreate:
+      example:
+        controls:
+          content_tracing: ""
+          content_filter: ""
+          pii_detection: ""
+          groundedness: ""
+          topic_restriction: ""
+          data_retention: ""
+          prompt_shield: ""
+        is_active: true
+        scope_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        name: name
+        description: description
+        scope_type: global
+        exceptions:
+        - 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        - 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+      properties:
+        name:
+          minLength: 1
+          title: Name
+          type: string
+        description:
+          nullable: true
+          type: string
+        scope_type:
+          $ref: "#/components/schemas/PolicyScopeType"
+        scope_id:
+          format: uuid
+          nullable: true
+          type: string
+        controls:
+          $ref: "#/components/schemas/PolicyControls-Input"
+        is_active:
+          default: true
+          title: Is Active
+          type: boolean
+        exceptions:
+          items:
+            format: uuid
+            type: string
+          type: array
+      required:
+      - controls
+      - name
+      - scope_type
+      title: PolicyCreate
+    PolicyImpactResponse:
+      example:
+        affected_assets: 0
+        non_compliant_assets: 6
+      properties:
+        affected_assets:
+          title: Affected Assets
+          type: integer
+        non_compliant_assets:
+          title: Non Compliant Assets
+          type: integer
+      required:
+      - affected_assets
+      - non_compliant_assets
+      title: PolicyImpactResponse
+    PolicyResponse:
+      example:
+        controls:
+          content_tracing: ""
+          content_filter: ""
+          pii_detection: ""
+          groundedness: ""
+          topic_restriction: ""
+          data_retention: ""
+          prompt_shield: ""
+        is_active: true
+        _links:
+          key:
+            href: href
+            type: ""
+        description: description
+        created_at: 2000-01-23T04:56:07.000+00:00
+        compliance_summary: ""
+        created_by: created_by
+        exceptions:
+        - 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        - 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        updated_at: 2000-01-23T04:56:07.000+00:00
+        scope_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        name: name
+        updated_by: updated_by
+        id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        scope_type: global
+      properties:
+        _links:
+          additionalProperties:
+            $ref: "#/components/schemas/HateoasLink"
+          nullable: true
+        id:
+          format: uuid
+          title: Id
+          type: string
+        name:
+          title: Name
+          type: string
+        description:
+          nullable: true
+          type: string
+        scope_type:
+          $ref: "#/components/schemas/PolicyScopeType"
+        scope_id:
+          format: uuid
+          nullable: true
+          type: string
+        controls:
+          $ref: "#/components/schemas/PolicyControls-Output"
+        is_active:
+          title: Is Active
+          type: boolean
+        exceptions:
+          items:
+            format: uuid
+            type: string
+          type: array
+        created_by:
+          title: Created By
+          type: string
+        updated_by:
+          title: Updated By
+          type: string
+        created_at:
+          format: date-time
+          title: Created At
+          type: string
+        updated_at:
+          format: date-time
+          title: Updated At
+          type: string
+        compliance_summary:
+          allOf:
+          - $ref: "#/components/schemas/ComplianceSummary"
+          nullable: true
+      required:
+      - controls
+      - created_at
+      - created_by
+      - id
+      - is_active
+      - name
+      - scope_type
+      - updated_at
+      - updated_by
+      title: PolicyResponse
+    PolicyScopeType:
+      enum:
+      - global
+      - project
+      - capability
+      title: PolicyScopeType
+      type: string
+    PolicyUpdate:
+      example:
+        controls: ""
+        is_active: true
+        scope_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        name: name
+        description: description
+        scope_type: ""
+        exceptions:
+        - 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        - 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+      properties:
+        name:
+          minLength: 1
+          nullable: true
+          type: string
+        description:
+          nullable: true
+          type: string
+        scope_type:
+          allOf:
+          - $ref: "#/components/schemas/PolicyScopeType"
+          nullable: true
+        scope_id:
+          format: uuid
+          nullable: true
+          type: string
+        controls:
+          allOf:
+          - $ref: "#/components/schemas/PolicyControls-Input"
+          nullable: true
+        is_active:
+          nullable: true
+          type: boolean
+        exceptions:
+          items:
+            format: uuid
+            type: string
+          nullable: true
+          type: array
+      title: PolicyUpdate
     Project:
       example:
         owner: owner
@@ -6528,8 +12112,20 @@ components:
       required:
       - name
       title: ProjectUpdate
+    PromptShieldRequirement:
+      properties:
+        enabled:
+          default: true
+          title: Enabled
+          type: boolean
+      title: PromptShieldRequirement
     ProviderHealthResponse:
-      description: Health check response for a model provider.
+      description: |-
+        Credential-only health response for a model provider.
+
+        Reflects whether the provider's stored credentials authenticate
+        successfully against the upstream service. Per-model availability is
+        reported by ``DeploymentHealthResponse`` on the deployment endpoint.
       example:
         error_message: error_message
         checked_at: 2000-01-23T04:56:07.000+00:00
@@ -6592,6 +12188,207 @@ components:
       required:
       - valid
       title: ProviderValidationResponse
+    RemoveControlsResponse:
+      example:
+        message: message
+        removed_controls:
+        - policy_name: policy_name
+          control: control
+        - policy_name: policy_name
+          control: control
+      properties:
+        removed_controls:
+          items:
+            $ref: "#/components/schemas/RemovedControl"
+          type: array
+        message:
+          title: Message
+          type: string
+      required:
+      - message
+      - removed_controls
+      title: RemoveControlsResponse
+    RemovedControl:
+      example:
+        policy_name: policy_name
+        control: control
+      properties:
+        control:
+          title: Control
+          type: string
+        policy_name:
+          title: Policy Name
+          type: string
+      required:
+      - control
+      - policy_name
+      title: RemovedControl
+    Role:
+      example:
+        is_superuser: true
+        updated_at: 2000-01-23T04:56:07.000+00:00
+        _links:
+          key:
+            href: href
+            type: ""
+        permissions:
+        - projects:read
+        - projects:read
+        name: name
+        description: description
+        created_at: 2000-01-23T04:56:07.000+00:00
+        is_built_in: true
+        id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        created_by: created_by
+      properties:
+        _links:
+          additionalProperties:
+            $ref: "#/components/schemas/HateoasLink"
+          nullable: true
+        id:
+          format: uuid
+          title: Id
+          type: string
+        name:
+          title: Name
+          type: string
+        description:
+          nullable: true
+          type: string
+        permissions:
+          items:
+            $ref: "#/components/schemas/Permission"
+          type: array
+        is_built_in:
+          title: Is Built In
+          type: boolean
+        is_superuser:
+          title: Is Superuser
+          type: boolean
+        created_by:
+          nullable: true
+          type: string
+        created_at:
+          format: date-time
+          title: Created At
+          type: string
+        updated_at:
+          format: date-time
+          title: Updated At
+          type: string
+      required:
+      - created_at
+      - id
+      - is_built_in
+      - is_superuser
+      - name
+      - updated_at
+      title: Role
+    RoleCreate:
+      example:
+        permissions:
+        - projects:read
+        - projects:read
+        name: name
+        description: description
+      properties:
+        name:
+          minLength: 1
+          title: Name
+          type: string
+        description:
+          nullable: true
+          type: string
+        permissions:
+          items:
+            $ref: "#/components/schemas/Permission"
+          type: array
+      required:
+      - name
+      title: RoleCreate
+    RoleUpdate:
+      example:
+        permissions:
+        - projects:read
+        - projects:read
+        name: name
+        description: description
+      properties:
+        name:
+          minLength: 1
+          title: Name
+          type: string
+        description:
+          nullable: true
+          type: string
+        permissions:
+          items:
+            $ref: "#/components/schemas/Permission"
+          type: array
+      required:
+      - name
+      title: RoleUpdate
+    ScanCategory:
+      enum:
+      - content_filter
+      - prompt_shield
+      - pii_detection
+      - topic_restriction
+      - groundedness
+      title: ScanCategory
+      type: string
+    ScanDirection:
+      enum:
+      - input
+      - output
+      title: ScanDirection
+      type: string
+    ScanResult:
+      example:
+        reason: reason
+        score: 0.8008281904610115
+        detected_items:
+        - detected_items
+        - detected_items
+        scanner_warning: false
+        passed: true
+        category: content_filter
+        sanitized_text: sanitized_text
+      properties:
+        passed:
+          title: Passed
+          type: boolean
+        category:
+          $ref: "#/components/schemas/ScanCategory"
+        reason:
+          nullable: true
+          type: string
+        detected_items:
+          default: []
+          items:
+            type: string
+          type: array
+        sanitized_text:
+          nullable: true
+          type: string
+        score:
+          nullable: true
+          type: number
+        scanner_warning:
+          default: false
+          title: Scanner Warning
+          type: boolean
+      required:
+      - category
+      - passed
+      title: ScanResult
+    SeverityLevel:
+      enum:
+      - low
+      - medium
+      - high
+      title: SeverityLevel
+      type: string
     SpeechToTextCapability:
       properties:
         _links:
@@ -6785,6 +12582,52 @@ components:
       - sse
       title: StreamingTransport
       type: string
+    TestResult:
+      properties:
+        name:
+          title: Name
+          type: string
+        success:
+          title: Success
+          type: boolean
+        metrics_data:
+          items:
+            $ref: "#/components/schemas/MetricData"
+          nullable: true
+          type: array
+        conversational:
+          title: Conversational
+          type: boolean
+        multimodal:
+          nullable: true
+          type: boolean
+        input:
+          $ref: "#/components/schemas/Input"
+        actual_output:
+          $ref: "#/components/schemas/Actual_Output"
+        expected_output:
+          nullable: true
+          type: string
+        context:
+          items:
+            type: string
+          nullable: true
+          type: array
+        retrieval_context:
+          items:
+            type: string
+          nullable: true
+          type: array
+        additional_metadata:
+          additionalProperties: true
+          nullable: true
+          type: object
+      required:
+      - conversational
+      - metrics_data
+      - name
+      - success
+      title: TestResult
     TimedDataRetention:
       properties:
         type:
@@ -6842,12 +12685,133 @@ components:
       - id
       - type
       title: ToolCallMessage
+    TopicRestrictionMode:
+      enum:
+      - allowlist
+      - blocklist
+      title: TopicRestrictionMode
+      type: string
+    TopicRestrictionRequirement:
+      properties:
+        enabled:
+          default: true
+          title: Enabled
+          type: boolean
+        mode:
+          $ref: "#/components/schemas/TopicRestrictionMode"
+        topics:
+          items:
+            type: string
+          minItems: 1
+          type: array
+        threshold:
+          default: 0.75
+          description: Confidence threshold for zero-shot topic classification. Higher
+            = fewer false positives. Default 0.75 is recommended.
+          maximum: 1.0
+          minimum: 0.0
+          title: Threshold
+          type: number
+      required:
+      - mode
+      - topics
+      title: TopicRestrictionRequirement
+    UserRBAC:
+      example:
+        role_name: role_name
+        last_login_at: 2000-01-23T04:56:07.000+00:00
+        is_active: true
+        is_superuser: false
+        idp: idp
+        _links:
+          key:
+            href: href
+            type: ""
+        role_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        permissions:
+        - projects:read
+        - projects:read
+        deactivated_at: 2000-01-23T04:56:07.000+00:00
+        created_at: 2000-01-23T04:56:07.000+00:00
+        id: id
+        username: username
+      properties:
+        _links:
+          additionalProperties:
+            $ref: "#/components/schemas/HateoasLink"
+          nullable: true
+        id:
+          title: Id
+          type: string
+        username:
+          title: Username
+          type: string
+        idp:
+          nullable: true
+          type: string
+        role_id:
+          format: uuid
+          title: Role Id
+          type: string
+        role_name:
+          title: Role Name
+          type: string
+        is_active:
+          title: Is Active
+          type: boolean
+        is_superuser:
+          default: false
+          title: Is Superuser
+          type: boolean
+        permissions:
+          items:
+            $ref: "#/components/schemas/Permission"
+          type: array
+        created_at:
+          format: date-time
+          title: Created At
+          type: string
+        deactivated_at:
+          format: date-time
+          title: Deactivated At
+          type: string
+        last_login_at:
+          format: date-time
+          title: Last Login At
+          type: string
+      required:
+      - created_at
+      - id
+      - is_active
+      - role_id
+      - role_name
+      - username
+      title: UserRBAC
+    UserUpdate:
+      example:
+        role_name: role_name
+        is_active: true
+        role_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+      properties:
+        role_id:
+          format: uuid
+          nullable: true
+          type: string
+        role_name:
+          nullable: true
+          type: string
+        is_active:
+          nullable: true
+          type: boolean
+      title: UserUpdate
     ValidationError:
       example:
         msg: msg
         loc:
         - ValidationError_loc_inner
         - ValidationError_loc_inner
+        input: ""
+        ctx: "{}"
         type: type
       properties:
         loc:
@@ -6860,6 +12824,11 @@ components:
         type:
           title: Error Type
           type: string
+        input:
+          title: Input
+        ctx:
+          title: Context
+          type: object
       required:
       - loc
       - msg
@@ -6882,6 +12851,7 @@ components:
     Capability_Id:
       anyOf:
       - format: uuid
+        nullable: true
         type: string
       - nullable: true
         type: string
@@ -7044,6 +13014,26 @@ components:
         type: array
       nullable: true
       title: Content
+    Input_anyOf_inner:
+      anyOf:
+      - type: string
+      - $ref: "#/components/schemas/MLLMImage"
+    Input:
+      anyOf:
+      - type: string
+      - items:
+          $ref: "#/components/schemas/Input_anyOf_inner"
+        type: array
+      nullable: true
+      title: Input
+    Actual_Output:
+      anyOf:
+      - type: string
+      - items:
+          $ref: "#/components/schemas/Input_anyOf_inner"
+        type: array
+      nullable: true
+      title: Actual Output
     ValidationError_loc_inner:
       anyOf:
       - type: string
