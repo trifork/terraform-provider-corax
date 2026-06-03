@@ -127,6 +127,7 @@ func (p *CoraxProvider) Resources(ctx context.Context) []func() resource.Resourc
 		NewProjectResource,
 		NewChatCapabilityResource,             // Added Chat Capability
 		NewCompletionCapabilityResource,       // Added Completion Capability
+		NewSpeechToTextCapabilityResource,     // Added Speech-to-Text Capability
 		NewModelDeploymentResource,            // Added Model Deployment
 		NewModelProviderResource,              // Added Model Provider
 		NewCapabilityTypeDefaultModelResource, // Added Capability Type Default Model
