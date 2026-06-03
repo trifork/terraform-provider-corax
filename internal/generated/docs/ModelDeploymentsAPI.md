@@ -6,8 +6,10 @@ Method | HTTP request | Description
 ------------- | ------------- | -------------
 [**CreateModelDeploymentV1ModelDeploymentsPost**](ModelDeploymentsAPI.md#CreateModelDeploymentV1ModelDeploymentsPost) | **Post** /v1/model-deployments | Create Model Deployment
 [**DeleteModelDeploymentV1ModelDeploymentsDeploymentIdDelete**](ModelDeploymentsAPI.md#DeleteModelDeploymentV1ModelDeploymentsDeploymentIdDelete) | **Delete** /v1/model-deployments/{deployment_id} | Delete Model Deployment
+[**GetModelDeploymentHealthV1ModelDeploymentsDeploymentIdHealthGet**](ModelDeploymentsAPI.md#GetModelDeploymentHealthV1ModelDeploymentsDeploymentIdHealthGet) | **Get** /v1/model-deployments/{deployment_id}/health | Get Model Deployment Health
 [**GetModelDeploymentV1ModelDeploymentsDeploymentIdGet**](ModelDeploymentsAPI.md#GetModelDeploymentV1ModelDeploymentsDeploymentIdGet) | **Get** /v1/model-deployments/{deployment_id} | Get Model Deployment
 [**ListModelDeploymentsV1ModelDeploymentsGet**](ModelDeploymentsAPI.md#ListModelDeploymentsV1ModelDeploymentsGet) | **Get** /v1/model-deployments | List Model Deployments
+[**TriggerModelDeploymentHealthCheckV1ModelDeploymentsDeploymentIdHealthCheckPost**](ModelDeploymentsAPI.md#TriggerModelDeploymentHealthCheckV1ModelDeploymentsDeploymentIdHealthCheckPost) | **Post** /v1/model-deployments/{deployment_id}/health-check | Trigger Model Deployment Health Check
 [**UpdateModelDeploymentV1ModelDeploymentsDeploymentIdPut**](ModelDeploymentsAPI.md#UpdateModelDeploymentV1ModelDeploymentsDeploymentIdPut) | **Put** /v1/model-deployments/{deployment_id} | Update Model Deployment
 
 
@@ -131,6 +133,76 @@ Name | Type | Description  | Notes
 ### Return type
 
  (empty response body)
+
+### Authorization
+
+[APIKeyHeader](../README.md#APIKeyHeader), [HTTPBearer](../README.md#HTTPBearer)
+
+### HTTP request headers
+
+- **Content-Type**: Not defined
+- **Accept**: application/json
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints)
+[[Back to Model list]](../README.md#documentation-for-models)
+[[Back to README]](../README.md)
+
+
+## GetModelDeploymentHealthV1ModelDeploymentsDeploymentIdHealthGet
+
+> DeploymentHealthResponse GetModelDeploymentHealthV1ModelDeploymentsDeploymentIdHealthGet(ctx, deploymentId).Execute()
+
+Get Model Deployment Health
+
+
+
+### Example
+
+```go
+package main
+
+import (
+	"context"
+	"fmt"
+	"os"
+	openapiclient "github.com/GIT_USER_ID/GIT_REPO_ID/api"
+)
+
+func main() {
+	deploymentId := "38400000-8cf0-11bd-b23e-10b96e4ef00d" // string | 
+
+	configuration := openapiclient.NewConfiguration()
+	apiClient := openapiclient.NewAPIClient(configuration)
+	resp, r, err := apiClient.ModelDeploymentsAPI.GetModelDeploymentHealthV1ModelDeploymentsDeploymentIdHealthGet(context.Background(), deploymentId).Execute()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error when calling `ModelDeploymentsAPI.GetModelDeploymentHealthV1ModelDeploymentsDeploymentIdHealthGet``: %v\n", err)
+		fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
+	}
+	// response from `GetModelDeploymentHealthV1ModelDeploymentsDeploymentIdHealthGet`: DeploymentHealthResponse
+	fmt.Fprintf(os.Stdout, "Response from `ModelDeploymentsAPI.GetModelDeploymentHealthV1ModelDeploymentsDeploymentIdHealthGet`: %v\n", resp)
+}
+```
+
+### Path Parameters
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+**ctx** | **context.Context** | context for authentication, logging, cancellation, deadlines, tracing, etc.
+**deploymentId** | **string** |  | 
+
+### Other Parameters
+
+Other parameters are passed through a pointer to a apiGetModelDeploymentHealthV1ModelDeploymentsDeploymentIdHealthGetRequest struct via the builder pattern
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+
+
+### Return type
+
+[**DeploymentHealthResponse**](DeploymentHealthResponse.md)
 
 ### Authorization
 
@@ -273,6 +345,76 @@ Name | Type | Description  | Notes
 ### Return type
 
 [**PagedResponseModelModelDeployment**](PagedResponseModelModelDeployment.md)
+
+### Authorization
+
+[APIKeyHeader](../README.md#APIKeyHeader), [HTTPBearer](../README.md#HTTPBearer)
+
+### HTTP request headers
+
+- **Content-Type**: Not defined
+- **Accept**: application/json
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints)
+[[Back to Model list]](../README.md#documentation-for-models)
+[[Back to README]](../README.md)
+
+
+## TriggerModelDeploymentHealthCheckV1ModelDeploymentsDeploymentIdHealthCheckPost
+
+> DeploymentHealthResponse TriggerModelDeploymentHealthCheckV1ModelDeploymentsDeploymentIdHealthCheckPost(ctx, deploymentId).Execute()
+
+Trigger Model Deployment Health Check
+
+
+
+### Example
+
+```go
+package main
+
+import (
+	"context"
+	"fmt"
+	"os"
+	openapiclient "github.com/GIT_USER_ID/GIT_REPO_ID/api"
+)
+
+func main() {
+	deploymentId := "38400000-8cf0-11bd-b23e-10b96e4ef00d" // string | 
+
+	configuration := openapiclient.NewConfiguration()
+	apiClient := openapiclient.NewAPIClient(configuration)
+	resp, r, err := apiClient.ModelDeploymentsAPI.TriggerModelDeploymentHealthCheckV1ModelDeploymentsDeploymentIdHealthCheckPost(context.Background(), deploymentId).Execute()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error when calling `ModelDeploymentsAPI.TriggerModelDeploymentHealthCheckV1ModelDeploymentsDeploymentIdHealthCheckPost``: %v\n", err)
+		fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
+	}
+	// response from `TriggerModelDeploymentHealthCheckV1ModelDeploymentsDeploymentIdHealthCheckPost`: DeploymentHealthResponse
+	fmt.Fprintf(os.Stdout, "Response from `ModelDeploymentsAPI.TriggerModelDeploymentHealthCheckV1ModelDeploymentsDeploymentIdHealthCheckPost`: %v\n", resp)
+}
+```
+
+### Path Parameters
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+**ctx** | **context.Context** | context for authentication, logging, cancellation, deadlines, tracing, etc.
+**deploymentId** | **string** |  | 
+
+### Other Parameters
+
+Other parameters are passed through a pointer to a apiTriggerModelDeploymentHealthCheckV1ModelDeploymentsDeploymentIdHealthCheckPostRequest struct via the builder pattern
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+
+
+### Return type
+
+[**DeploymentHealthResponse**](DeploymentHealthResponse.md)
 
 ### Authorization
 

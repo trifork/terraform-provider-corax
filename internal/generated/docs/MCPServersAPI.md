@@ -4,17 +4,92 @@ All URIs are relative to *http://localhost*
 
 Method | HTTP request | Description
 ------------- | ------------- | -------------
+[**CallMcpServerToolV1McpServersServerIdToolsCallPost**](MCPServersAPI.md#CallMcpServerToolV1McpServersServerIdToolsCallPost) | **Post** /v1/mcp-servers/{server_id}/tools/call | Call a tool directly on an MCP server
 [**CheckMcpServerHealthV1McpServersServerIdHealthGet**](MCPServersAPI.md#CheckMcpServerHealthV1McpServersServerIdHealthGet) | **Get** /v1/mcp-servers/{server_id}/health | Check MCP server health status
 [**CreateMcpServerV1McpServersPost**](MCPServersAPI.md#CreateMcpServerV1McpServersPost) | **Post** /v1/mcp-servers | Create a new MCP server
 [**DeleteMcpServerV1McpServersServerIdDelete**](MCPServersAPI.md#DeleteMcpServerV1McpServersServerIdDelete) | **Delete** /v1/mcp-servers/{server_id} | Delete an MCP server
+[**GetMcpServerConnectedCapabilitiesV1McpServersServerIdConnectedCapabilitiesGet**](MCPServersAPI.md#GetMcpServerConnectedCapabilitiesV1McpServersServerIdConnectedCapabilitiesGet) | **Get** /v1/mcp-servers/{server_id}/connected-capabilities | Get capabilities connected to this MCP server
 [**GetMcpServerEntitiesV1McpServersServerIdEntitiesGet**](MCPServersAPI.md#GetMcpServerEntitiesV1McpServersServerIdEntitiesGet) | **Get** /v1/mcp-servers/{server_id}/entities | Get all entities from an MCP server
 [**GetMcpServerPromptsV1McpServersServerIdPromptsGet**](MCPServersAPI.md#GetMcpServerPromptsV1McpServersServerIdPromptsGet) | **Get** /v1/mcp-servers/{server_id}/prompts | Get all prompts from an MCP server
 [**GetMcpServerResourcesV1McpServersServerIdResourcesGet**](MCPServersAPI.md#GetMcpServerResourcesV1McpServersServerIdResourcesGet) | **Get** /v1/mcp-servers/{server_id}/resources | Get all resources from an MCP server
 [**GetMcpServerToolsV1McpServersServerIdToolsGet**](MCPServersAPI.md#GetMcpServerToolsV1McpServersServerIdToolsGet) | **Get** /v1/mcp-servers/{server_id}/tools | Get all tools from an MCP server
 [**GetMcpServerV1McpServersServerIdGet**](MCPServersAPI.md#GetMcpServerV1McpServersServerIdGet) | **Get** /v1/mcp-servers/{server_id} | Get MCP server by ID
 [**ListMcpServersV1McpServersGet**](MCPServersAPI.md#ListMcpServersV1McpServersGet) | **Get** /v1/mcp-servers | List MCP servers
+[**ReadMcpServerResourceV1McpServersServerIdResourcesReadPost**](MCPServersAPI.md#ReadMcpServerResourceV1McpServersServerIdResourcesReadPost) | **Post** /v1/mcp-servers/{server_id}/resources/read | Read a resource from an MCP server
 [**UpdateMcpServerV1McpServersServerIdPut**](MCPServersAPI.md#UpdateMcpServerV1McpServersServerIdPut) | **Put** /v1/mcp-servers/{server_id} | Update an existing MCP server
 
+
+
+## CallMcpServerToolV1McpServersServerIdToolsCallPost
+
+> MCPToolCallResponse CallMcpServerToolV1McpServersServerIdToolsCallPost(ctx, serverId).MCPToolCallRequest(mCPToolCallRequest).Execute()
+
+Call a tool directly on an MCP server
+
+
+
+### Example
+
+```go
+package main
+
+import (
+	"context"
+	"fmt"
+	"os"
+	openapiclient "github.com/GIT_USER_ID/GIT_REPO_ID/api"
+)
+
+func main() {
+	serverId := "38400000-8cf0-11bd-b23e-10b96e4ef00d" // string | 
+	mCPToolCallRequest := *openapiclient.NewMCPToolCallRequest("Name_example") // MCPToolCallRequest | 
+
+	configuration := openapiclient.NewConfiguration()
+	apiClient := openapiclient.NewAPIClient(configuration)
+	resp, r, err := apiClient.MCPServersAPI.CallMcpServerToolV1McpServersServerIdToolsCallPost(context.Background(), serverId).MCPToolCallRequest(mCPToolCallRequest).Execute()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error when calling `MCPServersAPI.CallMcpServerToolV1McpServersServerIdToolsCallPost``: %v\n", err)
+		fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
+	}
+	// response from `CallMcpServerToolV1McpServersServerIdToolsCallPost`: MCPToolCallResponse
+	fmt.Fprintf(os.Stdout, "Response from `MCPServersAPI.CallMcpServerToolV1McpServersServerIdToolsCallPost`: %v\n", resp)
+}
+```
+
+### Path Parameters
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+**ctx** | **context.Context** | context for authentication, logging, cancellation, deadlines, tracing, etc.
+**serverId** | **string** |  | 
+
+### Other Parameters
+
+Other parameters are passed through a pointer to a apiCallMcpServerToolV1McpServersServerIdToolsCallPostRequest struct via the builder pattern
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+
+ **mCPToolCallRequest** | [**MCPToolCallRequest**](MCPToolCallRequest.md) |  | 
+
+### Return type
+
+[**MCPToolCallResponse**](MCPToolCallResponse.md)
+
+### Authorization
+
+[APIKeyHeader](../README.md#APIKeyHeader), [HTTPBearer](../README.md#HTTPBearer)
+
+### HTTP request headers
+
+- **Content-Type**: application/json
+- **Accept**: application/json
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints)
+[[Back to Model list]](../README.md#documentation-for-models)
+[[Back to README]](../README.md)
 
 
 ## CheckMcpServerHealthV1McpServersServerIdHealthGet
@@ -206,6 +281,76 @@ Name | Type | Description  | Notes
 ### Return type
 
  (empty response body)
+
+### Authorization
+
+[APIKeyHeader](../README.md#APIKeyHeader), [HTTPBearer](../README.md#HTTPBearer)
+
+### HTTP request headers
+
+- **Content-Type**: Not defined
+- **Accept**: application/json
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints)
+[[Back to Model list]](../README.md#documentation-for-models)
+[[Back to README]](../README.md)
+
+
+## GetMcpServerConnectedCapabilitiesV1McpServersServerIdConnectedCapabilitiesGet
+
+> []ConnectedCapabilityResponse GetMcpServerConnectedCapabilitiesV1McpServersServerIdConnectedCapabilitiesGet(ctx, serverId).Execute()
+
+Get capabilities connected to this MCP server
+
+
+
+### Example
+
+```go
+package main
+
+import (
+	"context"
+	"fmt"
+	"os"
+	openapiclient "github.com/GIT_USER_ID/GIT_REPO_ID/api"
+)
+
+func main() {
+	serverId := "38400000-8cf0-11bd-b23e-10b96e4ef00d" // string | 
+
+	configuration := openapiclient.NewConfiguration()
+	apiClient := openapiclient.NewAPIClient(configuration)
+	resp, r, err := apiClient.MCPServersAPI.GetMcpServerConnectedCapabilitiesV1McpServersServerIdConnectedCapabilitiesGet(context.Background(), serverId).Execute()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error when calling `MCPServersAPI.GetMcpServerConnectedCapabilitiesV1McpServersServerIdConnectedCapabilitiesGet``: %v\n", err)
+		fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
+	}
+	// response from `GetMcpServerConnectedCapabilitiesV1McpServersServerIdConnectedCapabilitiesGet`: []ConnectedCapabilityResponse
+	fmt.Fprintf(os.Stdout, "Response from `MCPServersAPI.GetMcpServerConnectedCapabilitiesV1McpServersServerIdConnectedCapabilitiesGet`: %v\n", resp)
+}
+```
+
+### Path Parameters
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+**ctx** | **context.Context** | context for authentication, logging, cancellation, deadlines, tracing, etc.
+**serverId** | **string** |  | 
+
+### Other Parameters
+
+Other parameters are passed through a pointer to a apiGetMcpServerConnectedCapabilitiesV1McpServersServerIdConnectedCapabilitiesGetRequest struct via the builder pattern
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+
+
+### Return type
+
+[**[]ConnectedCapabilityResponse**](ConnectedCapabilityResponse.md)
 
 ### Authorization
 
@@ -636,6 +781,78 @@ Name | Type | Description  | Notes
 ### HTTP request headers
 
 - **Content-Type**: Not defined
+- **Accept**: application/json
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints)
+[[Back to Model list]](../README.md#documentation-for-models)
+[[Back to README]](../README.md)
+
+
+## ReadMcpServerResourceV1McpServersServerIdResourcesReadPost
+
+> MCPResourceReadResponse ReadMcpServerResourceV1McpServersServerIdResourcesReadPost(ctx, serverId).MCPResourceReadRequest(mCPResourceReadRequest).Execute()
+
+Read a resource from an MCP server
+
+
+
+### Example
+
+```go
+package main
+
+import (
+	"context"
+	"fmt"
+	"os"
+	openapiclient "github.com/GIT_USER_ID/GIT_REPO_ID/api"
+)
+
+func main() {
+	serverId := "38400000-8cf0-11bd-b23e-10b96e4ef00d" // string | 
+	mCPResourceReadRequest := *openapiclient.NewMCPResourceReadRequest("Uri_example") // MCPResourceReadRequest | 
+
+	configuration := openapiclient.NewConfiguration()
+	apiClient := openapiclient.NewAPIClient(configuration)
+	resp, r, err := apiClient.MCPServersAPI.ReadMcpServerResourceV1McpServersServerIdResourcesReadPost(context.Background(), serverId).MCPResourceReadRequest(mCPResourceReadRequest).Execute()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error when calling `MCPServersAPI.ReadMcpServerResourceV1McpServersServerIdResourcesReadPost``: %v\n", err)
+		fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
+	}
+	// response from `ReadMcpServerResourceV1McpServersServerIdResourcesReadPost`: MCPResourceReadResponse
+	fmt.Fprintf(os.Stdout, "Response from `MCPServersAPI.ReadMcpServerResourceV1McpServersServerIdResourcesReadPost`: %v\n", resp)
+}
+```
+
+### Path Parameters
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+**ctx** | **context.Context** | context for authentication, logging, cancellation, deadlines, tracing, etc.
+**serverId** | **string** |  | 
+
+### Other Parameters
+
+Other parameters are passed through a pointer to a apiReadMcpServerResourceV1McpServersServerIdResourcesReadPostRequest struct via the builder pattern
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+
+ **mCPResourceReadRequest** | [**MCPResourceReadRequest**](MCPResourceReadRequest.md) |  | 
+
+### Return type
+
+[**MCPResourceReadResponse**](MCPResourceReadResponse.md)
+
+### Authorization
+
+[APIKeyHeader](../README.md#APIKeyHeader), [HTTPBearer](../README.md#HTTPBearer)
+
+### HTTP request headers
+
+- **Content-Type**: application/json
 - **Accept**: application/json
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints)

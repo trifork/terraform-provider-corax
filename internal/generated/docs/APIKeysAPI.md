@@ -27,12 +27,11 @@ import (
 	"context"
 	"fmt"
 	"os"
-    "time"
 	openapiclient "github.com/GIT_USER_ID/GIT_REPO_ID/api"
 )
 
 func main() {
-	apiKeyCreate := *openapiclient.NewApiKeyCreate("Name_example", time.Now()) // ApiKeyCreate | 
+	apiKeyCreate := *openapiclient.NewApiKeyCreate("Name_example") // ApiKeyCreate | 
 
 	configuration := openapiclient.NewConfiguration()
 	apiClient := openapiclient.NewAPIClient(configuration)
