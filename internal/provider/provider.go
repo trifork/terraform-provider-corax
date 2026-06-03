@@ -131,6 +131,7 @@ func (p *CoraxProvider) Resources(ctx context.Context) []func() resource.Resourc
 		NewModelDeploymentResource,            // Added Model Deployment
 		NewModelProviderResource,              // Added Model Provider
 		NewCapabilityTypeDefaultModelResource, // Added Capability Type Default Model
+		NewMCPServerResource,                  // Added MCP Server
 		// NewCollectionResource, // Removed as per new scope
 		// NewDocumentResource,   // Removed as per new scope
 		// NewEmbeddingsModelResource, // Removed as per new scope

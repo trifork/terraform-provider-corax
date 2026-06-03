@@ -26,6 +26,7 @@ Manages a Corax Chat Capability. Chat capabilities define configurations for con
 - `is_public` (Boolean) Indicates whether the capability is publicly accessible. Defaults to false.
 - `model_id` (String) The UUID of the model deployment to use for this capability. If not provided, a default model for 'chat' type may be used by the API.
 - `project_id` (String) The UUID of the project this capability belongs to. If not provided, it might be associated with a default or no project.
+- `semantic_id` (String) A semantic identifier for the chat capability that can be used for referencing.
 
 ### Read-Only
 
@@ -46,6 +47,7 @@ Optional:
 - `content_tracing` (Boolean) Whether content (prompts, completion data, variables) should be recorded in observability systems. Automatically set to false by the API for timed data retention.
 - `custom_parameters` (Dynamic) Custom parameters as a map of key-value pairs. Values can be strings, numbers, or booleans.
 - `data_retention` (Attributes) Defines how long execution input and output data should be kept. Configure with 'type' and optionally 'hours'. (see [below for nested schema](#nestedatt--config--data_retention))
+- `mcp_server_ids` (List of String) List of MCP server IDs (UUIDs) to attach to the capability.
 - `temperature` (Number) Controls randomness in response generation (0.0 to 1.0). Higher values make output more random.
 
 <a id="nestedatt--config--blob_config"></a>

@@ -29,6 +29,7 @@ type CapabilityConfigModel struct {
 	DataRetention    types.Object  `tfsdk:"data_retention"`    // Polymorphic: TimedDataRetention or InfiniteDataRetention
 	ContentTracing   types.Bool    `tfsdk:"content_tracing"`   // Default true
 	CustomParameters types.Dynamic `tfsdk:"custom_parameters"` // Nullable, flexible key-value map
+	McpServerIds     types.List    `tfsdk:"mcp_server_ids"`    // Nullable list of MCP server UUIDs
 }
 
 // BlobConfigModel maps to components.schemas.BlobConfig.
@@ -116,6 +117,7 @@ func capabilityConfigAttributeTypes() map[string]attr.Type {
 		"data_retention":    types.ObjectType{AttrTypes: dataRetentionAttributeTypes()},
 		"content_tracing":   types.BoolType,
 		"custom_parameters": types.DynamicType,
+		"mcp_server_ids":    types.ListType{ElemType: types.StringType},
 	}
 }
 
@@ -196,6 +198,11 @@ func capabilityConfigSchemaAttributes() map[string]schema.Attribute {
 		"custom_parameters": schema.DynamicAttribute{
 			Optional:            true,
 			MarkdownDescription: "Custom parameters as a map of key-value pairs. Values can be strings, numbers, or booleans.",
+		},
+		"mcp_server_ids": schema.ListAttribute{
+			ElementType:         types.StringType,
+			Optional:            true,
+			MarkdownDescription: "List of MCP server IDs (UUIDs) to attach to the capability.",
 		},
 	}
 }
@@ -305,6 +312,16 @@ func capabilityConfigModelToAPI(ctx context.Context, modelConfig types.Object, d
 		}
 	}
 
+	if !cfgModel.McpServerIds.IsNull() && !cfgModel.McpServerIds.IsUnknown() {
+		var mcpServerIds []string
+		diags.Append(cfgModel.McpServerIds.ElementsAs(ctx, &mcpServerIds, false)...)
+		if diags.HasError() {
+			return nil
+		}
+		apiConfig.McpServerIds = mcpServerIds
+		hasChanges = true
+	}
+
 	if !hasChanges {
 		return nil
 	} // If no actual values were set in config, return nil to omit it from API payload
@@ -382,6 +399,14 @@ func capabilityConfigAPItoModel(ctx context.Context, apiConfig *api.CapabilityCo
 	}
 
 	attrs["custom_parameters"] = customParametersAPIToTerraform(apiConfig.CustomParameters, diags)
+
+	if apiConfig.McpServerIds != nil {
+		listVal, listDiags := types.ListValueFrom(ctx, types.StringType, apiConfig.McpServerIds)
+		diags.Append(listDiags...)
+		attrs["mcp_server_ids"] = listVal
+	} else {
+		attrs["mcp_server_ids"] = types.ListNull(types.StringType)
+	}
 
 	objVal, objDiags := types.ObjectValue(capabilityConfigAttributeTypes(), attrs)
 	diags.Append(objDiags...)
