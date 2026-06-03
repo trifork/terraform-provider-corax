@@ -830,6 +830,50 @@ func (c *Client) DeleteModelProvider(ctx context.Context, providerID string) err
 	return nil
 }
 
+// CreateSpeechToTextCapability creates a new speech-to-text capability.
+// Corresponds to POST /v1/capabilities.
+func (c *Client) CreateSpeechToTextCapability(ctx context.Context, create api.SpeechToTextCapabilityCreate) (*api.SpeechToTextCapability, error) {
+	cap1 := api.Capability1{SpeechToTextCapabilityCreate: &create}
+
+	result, resp, err := c.generated.CapabilitiesAPI.CreateCapabilityV1CapabilitiesPost(c.withAuth(ctx)).
+		Capability1(cap1).
+		Execute()
+
+	if err != nil {
+		return nil, convertError(err, resp)
+	}
+
+	if result == nil {
+		return nil, fmt.Errorf("nil response from create capability")
+	}
+	if result.SpeechToTextCapability != nil {
+		return result.SpeechToTextCapability, nil
+	}
+
+	return nil, fmt.Errorf("expected SpeechToTextCapability in response but got a different type")
+}
+
+// UpdateSpeechToTextCapability updates a speech-to-text capability by its ID.
+// Corresponds to PUT /v1/capabilities/{capability_id}.
+func (c *Client) UpdateSpeechToTextCapability(ctx context.Context, capabilityID string, update api.SpeechToTextCapabilityUpdate) (*api.CapabilityRepresentation, error) {
+	if strings.TrimSpace(capabilityID) == "" {
+		return nil, fmt.Errorf("capabilityID cannot be empty")
+	}
+
+	capId := api.CapabilityId1{String: &capabilityID}
+	cap2 := api.Capability2{SpeechToTextCapabilityUpdate: &update}
+
+	result, resp, err := c.generated.CapabilitiesAPI.UpdateCapabilityV1CapabilitiesCapabilityIdPut(c.withAuth(ctx), capId).
+		Capability2(cap2).
+		Execute()
+
+	if err != nil {
+		return nil, convertError(err, resp)
+	}
+
+	return result, nil
+}
+
 // --- MCPServer Methods ---
 
 // convertMCPServer converts a generated MCPServerResponse to our custom MCPServer type.
