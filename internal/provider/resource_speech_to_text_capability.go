@@ -176,7 +176,7 @@ func mapSpeechToTextCapabilityRepresentationToModel(apiCap *api.CapabilityRepres
 	}
 
 	// SystemPrompt is in apiCap.Configuration map for CapabilityRepresentation
-	if sysPrompt, ok := apiCap.Configuration["system_prompt"].(string); ok {
+	if sysPrompt, ok := apiCap.Configuration["system_prompt"].(string); ok && sysPrompt != "" {
 		model.SystemPrompt = types.StringValue(sysPrompt)
 	} else {
 		model.SystemPrompt = types.StringNull()
@@ -236,7 +236,7 @@ func mapSpeechToTextCapabilityCreateResponseToModel(apiCap *api.SpeechToTextCapa
 		model.SemanticID = types.StringNull()
 	}
 
-	if sysPrompt, ok := apiCap.GetSystemPromptOk(); ok && sysPrompt != nil {
+	if sysPrompt, ok := apiCap.GetSystemPromptOk(); ok && sysPrompt != nil && *sysPrompt != "" {
 		model.SystemPrompt = types.StringValue(*sysPrompt)
 	} else {
 		model.SystemPrompt = types.StringNull()

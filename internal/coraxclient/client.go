@@ -176,9 +176,9 @@ func (c *Client) CreateAPIKey(ctx context.Context, apiKeyData ApiKeyCreate) (*Ap
 
 	// Call the generated client
 	genApiKey := api.ApiKeyCreate{
-		Name:      apiKeyData.Name,
-		ExpiresAt: expiresAt,
+		Name: apiKeyData.Name,
 	}
+	genApiKey.SetExpiresAt(expiresAt)
 
 	result, resp, err := c.generated.APIKeysAPI.CreateApiKeyV1ApiKeysPost(c.withAuth(ctx)).
 		ApiKeyCreate(genApiKey).
