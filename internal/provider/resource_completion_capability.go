@@ -4,6 +4,7 @@
 package provider
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"errors"
@@ -30,6 +31,7 @@ import (
 // Ensure provider defined types fully satisfy framework interfaces.
 var _ resource.Resource = &CompletionCapabilityResource{}
 var _ resource.ResourceWithImportState = &CompletionCapabilityResource{}
+var _ resource.ResourceWithUpgradeState = &CompletionCapabilityResource{}
 
 func NewCompletionCapabilityResource() resource.Resource {
 	return &CompletionCapabilityResource{}
@@ -71,6 +73,8 @@ func (r *CompletionCapabilityResource) Metadata(ctx context.Context, req resourc
 
 func (r *CompletionCapabilityResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
+		// Version 1 introduces the schema_def state upgrade (pre-1.0 dynamic value -> JSON string).
+		Version:             1,
 		MarkdownDescription: "Manages a Corax Completion Capability. Completion capabilities define configurations for generating text completions, potentially with structured output.",
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
@@ -761,4 +765,154 @@ func (r *CompletionCapabilityResource) Delete(ctx context.Context, req resource.
 
 func (r *CompletionCapabilityResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
+}
+
+// --- State upgrade: schema_def dynamic (pre-1.0) -> JSON string (1.x) ---
+//
+// Releases before 1.0 (the bjarkehs/corax provider and the 0.x line) modeled
+// schema_def as a dynamic attribute, so existing state stores it as a structured
+// JSON value (typically an object). The 1.x schema models schema_def as a
+// JSON-encoded string. Without an upgrader, reading that prior state fails with
+// "unsupported type json.Delim sent as tftypes.String", which blocks every plan
+// and apply against pre-existing state.
+//
+// SchemaVersion is therefore 1 (see Schema), and this upgrader rewrites a
+// version-0 instance by carrying the prior structured schema_def across as its
+// JSON text. The value is corrected on the next Read regardless, so the only goal
+// here is to produce a state that decodes cleanly under the 1.x schema.
+
+// completionCapabilityResourceModelV0 mirrors the current model except schema_def,
+// which was a dynamic value in version-0 state.
+type completionCapabilityResourceModelV0 struct {
+	ID               types.String  `tfsdk:"id"`
+	Name             types.String  `tfsdk:"name"`
+	SemanticID       types.String  `tfsdk:"semantic_id"`
+	IsPublic         types.Bool    `tfsdk:"is_public"`
+	ModelID          types.String  `tfsdk:"model_id"`
+	Config           types.Object  `tfsdk:"config"`
+	ProjectID        types.String  `tfsdk:"project_id"`
+	SystemPrompt     types.String  `tfsdk:"system_prompt"`
+	CompletionPrompt types.String  `tfsdk:"completion_prompt"`
+	Variables        types.Set     `tfsdk:"variables"`
+	OutputType       types.String  `tfsdk:"output_type"`
+	SchemaDef        types.Dynamic `tfsdk:"schema_def"`
+	Owner            types.String  `tfsdk:"owner"`
+	Type             types.String  `tfsdk:"type"`
+	CreatedAt        types.String  `tfsdk:"created_at"`
+	UpdatedAt        types.String  `tfsdk:"updated_at"`
+	CreatedBy        types.String  `tfsdk:"created_by"`
+	UpdatedBy        types.String  `tfsdk:"updated_by"`
+}
+
+func (r *CompletionCapabilityResource) UpgradeState(ctx context.Context) map[int64]resource.StateUpgrader {
+	// The prior schema is the current schema with schema_def restored to a dynamic
+	// attribute, so version-0 state (where schema_def is a structured value) decodes
+	// cleanly. Reusing the current attributes keeps the two schemas in lock-step.
+	var schemaResp resource.SchemaResponse
+	r.Schema(ctx, resource.SchemaRequest{}, &schemaResp)
+
+	priorAttributes := make(map[string]schema.Attribute, len(schemaResp.Schema.Attributes))
+	for name, attribute := range schemaResp.Schema.Attributes {
+		priorAttributes[name] = attribute
+	}
+	priorAttributes["schema_def"] = schema.DynamicAttribute{
+		Optional:            true,
+		MarkdownDescription: "Pre-1.0 dynamic representation of the output schema.",
+	}
+
+	priorSchema := schema.Schema{
+		Version:    0,
+		Attributes: priorAttributes,
+	}
+
+	return map[int64]resource.StateUpgrader{
+		0: {
+			PriorSchema: &priorSchema,
+			StateUpgrader: func(ctx context.Context, req resource.UpgradeStateRequest, resp *resource.UpgradeStateResponse) {
+				var prior completionCapabilityResourceModelV0
+				resp.Diagnostics.Append(req.State.Get(ctx, &prior)...)
+				if resp.Diagnostics.HasError() {
+					return
+				}
+
+				var rawJSON []byte
+				if req.RawState != nil {
+					rawJSON = req.RawState.JSON
+				}
+
+				upgraded := CompletionCapabilityResourceModel{
+					ID:               prior.ID,
+					Name:             prior.Name,
+					SemanticID:       prior.SemanticID,
+					IsPublic:         prior.IsPublic,
+					ModelID:          prior.ModelID,
+					Config:           prior.Config,
+					ProjectID:        prior.ProjectID,
+					SystemPrompt:     prior.SystemPrompt,
+					CompletionPrompt: prior.CompletionPrompt,
+					Variables:        prior.Variables,
+					OutputType:       prior.OutputType,
+					SchemaDef:        upgradeSchemaDefFromRawState(rawJSON, &resp.Diagnostics),
+					Owner:            prior.Owner,
+					Type:             prior.Type,
+					CreatedAt:        prior.CreatedAt,
+					UpdatedAt:        prior.UpdatedAt,
+					CreatedBy:        prior.CreatedBy,
+					UpdatedBy:        prior.UpdatedBy,
+				}
+				if resp.Diagnostics.HasError() {
+					return
+				}
+
+				resp.Diagnostics.Append(resp.State.Set(ctx, upgraded)...)
+			},
+		},
+	}
+}
+
+// upgradeSchemaDefFromRawState reads schema_def out of the raw prior-state JSON and
+// returns it as the JSON-string value the 1.x schema expects. A structured value
+// (object/array) is carried across verbatim as its JSON text; a value already stored
+// as a JSON string is decoded so the result isn't double-encoded; null/absent maps to
+// null. The value is authoritative only until the next Read refreshes it from the API.
+func upgradeSchemaDefFromRawState(rawJSON []byte, diags *diag.Diagnostics) types.String {
+	if len(rawJSON) == 0 {
+		return types.StringNull()
+	}
+
+	var attributes map[string]json.RawMessage
+	if err := json.Unmarshal(rawJSON, &attributes); err != nil {
+		diags.AddError(
+			"Unable to upgrade schema_def",
+			fmt.Sprintf("Could not parse prior state JSON while upgrading schema_def: %s", err),
+		)
+		return types.StringNull()
+	}
+
+	raw, ok := attributes["schema_def"]
+	if !ok {
+		return types.StringNull()
+	}
+
+	trimmed := bytes.TrimSpace(raw)
+	if len(trimmed) == 0 || string(trimmed) == "null" {
+		return types.StringNull()
+	}
+
+	// A leading quote means the prior value was already a JSON string; decode it so the
+	// result is the string's content rather than a double-encoded string.
+	if trimmed[0] == '"' {
+		var decoded string
+		if err := json.Unmarshal(trimmed, &decoded); err != nil {
+			diags.AddError(
+				"Unable to upgrade schema_def",
+				fmt.Sprintf("Could not decode prior schema_def string value: %s", err),
+			)
+			return types.StringNull()
+		}
+		return types.StringValue(decoded)
+	}
+
+	// Structured value (object/array): carry it across as its JSON text.
+	return types.StringValue(string(trimmed))
 }
