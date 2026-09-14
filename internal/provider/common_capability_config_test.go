@@ -3,6 +3,7 @@
 package provider
 
 import (
+	"context"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-framework/attr"
@@ -559,4 +560,147 @@ func valuesEqual(a, b interface{}) bool {
 	default:
 		return a == b
 	}
+}
+
+// configObject builds a config-shaped object from a partial set of attributes,
+// filling every attribute that is not supplied with a null of the right type.
+func configObject(t *testing.T, attrs map[string]attr.Value) types.Object {
+	t.Helper()
+
+	full := map[string]attr.Value{
+		"temperature":       types.Float64Null(),
+		"blob_config":       types.ObjectNull(blobConfigAttributeTypes()),
+		"data_retention":    types.ObjectNull(dataRetentionAttributeTypes()),
+		"content_tracing":   types.BoolNull(),
+		"custom_parameters": types.DynamicNull(),
+		"mcp_server_ids":    types.ListNull(types.StringType),
+	}
+	for name, value := range attrs {
+		if _, ok := full[name]; !ok {
+			t.Fatalf("unknown config attribute %q", name)
+		}
+		full[name] = value
+	}
+
+	obj, diags := types.ObjectValue(capabilityConfigAttributeTypes(), full)
+	if diags.HasError() {
+		t.Fatalf("building config object: %v", diags)
+	}
+	return obj
+}
+
+func TestPreserveUnknownsFromState(t *testing.T) {
+	dataRetention := types.ObjectValueMust(dataRetentionAttributeTypes(), map[string]attr.Value{
+		"type":  types.StringValue("timed"),
+		"hours": types.Int64Value(24),
+	})
+
+	t.Run("unknown nested attributes take the value from state", func(t *testing.T) {
+		// Given a plan where Terraform marked the computed attributes unknown
+		// because the configuration only sets temperature.
+		plan := configObject(t, map[string]attr.Value{
+			"temperature":     types.Float64Value(0.7),
+			"content_tracing": types.BoolUnknown(),
+			"data_retention":  types.ObjectUnknown(dataRetentionAttributeTypes()),
+		})
+		state := configObject(t, map[string]attr.Value{
+			"temperature":     types.Float64Value(0.2),
+			"content_tracing": types.BoolValue(true),
+			"data_retention":  dataRetention,
+		})
+		cfg := configObject(t, map[string]attr.Value{"temperature": types.Float64Value(0.7)})
+
+		// When the unknowns are resolved against state.
+		got, diags := preserveUnknownsFromState(context.Background(), plan, state, cfg)
+
+		// Then the configured value wins and the computed ones come from state.
+		if diags.HasError() {
+			t.Fatalf("unexpected diagnostics: %v", diags)
+		}
+		want := configObject(t, map[string]attr.Value{
+			"temperature":     types.Float64Value(0.7),
+			"content_tracing": types.BoolValue(true),
+			"data_retention":  dataRetention,
+		})
+		if !got.Equal(want) {
+			t.Errorf("preserveUnknownsFromState() = %v, want %v", got, want)
+		}
+	})
+
+	t.Run("null state attributes stay null instead of unknown", func(t *testing.T) {
+		// Given state where the API never returned a data retention block.
+		plan := configObject(t, map[string]attr.Value{
+			"temperature":    types.Float64Value(0.7),
+			"data_retention": types.ObjectUnknown(dataRetentionAttributeTypes()),
+		})
+		state := configObject(t, map[string]attr.Value{"temperature": types.Float64Value(0.2)})
+		cfg := configObject(t, map[string]attr.Value{"temperature": types.Float64Value(0.7)})
+
+		// When the unknowns are resolved against state.
+		got, diags := preserveUnknownsFromState(context.Background(), plan, state, cfg)
+
+		// Then the plan is null there too, so the plan stays empty.
+		if diags.HasError() {
+			t.Fatalf("unexpected diagnostics: %v", diags)
+		}
+		if dr := got.Attributes()["data_retention"]; !dr.IsNull() {
+			t.Errorf("data_retention = %v, want null", dr)
+		}
+	})
+
+	t.Run("unknown values inside nested objects take the value from state", func(t *testing.T) {
+		// Given a blob_config whose computed attributes are unknown in the plan.
+		planBlob := types.ObjectValueMust(blobConfigAttributeTypes(), map[string]attr.Value{
+			"max_file_size_mb":   types.Int64Value(30),
+			"max_blobs":          types.Int64Unknown(),
+			"allowed_mime_types": types.ListUnknown(types.StringType),
+		})
+		stateBlob := types.ObjectValueMust(blobConfigAttributeTypes(), map[string]attr.Value{
+			"max_file_size_mb":   types.Int64Value(20),
+			"max_blobs":          types.Int64Value(10),
+			"allowed_mime_types": types.ListValueMust(types.StringType, []attr.Value{types.StringValue("image/png")}),
+		})
+		cfgBlob := types.ObjectValueMust(blobConfigAttributeTypes(), map[string]attr.Value{
+			"max_file_size_mb":   types.Int64Value(30),
+			"max_blobs":          types.Int64Null(),
+			"allowed_mime_types": types.ListNull(types.StringType),
+		})
+
+		// When the unknowns are resolved against state.
+		got, diags := preserveUnknownsFromState(context.Background(),
+			configObject(t, map[string]attr.Value{"blob_config": planBlob}),
+			configObject(t, map[string]attr.Value{"blob_config": stateBlob}),
+			configObject(t, map[string]attr.Value{"blob_config": cfgBlob}))
+
+		// Then only the configured attribute differs from state.
+		if diags.HasError() {
+			t.Fatalf("unexpected diagnostics: %v", diags)
+		}
+		wantBlob := types.ObjectValueMust(blobConfigAttributeTypes(), map[string]attr.Value{
+			"max_file_size_mb":   types.Int64Value(30),
+			"max_blobs":          types.Int64Value(10),
+			"allowed_mime_types": types.ListValueMust(types.StringType, []attr.Value{types.StringValue("image/png")}),
+		})
+		if blob := got.Attributes()["blob_config"]; !blob.Equal(wantBlob) {
+			t.Errorf("blob_config = %v, want %v", blob, wantBlob)
+		}
+	})
+
+	t.Run("attributes unknown in configuration stay unknown", func(t *testing.T) {
+		// Given a configuration value that depends on another resource.
+		plan := configObject(t, map[string]attr.Value{"content_tracing": types.BoolUnknown()})
+		state := configObject(t, map[string]attr.Value{"content_tracing": types.BoolValue(true)})
+		cfg := configObject(t, map[string]attr.Value{"content_tracing": types.BoolUnknown()})
+
+		// When the unknowns are resolved against state.
+		got, diags := preserveUnknownsFromState(context.Background(), plan, state, cfg)
+
+		// Then it must stay unknown, since the configured value decides it.
+		if diags.HasError() {
+			t.Fatalf("unexpected diagnostics: %v", diags)
+		}
+		if ct := got.Attributes()["content_tracing"]; !ct.IsUnknown() {
+			t.Errorf("content_tracing = %v, want unknown", ct)
+		}
+	})
 }

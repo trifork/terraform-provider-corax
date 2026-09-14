@@ -15,7 +15,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/objectplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
@@ -123,7 +122,7 @@ func (r *ExtractionCapabilityResource) Schema(ctx context.Context, req resource.
 				Computed:            true,
 				MarkdownDescription: "Configuration settings for the capability's behavior.",
 				Attributes:          capabilityConfigSchemaAttributes(),
-				PlanModifiers:       []planmodifier.Object{objectplanmodifier.UseStateForUnknown()},
+				PlanModifiers:       capabilityConfigPlanModifiers(),
 			},
 			"owner":      schema.StringAttribute{Computed: true, MarkdownDescription: "Owner of the capability.", PlanModifiers: []planmodifier.String{stringplanmodifier.UseStateForUnknown()}},
 			"type":       schema.StringAttribute{Computed: true, MarkdownDescription: "Type of the capability (should be 'extraction').", PlanModifiers: []planmodifier.String{stringplanmodifier.UseStateForUnknown()}},

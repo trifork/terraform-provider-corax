@@ -13,6 +13,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/objectplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"math"
@@ -628,4 +630,107 @@ func convertInterfaceToAttrValue(val interface{}) (attr.Value, *diag.Diagnostics
 			fmt.Sprintf("Cannot convert Go type %T to Terraform attr.Value", val))
 		return nil, &diags
 	}
+}
+
+// --- Plan modifier keeping nested computed config values stable ---
+
+// capabilityConfigPlanModifiers returns the plan modifiers every capability
+// resource should put on its `config` attribute.
+func capabilityConfigPlanModifiers() []planmodifier.Object {
+	return []planmodifier.Object{
+		objectplanmodifier.UseStateForUnknown(),
+		nestedConfigStateForUnknown{},
+	}
+}
+
+// nestedConfigStateForUnknown carries the values already in state over to the
+// attributes nested inside `config` that the framework marked unknown because
+// the configuration leaves them out.
+//
+// Terraform >= 1.4 already does this when it builds the proposed new state, so
+// there is nothing unknown left for this modifier to fill in. Terraform 1.0-1.3
+// takes the configured object verbatim instead, which makes every
+// optional+computed attribute inside `config` (content_tracing, data_retention,
+// blob_config.*) unknown on each plan and shows up as a perpetual diff.
+type nestedConfigStateForUnknown struct{}
+
+func (m nestedConfigStateForUnknown) Description(ctx context.Context) string {
+	return "Keeps computed attributes nested inside config at their current value when the configuration does not set them."
+}
+
+func (m nestedConfigStateForUnknown) MarkdownDescription(ctx context.Context) string {
+	return m.Description(ctx)
+}
+
+func (m nestedConfigStateForUnknown) PlanModifyObject(ctx context.Context, req planmodifier.ObjectRequest, resp *planmodifier.ObjectResponse) {
+	// There is no prior value to preserve on create, and nothing to plan on destroy.
+	if req.State.Raw.IsNull() || req.Plan.Raw.IsNull() {
+		return
+	}
+
+	planValue, diags := preserveUnknownsFromState(ctx, resp.PlanValue, req.StateValue, req.ConfigValue)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	resp.PlanValue = planValue
+}
+
+// preserveUnknownsFromState replaces every unknown attribute of plan with the
+// corresponding attribute of state, recursing into nested objects. An attribute
+// that is unknown in config is left unknown, because its configured value -- not
+// state -- decides it.
+func preserveUnknownsFromState(ctx context.Context, plan, state, config types.Object) (types.Object, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	if plan.IsNull() || plan.IsUnknown() || state.IsNull() || state.IsUnknown() {
+		return plan, diags
+	}
+
+	stateAttrs := state.Attributes()
+	configAttrs := map[string]attr.Value{}
+	if !config.IsNull() && !config.IsUnknown() {
+		configAttrs = config.Attributes()
+	}
+
+	planAttrs := make(map[string]attr.Value, len(plan.Attributes()))
+	for name, planAttr := range plan.Attributes() {
+		stateAttr, inState := stateAttrs[name]
+		if !inState {
+			planAttrs[name] = planAttr
+			continue
+		}
+
+		if planAttr.IsUnknown() {
+			if configAttr, ok := configAttrs[name]; ok && configAttr.IsUnknown() {
+				planAttrs[name] = planAttr
+				continue
+			}
+			planAttrs[name] = stateAttr
+			continue
+		}
+
+		planObject, planIsObject := planAttr.(types.Object)
+		stateObject, stateIsObject := stateAttr.(types.Object)
+		if !planIsObject || !stateIsObject {
+			planAttrs[name] = planAttr
+			continue
+		}
+
+		configObject, _ := configAttrs[name].(types.Object)
+		nested, nestedDiags := preserveUnknownsFromState(ctx, planObject, stateObject, configObject)
+		diags.Append(nestedDiags...)
+		planAttrs[name] = nested
+	}
+
+	if diags.HasError() {
+		return plan, diags
+	}
+
+	planValue, objDiags := types.ObjectValue(plan.AttributeTypes(ctx), planAttrs)
+	diags.Append(objDiags...)
+	if diags.HasError() {
+		return plan, diags
+	}
+	return planValue, diags
 }
