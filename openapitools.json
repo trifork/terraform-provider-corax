@@ -7,9 +7,9 @@
       "backend-client": {
         "generatorName": "go",
         "output": "#{cwd}/internal/generated",
-        "inputSpec": "https://api.corax.app/openapi.json",
+        "inputSpec": "#{cwd}/openapi.json",
         "skipValidateSpec": true,
-        "ignoreFileOverride": "#{cwd}/.openapi-generator-ignore",
+        "ignoreFileOverride": "#{cwd}/internal/generated/.openapi-generator-ignore",
         "packageName": "api",
         "modelPackage": "apiModels",
         "additionalProperties": {

@@ -103,7 +103,7 @@ import (
 )
 
 func main() {
-	data := *openapiclient.NewData(*openapiclient.NewOpenAIConfiguration("ApiKey_example"), "Name_example", "ProviderType_example", []openapiclient.DeploymentCreate{*openapiclient.NewDeploymentCreate("ModelId_example", "DisplayName_example", []string{"SupportedTasks_example"})}) // Data | 
+	data := *openapiclient.NewData(*openapiclient.NewVertexAIConfiguration("VertexCredentials_example", "VertexProject_example", "VertexLocation_example"), "Name_example", "ProviderType_example", []openapiclient.DeploymentCreate{*openapiclient.NewDeploymentCreate("ModelId_example", "DisplayName_example", []string{"SupportedTasks_example"})}) // Data | 
 
 	configuration := openapiclient.NewConfiguration()
 	apiClient := openapiclient.NewAPIClient(configuration)

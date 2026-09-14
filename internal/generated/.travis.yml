@@ -1,5 +1,3 @@
-# Copyright (c) Trifork
-
 language: go
 
 install:

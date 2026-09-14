@@ -22,10 +22,11 @@ type ResponseCreateCapabilityV1CapabilitiesPost struct {
 	CompletionCapability *CompletionCapability
 	ExtractionCapability *ExtractionCapability
 	SpeechToTextCapability *SpeechToTextCapability
+	ImageGenerationCapability *ImageGenerationCapability
 }
 
 // Unmarshal JSON data into one of the pointers in the struct.
-// The four capability schemas share most fields, so the generator's default
+// The capability schemas share most fields, so the generator's default
 // "try each in order" logic misclassifies any non-chat response as a
 // ChatCapability. Use the `type` discriminator to pick the correct branch.
 func (dst *ResponseCreateCapabilityV1CapabilitiesPost) UnmarshalJSON(data []byte) error {
@@ -61,6 +62,12 @@ func (dst *ResponseCreateCapabilityV1CapabilitiesPost) UnmarshalJSON(data []byte
 			return fmt.Errorf("failed to unmarshal ResponseCreateCapabilityV1CapabilitiesPost as SpeechToTextCapability: %s", err.Error())
 		}
 		return nil
+	case "image_generation":
+		if err := json.Unmarshal(data, &dst.ImageGenerationCapability); err != nil {
+			dst.ImageGenerationCapability = nil
+			return fmt.Errorf("failed to unmarshal ResponseCreateCapabilityV1CapabilitiesPost as ImageGenerationCapability: %s", err.Error())
+		}
+		return nil
 	}
 
 	return fmt.Errorf("data failed to match schemas in anyOf(ResponseCreateCapabilityV1CapabilitiesPost): unrecognized type discriminator %q", typeValue)
@@ -81,6 +88,9 @@ func (dst *ResponseCreateCapabilityV1CapabilitiesPost) GetActualInstance() inter
 	if dst.SpeechToTextCapability != nil {
 		return dst.SpeechToTextCapability
 	}
+	if dst.ImageGenerationCapability != nil {
+		return dst.ImageGenerationCapability
+	}
 	return nil
 }
 
@@ -100,6 +110,10 @@ func (src ResponseCreateCapabilityV1CapabilitiesPost) MarshalJSON() ([]byte, err
 
 	if src.SpeechToTextCapability != nil {
 		return json.Marshal(&src.SpeechToTextCapability)
+	}
+
+	if src.ImageGenerationCapability != nil {
+		return json.Marshal(&src.ImageGenerationCapability)
 	}
 
 	return nil, nil // no data in anyOf schemas
