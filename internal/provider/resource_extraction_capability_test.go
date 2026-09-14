@@ -367,8 +367,12 @@ func newFakeCapabilityAPI(t *testing.T) *httptest.Server {
 		return rep
 	}
 
-	writeJSON := func(w http.ResponseWriter, body interface{}) {
+	// writeJSON sets Content-Type before writing the status line: the generated
+	// client picks its decoder from that header, and a response without it
+	// fails to decode.
+	writeJSON := func(w http.ResponseWriter, status int, body interface{}) {
 		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(status)
 		if err := json.NewEncoder(w).Encode(body); err != nil {
 			t.Errorf("failed to encode fake API response: %v", err)
 		}
@@ -410,9 +414,7 @@ func newFakeCapabilityAPI(t *testing.T) *httptest.Server {
 		}
 		store[id] = body
 
-		// The generated client treats only 2xx documented in the spec as
-		// success; POST /v1/capabilities responds 200.
-		writeJSON(w, body)
+		writeJSON(w, http.StatusCreated, body)
 	})
 
 	mux.HandleFunc("/v1/capabilities/", func(w http.ResponseWriter, r *http.Request) {
@@ -428,7 +430,7 @@ func newFakeCapabilityAPI(t *testing.T) *httptest.Server {
 				http.Error(w, `{"detail":"not found"}`, http.StatusNotFound)
 				return
 			}
-			writeJSON(w, representation(stored))
+			writeJSON(w, http.StatusOK, representation(stored))
 		case http.MethodPut:
 			if _, ok := store[id]; !ok {
 				http.Error(w, `{"detail":"not found"}`, http.StatusNotFound)
@@ -450,7 +452,7 @@ func newFakeCapabilityAPI(t *testing.T) *httptest.Server {
 			body["updated_by"] = "fake-user"
 			body["updated_at"] = time.Now().UTC().Format(time.RFC3339)
 			store[id] = body
-			writeJSON(w, representation(body))
+			writeJSON(w, http.StatusOK, representation(body))
 		case http.MethodDelete:
 			if _, ok := store[id]; !ok {
 				http.Error(w, `{"detail":"not found"}`, http.StatusNotFound)
