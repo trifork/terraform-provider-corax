@@ -874,6 +874,50 @@ func (c *Client) UpdateSpeechToTextCapability(ctx context.Context, capabilityID 
 	return result, nil
 }
 
+// CreateExtractionCapability creates a new extraction capability.
+// Corresponds to POST /v1/capabilities.
+func (c *Client) CreateExtractionCapability(ctx context.Context, create api.ExtractionCapabilityCreate) (*api.ExtractionCapability, error) {
+	cap1 := api.Capability1{ExtractionCapabilityCreate: &create}
+
+	result, resp, err := c.generated.CapabilitiesAPI.CreateCapabilityV1CapabilitiesPost(c.withAuth(ctx)).
+		Capability1(cap1).
+		Execute()
+
+	if err != nil {
+		return nil, convertError(err, resp)
+	}
+
+	if result == nil {
+		return nil, fmt.Errorf("nil response from create capability")
+	}
+	if result.ExtractionCapability != nil {
+		return result.ExtractionCapability, nil
+	}
+
+	return nil, fmt.Errorf("expected ExtractionCapability in response but got a different type")
+}
+
+// UpdateExtractionCapability updates an extraction capability by its ID.
+// Corresponds to PUT /v1/capabilities/{capability_id}.
+func (c *Client) UpdateExtractionCapability(ctx context.Context, capabilityID string, update api.ExtractionCapabilityUpdate) (*api.CapabilityRepresentation, error) {
+	if strings.TrimSpace(capabilityID) == "" {
+		return nil, fmt.Errorf("capabilityID cannot be empty")
+	}
+
+	capId := api.CapabilityId1{String: &capabilityID}
+	cap2 := api.Capability2{ExtractionCapabilityUpdate: &update}
+
+	result, resp, err := c.generated.CapabilitiesAPI.UpdateCapabilityV1CapabilitiesCapabilityIdPut(c.withAuth(ctx), capId).
+		Capability2(cap2).
+		Execute()
+
+	if err != nil {
+		return nil, convertError(err, resp)
+	}
+
+	return result, nil
+}
+
 // --- MCPServer Methods ---
 
 // convertMCPServer converts a generated MCPServerResponse to our custom MCPServer type.
