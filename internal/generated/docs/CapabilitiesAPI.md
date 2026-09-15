@@ -6,15 +6,18 @@ Method | HTTP request | Description
 ------------- | ------------- | -------------
 [**CreateCapabilityV1CapabilitiesPost**](CapabilitiesAPI.md#CreateCapabilityV1CapabilitiesPost) | **Post** /v1/capabilities | Create Capability
 [**DeleteCapabilityV1CapabilitiesCapabilityIdDelete**](CapabilitiesAPI.md#DeleteCapabilityV1CapabilitiesCapabilityIdDelete) | **Delete** /v1/capabilities/{capability_id} | Delete Capability
+[**DeleteFeedbackV1CapabilitiesCapabilityIdExecutionsExecutionIdFeedbackDelete**](CapabilitiesAPI.md#DeleteFeedbackV1CapabilitiesCapabilityIdExecutionsExecutionIdFeedbackDelete) | **Delete** /v1/capabilities/{capability_id}/executions/{execution_id}/feedback | Delete Feedback
 [**ExecuteCapabilityV1CapabilitiesCapabilityIdExecutionsPost**](CapabilitiesAPI.md#ExecuteCapabilityV1CapabilitiesCapabilityIdExecutionsPost) | **Post** /v1/capabilities/{capability_id}/executions | Execute Capability
 [**GetCapabilityVersionV1CapabilitiesCapabilityIdVersionsVersionGet**](CapabilitiesAPI.md#GetCapabilityVersionV1CapabilitiesCapabilityIdVersionsVersionGet) | **Get** /v1/capabilities/{capability_id}/versions/{version} | Get Capability Version
 [**GetExecutionCallbackV1CapabilitiesCapabilityIdExecutionsExecutionIdCallbackGet**](CapabilitiesAPI.md#GetExecutionCallbackV1CapabilitiesCapabilityIdExecutionsExecutionIdCallbackGet) | **Get** /v1/capabilities/{capability_id}/executions/{execution_id}/callback | Get Execution Callback
 [**GetExecutionResultV1CapabilitiesCapabilityIdExecutionsExecutionIdResultGet**](CapabilitiesAPI.md#GetExecutionResultV1CapabilitiesCapabilityIdExecutionsExecutionIdResultGet) | **Get** /v1/capabilities/{capability_id}/executions/{execution_id}/result | Get Execution Result
 [**GetExecutionUsageV1CapabilitiesCapabilityIdExecutionsExecutionIdUsageGet**](CapabilitiesAPI.md#GetExecutionUsageV1CapabilitiesCapabilityIdExecutionsExecutionIdUsageGet) | **Get** /v1/capabilities/{capability_id}/executions/{execution_id}/usage | Get Execution Usage
 [**GetExecutionV1CapabilitiesCapabilityIdExecutionsExecutionIdGet**](CapabilitiesAPI.md#GetExecutionV1CapabilitiesCapabilityIdExecutionsExecutionIdGet) | **Get** /v1/capabilities/{capability_id}/executions/{execution_id} | Get Execution
+[**GetFeedbackV1CapabilitiesCapabilityIdExecutionsExecutionIdFeedbackGet**](CapabilitiesAPI.md#GetFeedbackV1CapabilitiesCapabilityIdExecutionsExecutionIdFeedbackGet) | **Get** /v1/capabilities/{capability_id}/executions/{execution_id}/feedback | Get Feedback
 [**ListCapabilitiesV1CapabilitiesGet**](CapabilitiesAPI.md#ListCapabilitiesV1CapabilitiesGet) | **Get** /v1/capabilities | List Capabilities
 [**ListCapabilityVersionsV1CapabilitiesCapabilityIdVersionsGet**](CapabilitiesAPI.md#ListCapabilityVersionsV1CapabilitiesCapabilityIdVersionsGet) | **Get** /v1/capabilities/{capability_id}/versions | List Capability Versions
 [**ListExecutionsV1CapabilitiesCapabilityIdExecutionsGet**](CapabilitiesAPI.md#ListExecutionsV1CapabilitiesCapabilityIdExecutionsGet) | **Get** /v1/capabilities/{capability_id}/executions | List Executions
+[**ListFeedbackV1CapabilitiesCapabilityIdFeedbackGet**](CapabilitiesAPI.md#ListFeedbackV1CapabilitiesCapabilityIdFeedbackGet) | **Get** /v1/capabilities/{capability_id}/feedback | List Feedback
 [**ProvideFeedbackV1CapabilitiesCapabilityIdExecutionsExecutionIdFeedbackPost**](CapabilitiesAPI.md#ProvideFeedbackV1CapabilitiesCapabilityIdExecutionsExecutionIdFeedbackPost) | **Post** /v1/capabilities/{capability_id}/executions/{execution_id}/feedback | Provide Feedback
 [**ReadCapabilityV1CapabilitiesCapabilityIdGet**](CapabilitiesAPI.md#ReadCapabilityV1CapabilitiesCapabilityIdGet) | **Get** /v1/capabilities/{capability_id} | Read Capability
 [**SetDefaultCapabilityVersionV1CapabilitiesCapabilityIdDefaultVersionPut**](CapabilitiesAPI.md#SetDefaultCapabilityVersionV1CapabilitiesCapabilityIdDefaultVersionPut) | **Put** /v1/capabilities/{capability_id}/default-version | Set Default Capability Version
@@ -137,6 +140,77 @@ Other parameters are passed through a pointer to a apiDeleteCapabilityV1Capabili
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
+
+
+### Return type
+
+ (empty response body)
+
+### Authorization
+
+[APIKeyHeader](../README.md#APIKeyHeader), [HTTPBearer](../README.md#HTTPBearer)
+
+### HTTP request headers
+
+- **Content-Type**: Not defined
+- **Accept**: application/json
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints)
+[[Back to Model list]](../README.md#documentation-for-models)
+[[Back to README]](../README.md)
+
+
+## DeleteFeedbackV1CapabilitiesCapabilityIdExecutionsExecutionIdFeedbackDelete
+
+> DeleteFeedbackV1CapabilitiesCapabilityIdExecutionsExecutionIdFeedbackDelete(ctx, executionId, capabilityId).Execute()
+
+Delete Feedback
+
+
+
+### Example
+
+```go
+package main
+
+import (
+	"context"
+	"fmt"
+	"os"
+	openapiclient "github.com/GIT_USER_ID/GIT_REPO_ID/api"
+)
+
+func main() {
+	executionId := "38400000-8cf0-11bd-b23e-10b96e4ef00d" // string | 
+	capabilityId := *openapiclient.NewCapabilityId1() // CapabilityId1 | The ID or semantic ID of the capability
+
+	configuration := openapiclient.NewConfiguration()
+	apiClient := openapiclient.NewAPIClient(configuration)
+	r, err := apiClient.CapabilitiesAPI.DeleteFeedbackV1CapabilitiesCapabilityIdExecutionsExecutionIdFeedbackDelete(context.Background(), executionId, capabilityId).Execute()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error when calling `CapabilitiesAPI.DeleteFeedbackV1CapabilitiesCapabilityIdExecutionsExecutionIdFeedbackDelete``: %v\n", err)
+		fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
+	}
+}
+```
+
+### Path Parameters
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+**ctx** | **context.Context** | context for authentication, logging, cancellation, deadlines, tracing, etc.
+**executionId** | **string** |  | 
+**capabilityId** | [**CapabilityId1**](.md) | The ID or semantic ID of the capability | 
+
+### Other Parameters
+
+Other parameters are passed through a pointer to a apiDeleteFeedbackV1CapabilitiesCapabilityIdExecutionsExecutionIdFeedbackDeleteRequest struct via the builder pattern
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+
 
 
 ### Return type
@@ -598,6 +672,79 @@ Name | Type | Description  | Notes
 [[Back to README]](../README.md)
 
 
+## GetFeedbackV1CapabilitiesCapabilityIdExecutionsExecutionIdFeedbackGet
+
+> Feedback GetFeedbackV1CapabilitiesCapabilityIdExecutionsExecutionIdFeedbackGet(ctx, executionId, capabilityId).Execute()
+
+Get Feedback
+
+
+
+### Example
+
+```go
+package main
+
+import (
+	"context"
+	"fmt"
+	"os"
+	openapiclient "github.com/GIT_USER_ID/GIT_REPO_ID/api"
+)
+
+func main() {
+	executionId := "38400000-8cf0-11bd-b23e-10b96e4ef00d" // string | 
+	capabilityId := *openapiclient.NewCapabilityId1() // CapabilityId1 | The ID or semantic ID of the capability
+
+	configuration := openapiclient.NewConfiguration()
+	apiClient := openapiclient.NewAPIClient(configuration)
+	resp, r, err := apiClient.CapabilitiesAPI.GetFeedbackV1CapabilitiesCapabilityIdExecutionsExecutionIdFeedbackGet(context.Background(), executionId, capabilityId).Execute()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error when calling `CapabilitiesAPI.GetFeedbackV1CapabilitiesCapabilityIdExecutionsExecutionIdFeedbackGet``: %v\n", err)
+		fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
+	}
+	// response from `GetFeedbackV1CapabilitiesCapabilityIdExecutionsExecutionIdFeedbackGet`: Feedback
+	fmt.Fprintf(os.Stdout, "Response from `CapabilitiesAPI.GetFeedbackV1CapabilitiesCapabilityIdExecutionsExecutionIdFeedbackGet`: %v\n", resp)
+}
+```
+
+### Path Parameters
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+**ctx** | **context.Context** | context for authentication, logging, cancellation, deadlines, tracing, etc.
+**executionId** | **string** |  | 
+**capabilityId** | [**CapabilityId1**](.md) | The ID or semantic ID of the capability | 
+
+### Other Parameters
+
+Other parameters are passed through a pointer to a apiGetFeedbackV1CapabilitiesCapabilityIdExecutionsExecutionIdFeedbackGetRequest struct via the builder pattern
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+
+
+
+### Return type
+
+[**Feedback**](Feedback.md)
+
+### Authorization
+
+[APIKeyHeader](../README.md#APIKeyHeader), [HTTPBearer](../README.md#HTTPBearer)
+
+### HTTP request headers
+
+- **Content-Type**: Not defined
+- **Accept**: application/json
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints)
+[[Back to Model list]](../README.md#documentation-for-models)
+[[Back to README]](../README.md)
+
+
 ## ListCapabilitiesV1CapabilitiesGet
 
 > PagedResponseModelCapability ListCapabilitiesV1CapabilitiesGet(ctx).Page(page).Size(size).Sort(sort).Filter(filter).Execute()
@@ -750,7 +897,7 @@ Name | Type | Description  | Notes
 
 ## ListExecutionsV1CapabilitiesCapabilityIdExecutionsGet
 
-> PagedResponseModelExecution ListExecutionsV1CapabilitiesCapabilityIdExecutionsGet(ctx, capabilityId).Page(page).Size(size).Sort(sort).Filter(filter).Execute()
+> PagedResponseModelExecutionSparse ListExecutionsV1CapabilitiesCapabilityIdExecutionsGet(ctx, capabilityId).Page(page).Size(size).Sort(sort).Filter(filter).Execute()
 
 List Executions
 
@@ -782,7 +929,7 @@ func main() {
 		fmt.Fprintf(os.Stderr, "Error when calling `CapabilitiesAPI.ListExecutionsV1CapabilitiesCapabilityIdExecutionsGet``: %v\n", err)
 		fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
 	}
-	// response from `ListExecutionsV1CapabilitiesCapabilityIdExecutionsGet`: PagedResponseModelExecution
+	// response from `ListExecutionsV1CapabilitiesCapabilityIdExecutionsGet`: PagedResponseModelExecutionSparse
 	fmt.Fprintf(os.Stdout, "Response from `CapabilitiesAPI.ListExecutionsV1CapabilitiesCapabilityIdExecutionsGet`: %v\n", resp)
 }
 ```
@@ -810,7 +957,85 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**PagedResponseModelExecution**](PagedResponseModelExecution.md)
+[**PagedResponseModelExecutionSparse**](PagedResponseModelExecutionSparse.md)
+
+### Authorization
+
+[APIKeyHeader](../README.md#APIKeyHeader), [HTTPBearer](../README.md#HTTPBearer)
+
+### HTTP request headers
+
+- **Content-Type**: Not defined
+- **Accept**: application/json
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints)
+[[Back to Model list]](../README.md#documentation-for-models)
+[[Back to README]](../README.md)
+
+
+## ListFeedbackV1CapabilitiesCapabilityIdFeedbackGet
+
+> PagedResponseModelFeedback ListFeedbackV1CapabilitiesCapabilityIdFeedbackGet(ctx, capabilityId).Page(page).Size(size).Sort(sort).Filter(filter).Execute()
+
+List Feedback
+
+
+
+### Example
+
+```go
+package main
+
+import (
+	"context"
+	"fmt"
+	"os"
+	openapiclient "github.com/GIT_USER_ID/GIT_REPO_ID/api"
+)
+
+func main() {
+	capabilityId := *openapiclient.NewCapabilityId1() // CapabilityId1 | The ID or semantic ID of the capability
+	page := int32(56) // int32 |  (optional) (default to 1)
+	size := int32(56) // int32 |  (optional) (default to 10)
+	sort := "sort_example" // string |  (optional) (default to "id")
+	filter := "filter_example" // string |  (optional)
+
+	configuration := openapiclient.NewConfiguration()
+	apiClient := openapiclient.NewAPIClient(configuration)
+	resp, r, err := apiClient.CapabilitiesAPI.ListFeedbackV1CapabilitiesCapabilityIdFeedbackGet(context.Background(), capabilityId).Page(page).Size(size).Sort(sort).Filter(filter).Execute()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error when calling `CapabilitiesAPI.ListFeedbackV1CapabilitiesCapabilityIdFeedbackGet``: %v\n", err)
+		fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
+	}
+	// response from `ListFeedbackV1CapabilitiesCapabilityIdFeedbackGet`: PagedResponseModelFeedback
+	fmt.Fprintf(os.Stdout, "Response from `CapabilitiesAPI.ListFeedbackV1CapabilitiesCapabilityIdFeedbackGet`: %v\n", resp)
+}
+```
+
+### Path Parameters
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+**ctx** | **context.Context** | context for authentication, logging, cancellation, deadlines, tracing, etc.
+**capabilityId** | [**CapabilityId1**](.md) | The ID or semantic ID of the capability | 
+
+### Other Parameters
+
+Other parameters are passed through a pointer to a apiListFeedbackV1CapabilitiesCapabilityIdFeedbackGetRequest struct via the builder pattern
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+
+ **page** | **int32** |  | [default to 1]
+ **size** | **int32** |  | [default to 10]
+ **sort** | **string** |  | [default to &quot;id&quot;]
+ **filter** | **string** |  | 
+
+### Return type
+
+[**PagedResponseModelFeedback**](PagedResponseModelFeedback.md)
 
 ### Authorization
 
@@ -828,7 +1053,7 @@ Name | Type | Description  | Notes
 
 ## ProvideFeedbackV1CapabilitiesCapabilityIdExecutionsExecutionIdFeedbackPost
 
-> ExecutionResult ProvideFeedbackV1CapabilitiesCapabilityIdExecutionsExecutionIdFeedbackPost(ctx, executionId, capabilityId).FeedbackCreate(feedbackCreate).Execute()
+> Feedback ProvideFeedbackV1CapabilitiesCapabilityIdExecutionsExecutionIdFeedbackPost(ctx, executionId, capabilityId).FeedbackCreate(feedbackCreate).Execute()
 
 Provide Feedback
 
@@ -849,7 +1074,7 @@ import (
 func main() {
 	executionId := "38400000-8cf0-11bd-b23e-10b96e4ef00d" // string | 
 	capabilityId := *openapiclient.NewCapabilityId1() // CapabilityId1 | The ID or semantic ID of the capability
-	feedbackCreate := *openapiclient.NewFeedbackCreate("Feedback_example") // FeedbackCreate | 
+	feedbackCreate := *openapiclient.NewFeedbackCreate(openapiclient.FeedbackSentiment("positive")) // FeedbackCreate | 
 
 	configuration := openapiclient.NewConfiguration()
 	apiClient := openapiclient.NewAPIClient(configuration)
@@ -858,7 +1083,7 @@ func main() {
 		fmt.Fprintf(os.Stderr, "Error when calling `CapabilitiesAPI.ProvideFeedbackV1CapabilitiesCapabilityIdExecutionsExecutionIdFeedbackPost``: %v\n", err)
 		fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
 	}
-	// response from `ProvideFeedbackV1CapabilitiesCapabilityIdExecutionsExecutionIdFeedbackPost`: ExecutionResult
+	// response from `ProvideFeedbackV1CapabilitiesCapabilityIdExecutionsExecutionIdFeedbackPost`: Feedback
 	fmt.Fprintf(os.Stdout, "Response from `CapabilitiesAPI.ProvideFeedbackV1CapabilitiesCapabilityIdExecutionsExecutionIdFeedbackPost`: %v\n", resp)
 }
 ```
@@ -885,7 +1110,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**ExecutionResult**](ExecutionResult.md)
+[**Feedback**](Feedback.md)
 
 ### Authorization
 

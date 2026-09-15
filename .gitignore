@@ -37,4 +37,6 @@ website/vendor
 *.winfile eol=crlf
 
 .env
-openapi.json
+
+# openapi.json is the input spec for the generated client (see
+# openapitools.json) and is tracked so generation is reproducible.

@@ -186,7 +186,7 @@ import (
 )
 
 func main() {
-	policyCreate := *openapiclient.NewPolicyCreate("Name_example", openapiclient.PolicyScopeType("global"), *openapiclient.NewPolicyControlsInput()) // PolicyCreate | 
+	policyCreate := *openapiclient.NewPolicyCreate("Name_example", openapiclient.PolicyScopeType("global"), *openapiclient.NewPolicyControlsInput(*openapiclient.NewPiiDetectionRequirementInput(*openapiclient.NewPiiDetectionDirectionRequirement(openapiclient.PiiEnforcementMode("allow")), *openapiclient.NewPiiDetectionDirectionRequirement(openapiclient.PiiEnforcementMode("allow"))))) // PolicyCreate | 
 
 	configuration := openapiclient.NewConfiguration()
 	apiClient := openapiclient.NewAPIClient(configuration)
@@ -937,7 +937,7 @@ import (
 func main() {
 	capabilityId := "38400000-8cf0-11bd-b23e-10b96e4ef00d" // string |  (optional)
 	policyId := "38400000-8cf0-11bd-b23e-10b96e4ef00d" // string |  (optional)
-	controlType := openapiclient.ScanCategory("content_filter") // ScanCategory |  (optional)
+	controlType := openapiclient.ScanCategory("pii_detection") // ScanCategory |  (optional)
 	direction := openapiclient.ScanDirection("input") // ScanDirection |  (optional)
 	fromDate := time.Now() // time.Time |  (optional)
 	toDate := time.Now() // time.Time |  (optional)

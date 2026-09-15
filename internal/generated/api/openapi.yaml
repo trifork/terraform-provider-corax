@@ -3,7 +3,7 @@
 openapi: 3.1.0
 info:
   title: Corax API
-  version: v2.206.0
+  version: v2.327.0
 servers:
 - url: /
 paths:
@@ -711,6 +711,50 @@ paths:
       responses:
         "200":
           content:
+            application/octet-stream:
+              schema:
+                format: binary
+                type: string
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      - APIKeyHeader: []
+      summary: Download original document
+      tags:
+      - Knowledge collections
+  /v1/collections/{collection_id}/documents/{document_id}/text:
+    get:
+      description: Download the extracted text (Markdown) for a document from object
+        storage.
+      operationId: download_document_text_v1_collections__collection_id__documents__document_id__text_get
+      parameters:
+      - explode: false
+        in: path
+        name: collection_id
+        required: true
+        schema:
+          format: uuid
+          title: Collection Id
+          type: string
+        style: simple
+      - explode: false
+        in: path
+        name: document_id
+        required: true
+        schema:
+          format: uuid
+          title: Document Id
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
             application/json:
               schema: {}
           description: Successful Response
@@ -723,7 +767,7 @@ paths:
       security:
       - HTTPBearer: []
       - APIKeyHeader: []
-      summary: Download original document
+      summary: Download extracted document text (Markdown)
       tags:
       - Knowledge collections
   /v1/capabilities:
@@ -846,7 +890,8 @@ paths:
       tags:
       - Capabilities
     get:
-      description: Get a single capability
+      description: "Get the default version of a single capability. If a non-default\
+        \ version should be retrieved, use the /versions/{version} endpoint."
       operationId: read_capability_v1_capabilities__capability_id__get
       parameters:
       - description: The ID or semantic ID of the capability
@@ -970,7 +1015,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/PagedResponseModel_Execution_"
+                $ref: "#/components/schemas/PagedResponseModel_ExecutionSparse_"
           description: Successful Response
         "422":
           content:
@@ -1261,8 +1306,84 @@ paths:
       tags:
       - Capabilities
   /v1/capabilities/{capability_id}/executions/{execution_id}/feedback:
+    delete:
+      description: Delete feedback authored for an execution.
+      operationId: delete_feedback_v1_capabilities__capability_id__executions__execution_id__feedback_delete
+      parameters:
+      - explode: false
+        in: path
+        name: execution_id
+        required: true
+        schema:
+          format: uuid
+          title: Execution Id
+          type: string
+        style: simple
+      - description: The ID or semantic ID of the capability
+        explode: false
+        in: path
+        name: capability_id
+        required: true
+        schema:
+          $ref: "#/components/schemas/Capability_Id_1"
+        style: simple
+      responses:
+        "204":
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      - APIKeyHeader: []
+      summary: Delete Feedback
+      tags:
+      - Capabilities
+    get:
+      description: Read feedback authored for a capability execution
+      operationId: get_feedback_v1_capabilities__capability_id__executions__execution_id__feedback_get
+      parameters:
+      - explode: false
+        in: path
+        name: execution_id
+        required: true
+        schema:
+          format: uuid
+          title: Execution Id
+          type: string
+        style: simple
+      - description: The ID or semantic ID of the capability
+        explode: false
+        in: path
+        name: capability_id
+        required: true
+        schema:
+          $ref: "#/components/schemas/Capability_Id_1"
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Feedback"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      - APIKeyHeader: []
+      summary: Get Feedback
+      tags:
+      - Capabilities
     post:
-      description: Provide feedback for a capability execution
+      description: Create or update feedback for a capability execution
       operationId: provide_feedback_v1_capabilities__capability_id__executions__execution_id__feedback_post
       parameters:
       - explode: false
@@ -1293,7 +1414,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ExecutionResult"
+                $ref: "#/components/schemas/Feedback"
           description: Successful Response
         "422":
           content:
@@ -1305,6 +1426,77 @@ paths:
       - HTTPBearer: []
       - APIKeyHeader: []
       summary: Provide Feedback
+      tags:
+      - Capabilities
+  /v1/capabilities/{capability_id}/feedback:
+    get:
+      description: List feedback for a capability
+      operationId: list_feedback_v1_capabilities__capability_id__feedback_get
+      parameters:
+      - description: The ID or semantic ID of the capability
+        explode: false
+        in: path
+        name: capability_id
+        required: true
+        schema:
+          $ref: "#/components/schemas/Capability_Id_1"
+        style: simple
+      - explode: true
+        in: query
+        name: page
+        required: false
+        schema:
+          default: 1
+          minimum: 1
+          title: Page
+          type: integer
+        style: form
+      - explode: true
+        in: query
+        name: size
+        required: false
+        schema:
+          default: 10
+          maximum: 100
+          minimum: 1
+          title: Size
+          type: integer
+        style: form
+      - explode: true
+        in: query
+        name: sort
+        required: false
+        schema:
+          default: id
+          title: Sort
+          type: string
+        style: form
+      - explode: true
+        in: query
+        name: filter
+        required: false
+        schema:
+          nullable: true
+          pattern: "(.+::[^|]+)(|.+::[^|]+)*"
+          type: string
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PagedResponseModel_Feedback_"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      - APIKeyHeader: []
+      summary: List Feedback
       tags:
       - Capabilities
   /v1/capabilities/{capability_id}/versions:
@@ -2214,7 +2406,7 @@ paths:
         list models from the provider. If successful, returns the list of
         available models with metadata.
 
-        For providers that don't support model listing (bedrock, gemini, etc.),
+        For providers that don't support model listing (bedrock, openrouter, etc.),
         returns supports_model_listing=False and an empty models list.
       operationId: validate_provider_v1_model_discovery_validate_post
       requestBody:
@@ -2242,6 +2434,89 @@ paths:
       summary: Validate Provider
       tags:
       - Model Discovery
+  /v1/model-catalog:
+    get:
+      description: Return catalog entries plus staleness metadata.
+      operationId: listModelCatalogEntries
+      parameters:
+      - explode: true
+        in: query
+        name: provider
+        required: false
+        schema:
+          nullable: true
+          pattern: "^[a-z0-9](?:[a-z0-9-]{0,79})?$"
+          type: string
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ModelCatalogListResponse"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      - APIKeyHeader: []
+      summary: List the entire normalized model catalog.
+      tags:
+      - Model Catalog
+  /v1/model-catalog/providers:
+    get:
+      description: Return every provider represented in the current catalog.
+      operationId: listModelCatalogProviders
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProviderListResponse"
+          description: Successful Response
+      security:
+      - HTTPBearer: []
+      - APIKeyHeader: []
+      summary: List model providers available in the catalog.
+      tags:
+      - Model Catalog
+  /v1/model-catalog/{catalog_id}:
+    get:
+      description: "Return one catalog entry plus staleness metadata, or 404."
+      operationId: getModelCatalogEntry
+      parameters:
+      - explode: false
+        in: path
+        name: catalog_id
+        required: true
+        schema:
+          pattern: "^[a-z0-9](?:[a-z0-9-]{0,79})?:[a-z0-9](?:[a-z0-9.-]{0,79})?$"
+          title: Catalog Id
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ModelCatalogEntryResponse"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      - APIKeyHeader: []
+      summary: Fetch a single catalog entry by stable catalog ID.
+      tags:
+      - Model Catalog
   /v1/capability-types:
     get:
       description: List all capability types with HATEOAS links.
@@ -2584,6 +2859,26 @@ paths:
       - HTTPBearer: []
       - APIKeyHeader: []
       summary: Create a new MCP server
+      tags:
+      - MCP Servers
+  /v1/mcp-servers/config-schema:
+    get:
+      description: "Return the renderable form schema for the MCP server editor: base\
+        \ server fields and the supported authentication modes with their fields,\
+        \ defaults and validation hints. The frontend builds the auth section from\
+        \ this instead of hardcoding the modes."
+      operationId: get_mcp_config_schema_v1_mcp_servers_config_schema_get
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MCPConfigSchemaResponse"
+          description: Renderable form schema for the MCP server editor
+      security:
+      - HTTPBearer: []
+      - APIKeyHeader: []
+      summary: Get the MCP server config schema
       tags:
       - MCP Servers
   /v1/mcp-servers/{server_id}:
@@ -3069,6 +3364,354 @@ paths:
       summary: Call a tool directly on an MCP server
       tags:
       - MCP Servers
+  /v1/model-pools:
+    get:
+      description: Get a paginated list of model deployment pools.
+      operationId: list_model_pools_v1_model_pools_get
+      parameters:
+      - explode: true
+        in: query
+        name: page
+        required: false
+        schema:
+          default: 1
+          minimum: 1
+          title: Page
+          type: integer
+        style: form
+      - explode: true
+        in: query
+        name: size
+        required: false
+        schema:
+          default: 10
+          maximum: 100
+          minimum: 1
+          title: Size
+          type: integer
+        style: form
+      - explode: true
+        in: query
+        name: sort
+        required: false
+        schema:
+          default: id
+          title: Sort
+          type: string
+        style: form
+      - explode: true
+        in: query
+        name: filter
+        required: false
+        schema:
+          nullable: true
+          pattern: "(.+::[^|]+)(|.+::[^|]+)*"
+          type: string
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PagedResponseModel_ModelDeploymentPool_"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      - APIKeyHeader: []
+      summary: List Model Pools
+      tags:
+      - Model Deployment Pools
+    post:
+      description: Create a new model deployment pool.
+      operationId: create_model_pool_v1_model_pools_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ModelDeploymentPoolCreate"
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ModelDeploymentPool"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      - APIKeyHeader: []
+      summary: Create Model Pool
+      tags:
+      - Model Deployment Pools
+  /v1/model-pools/{pool_id}:
+    delete:
+      description: Delete a model deployment pool.
+      operationId: delete_model_pool_v1_model_pools__pool_id__delete
+      parameters:
+      - explode: false
+        in: path
+        name: pool_id
+        required: true
+        schema:
+          format: uuid
+          title: Pool Id
+          type: string
+        style: simple
+      responses:
+        "204":
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      - APIKeyHeader: []
+      summary: Delete Model Pool
+      tags:
+      - Model Deployment Pools
+    get:
+      description: Get a specific model deployment pool by ID.
+      operationId: get_model_pool_v1_model_pools__pool_id__get
+      parameters:
+      - explode: false
+        in: path
+        name: pool_id
+        required: true
+        schema:
+          format: uuid
+          title: Pool Id
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ModelDeploymentPool"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      - APIKeyHeader: []
+      summary: Get Model Pool
+      tags:
+      - Model Deployment Pools
+    put:
+      description: Update an existing model deployment pool.
+      operationId: update_model_pool_v1_model_pools__pool_id__put
+      parameters:
+      - explode: false
+        in: path
+        name: pool_id
+        required: true
+        schema:
+          format: uuid
+          title: Pool Id
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ModelDeploymentPoolUpdate"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ModelDeploymentPool"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      - APIKeyHeader: []
+      summary: Update Model Pool
+      tags:
+      - Model Deployment Pools
+  /v1/model-pools/{pool_id}/members:
+    get:
+      description: Get all members of a model deployment pool.
+      operationId: list_pool_members_v1_model_pools__pool_id__members_get
+      parameters:
+      - explode: false
+        in: path
+        name: pool_id
+        required: true
+        schema:
+          format: uuid
+          title: Pool Id
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: "#/components/schemas/PoolMember"
+                type: array
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      - APIKeyHeader: []
+      summary: List Pool Members
+      tags:
+      - Model Deployment Pools
+    post:
+      description: Add a member to a model deployment pool.
+      operationId: add_pool_member_v1_model_pools__pool_id__members_post
+      parameters:
+      - explode: false
+        in: path
+        name: pool_id
+        required: true
+        schema:
+          format: uuid
+          title: Pool Id
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PoolMemberCreate"
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PoolMember"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      - APIKeyHeader: []
+      summary: Add Pool Member
+      tags:
+      - Model Deployment Pools
+  /v1/model-pools/{pool_id}/members/{member_id}:
+    delete:
+      description: Remove a member from a model deployment pool.
+      operationId: remove_pool_member_v1_model_pools__pool_id__members__member_id__delete
+      parameters:
+      - explode: false
+        in: path
+        name: pool_id
+        required: true
+        schema:
+          format: uuid
+          title: Pool Id
+          type: string
+        style: simple
+      - explode: false
+        in: path
+        name: member_id
+        required: true
+        schema:
+          format: uuid
+          title: Member Id
+          type: string
+        style: simple
+      responses:
+        "204":
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      - APIKeyHeader: []
+      summary: Remove Pool Member
+      tags:
+      - Model Deployment Pools
+    put:
+      description: Update a pool member.
+      operationId: update_pool_member_v1_model_pools__pool_id__members__member_id__put
+      parameters:
+      - explode: false
+        in: path
+        name: pool_id
+        required: true
+        schema:
+          format: uuid
+          title: Pool Id
+          type: string
+        style: simple
+      - explode: false
+        in: path
+        name: member_id
+        required: true
+        schema:
+          format: uuid
+          title: Member Id
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PoolMemberUpdate"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PoolMember"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      - APIKeyHeader: []
+      summary: Update Pool Member
+      tags:
+      - Model Deployment Pools
   /v1/capability-evaluations:
     get:
       description: Get all evaluations.
@@ -5184,6 +5827,210 @@ paths:
       summary: Update User
       tags:
       - RBAC Admin
+  /v1/files:
+    get:
+      description: List uploaded files for the current user.
+      operationId: list_files_v1_files_get
+      parameters:
+      - explode: true
+        in: query
+        name: page
+        required: false
+        schema:
+          default: 1
+          minimum: 1
+          title: Page
+          type: integer
+        style: form
+      - explode: true
+        in: query
+        name: page_size
+        required: false
+        schema:
+          default: 50
+          maximum: 100
+          minimum: 1
+          title: Page Size
+          type: integer
+        style: form
+      - explode: true
+        in: query
+        name: include_auto_created
+        required: false
+        schema:
+          default: false
+          title: Include Auto Created
+          type: boolean
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FileListResponse"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      - APIKeyHeader: []
+      summary: List Files
+    post:
+      description: Upload a file via raw streaming body.
+      operationId: upload_file_v1_files_post
+      parameters:
+      - description: Original filename
+        explode: true
+        in: query
+        name: filename
+        required: true
+        schema:
+          description: Original filename
+          title: Filename
+          type: string
+        style: form
+      - description: Expiry in seconds from creation. Must be positive.
+        explode: true
+        in: query
+        name: expires_after
+        required: false
+        schema:
+          nullable: true
+          type: integer
+        style: form
+      - explode: false
+        in: header
+        name: content-type
+        required: false
+        schema:
+          nullable: true
+          type: string
+        style: simple
+      - explode: false
+        in: header
+        name: content-length
+        required: false
+        schema:
+          nullable: true
+          type: integer
+        style: simple
+      requestBody:
+        content:
+          application/octet-stream:
+            schema:
+              format: binary
+              type: string
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FileResponse"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      - APIKeyHeader: []
+      summary: Upload File
+  /v1/files/{file_id}:
+    delete:
+      description: "Soft-delete a file. Removes blob from storage, sets deleted_at."
+      operationId: delete_file_v1_files__file_id__delete
+      parameters:
+      - explode: false
+        in: path
+        name: file_id
+        required: true
+        schema:
+          format: uuid
+          title: File Id
+          type: string
+        style: simple
+      responses:
+        "204":
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      - APIKeyHeader: []
+      summary: Delete File
+    get:
+      description: Get metadata for a specific file.
+      operationId: get_file_metadata_v1_files__file_id__get
+      parameters:
+      - explode: false
+        in: path
+        name: file_id
+        required: true
+        schema:
+          format: uuid
+          title: File Id
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FileResponse"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      - APIKeyHeader: []
+      summary: Get File Metadata
+  /v1/files/{file_id}/content:
+    get:
+      description: Stream file content from storage.
+      operationId: download_file_content_v1_files__file_id__content_get
+      parameters:
+      - explode: false
+        in: path
+        name: file_id
+        required: true
+        schema:
+          format: uuid
+          title: File Id
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/octet-stream:
+              schema:
+                format: binary
+                type: string
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      security:
+      - HTTPBearer: []
+      - APIKeyHeader: []
+      summary: Download File Content
   /:
     get:
       operationId: healthcheck__get
@@ -5892,6 +6739,7 @@ components:
           - application/vnd.openxmlformats-officedocument.presentationml.presentation
           - text/html
           - text/markdown
+          - text/plain
           items:
             type: string
           type: array
@@ -5905,6 +6753,41 @@ components:
       required:
       - files
       title: Body_embed_documents_to_collection_async_v1_collections__collection_id__embed_post
+    BooleanConfigurationField:
+      properties:
+        name:
+          title: Name
+          type: string
+        label:
+          title: Label
+          type: string
+        required:
+          title: Required
+          type: boolean
+        description:
+          nullable: true
+          type: string
+        placeholder:
+          nullable: true
+          type: string
+        order:
+          default: 0
+          title: Order
+          type: integer
+        type:
+          default: boolean
+          enum:
+          - boolean
+          title: Type
+          type: string
+        default:
+          nullable: true
+          type: boolean
+      required:
+      - label
+      - name
+      - required
+      title: BooleanConfigurationField
     Capability:
       example:
         owner: owner
@@ -5945,6 +6828,7 @@ components:
           - chat
           - extraction
           - speech_to_text
+          - image_generation
           title: Type
           type: string
         model_id:
@@ -6043,6 +6927,14 @@ components:
             \ be recorded in observability systems. Will be automatically set to False\
             \ when using timed data retention."
           title: Content Tracing
+          type: boolean
+        send_telemetry:
+          default: true
+          description: "Whether to send data to monitoring systems for this capability.\
+            \ When False, no OpenTelemetry spans or metrics are emitted for the capability's\
+            \ execution or its LLM calls. This is broader than content_tracing, which\
+            \ only masks prompt/completion content."
+          title: Send Telemetry
           type: boolean
         mcp_server_ids:
           items:
@@ -6200,25 +7092,19 @@ components:
         name: name
         description: description
         configuration_fields:
-        - default: Default
-          min: 1
-          max: 6
+        - default: default
           name: name
           pattern: pattern
           description: description
-          step: 5
           label: label
           placeholder: placeholder
           type: text
           required: true
           order: 0
-        - default: Default
-          min: 1
-          max: 6
+        - default: default
           name: name
           pattern: pattern
           description: description
-          step: 5
           label: label
           placeholder: placeholder
           type: text
@@ -6439,6 +7325,7 @@ components:
           - chat
           - extraction
           - speech_to_text
+          - image_generation
           title: Type
           type: string
         model_id:
@@ -6536,6 +7423,7 @@ components:
       - embedding
       - extraction
       - speech_to_text
+      - image_generation
       title: CapabilityType
       type: string
     CapabilityTypeRepresentation:
@@ -6679,6 +7567,71 @@ components:
       - updated_at
       - version
       title: CapabilityVersion
+    CatalogSource:
+      description: Closed enum of upstream sources that contribute to a catalog entry.
+      enum:
+      - models_dev
+      - litellm
+      title: CatalogSource
+      type: string
+    CatalogSourceSnapshot:
+      additionalProperties: false
+      description: Per-source freshness/audit metadata.
+      example:
+        fetched_at: 2000-01-23T04:56:07.000+00:00
+        source: models_dev
+        content_hash: content_hash
+        source_url: https://openapi-generator.tech
+      properties:
+        source:
+          $ref: "#/components/schemas/CatalogSource"
+        source_url:
+          format: uri
+          minLength: 1
+          title: Source Url
+          type: string
+        fetched_at:
+          format: date-time
+          title: Fetched At
+          type: string
+        content_hash:
+          pattern: "^[0-9a-f]{64}$"
+          title: Content Hash
+          type: string
+      required:
+      - content_hash
+      - fetched_at
+      - source
+      - source_url
+      title: CatalogSourceSnapshot
+    CatalogStalenessMetadata:
+      additionalProperties: false
+      description: Top-level metadata attached to every catalog response.
+      example:
+        source_snapshots:
+        - fetched_at: 2000-01-23T04:56:07.000+00:00
+          source: models_dev
+          content_hash: content_hash
+          source_url: https://openapi-generator.tech
+        - fetched_at: 2000-01-23T04:56:07.000+00:00
+          source: models_dev
+          content_hash: content_hash
+          source_url: https://openapi-generator.tech
+        generated_at: 2000-01-23T04:56:07.000+00:00
+      properties:
+        generated_at:
+          format: date-time
+          title: Generated At
+          type: string
+        source_snapshots:
+          items:
+            $ref: "#/components/schemas/CatalogSourceSnapshot"
+          minItems: 1
+          type: array
+      required:
+      - generated_at
+      - source_snapshots
+      title: CatalogStalenessMetadata
     ChatCapability:
       properties:
         _links:
@@ -6914,6 +7867,7 @@ components:
               display_name: display_name
             id: id
             type: type
+          id: id
           content: Content
           structured_content:
             key: ""
@@ -6937,6 +7891,7 @@ components:
               display_name: display_name
             id: id
             type: type
+          id: id
           content: Content
           structured_content:
             key: ""
@@ -7404,25 +8359,19 @@ components:
             href: href
             type: ""
         configuration:
-        - default: Default
-          min: 1
-          max: 6
+        - default: default
           name: name
           pattern: pattern
           description: description
-          step: 5
           label: label
           placeholder: placeholder
           type: text
           required: true
           order: 0
-        - default: Default
-          min: 1
-          max: 6
+        - default: default
           name: name
           pattern: pattern
           description: description
-          step: 5
           label: label
           placeholder: placeholder
           type: text
@@ -7441,58 +8390,68 @@ components:
       - configuration
       title: Configuration
     ConfigurationField:
-      example:
-        default: Default
-        min: 1
-        max: 6
-        name: name
-        pattern: pattern
-        description: description
-        step: 5
-        label: label
-        placeholder: placeholder
-        type: text
-        required: true
-        order: 0
+      discriminator:
+        mapping:
+          boolean: "#/components/schemas/BooleanConfigurationField"
+          key: "#/components/schemas/KeyConfigurationField"
+          multi_select: "#/components/schemas/MultiSelectConfigurationField"
+          number: "#/components/schemas/NumberConfigurationField"
+          string_array: "#/components/schemas/StringArrayConfigurationField"
+          text: "#/components/schemas/TextConfigurationField"
+          url: "#/components/schemas/UrlConfigurationField"
+        propertyName: type
+      oneOf:
+      - $ref: "#/components/schemas/TextConfigurationField"
+      - $ref: "#/components/schemas/UrlConfigurationField"
+      - $ref: "#/components/schemas/KeyConfigurationField"
+      - $ref: "#/components/schemas/BooleanConfigurationField"
+      - $ref: "#/components/schemas/NumberConfigurationField"
+      - $ref: "#/components/schemas/StringArrayConfigurationField"
+      - $ref: "#/components/schemas/MultiSelectConfigurationField"
+    ConfigurationFieldOption:
+      description: A single selectable option for a MULTI_SELECT (or future SELECT)
+        field.
       properties:
-        name:
-          title: Name
+        value:
+          title: Value
           type: string
         label:
           title: Label
           type: string
-        type:
-          $ref: "#/components/schemas/FieldType"
-        required:
-          title: Required
-          type: boolean
-        default:
-          $ref: "#/components/schemas/Default"
-        description:
-          nullable: true
-          type: string
-        placeholder:
-          nullable: true
-          type: string
-        order:
-          default: 0
-          title: Order
-          type: integer
-        pattern:
-          nullable: true
-          type: string
-        max:
-          $ref: "#/components/schemas/Max"
-        min:
-          $ref: "#/components/schemas/Min"
-        step:
-          $ref: "#/components/schemas/Step"
       required:
       - label
-      - name
-      - required
-      - type
-      title: ConfigurationField
+      - value
+      title: ConfigurationFieldOption
+    ConflictView:
+      additionalProperties: false
+      description: Pre-computed view exposed when ``len(alternatives) > 0`` for a
+        field.
+      example:
+        field: field
+        alternatives:
+        - source: null
+          value: ""
+        - source: null
+          value: ""
+        chosen:
+          source: null
+          value: ""
+      properties:
+        field:
+          title: Field
+          type: string
+        chosen:
+          $ref: "#/components/schemas/SourceObservation"
+        alternatives:
+          items:
+            $ref: "#/components/schemas/SourceObservation"
+          minItems: 1
+          type: array
+      required:
+      - alternatives
+      - chosen
+      - field
+      title: ConflictView
     ConnectedCapabilityResponse:
       description: A capability connected to an MCP server.
       example:
@@ -7520,35 +8479,6 @@ components:
       - name
       - owner
       title: ConnectedCapabilityResponse
-    ContentFilterCategory:
-      enum:
-      - violence
-      - sexual
-      - hate
-      - self_harm
-      title: ContentFilterCategory
-      type: string
-    ContentFilterRequirement:
-      properties:
-        enabled:
-          default: true
-          title: Enabled
-          type: boolean
-        severity_thresholds:
-          additionalProperties:
-            $ref: "#/components/schemas/SeverityLevel"
-          title: Severity Thresholds
-      required:
-      - severity_thresholds
-      title: ContentFilterRequirement
-    ContentTracingRequirement:
-      properties:
-        required:
-          title: Required
-          type: boolean
-      required:
-      - required
-      title: ContentTracingRequirement
     ControlComplianceStatus:
       enum:
       - compliant
@@ -7580,20 +8510,6 @@ components:
       - control_name
       - required_value
       title: ControlResult
-    DataRetentionRequirement:
-      properties:
-        required_type:
-          enum:
-          - infinite
-          - timed
-          title: Required Type
-          type: string
-        minimum_hours:
-          nullable: true
-          type: integer
-      required:
-      - required_type
-      title: DataRetentionRequirement
     DefaultModelDeploymentUpdate:
       example:
         default_model_deployment_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
@@ -7834,7 +8750,8 @@ components:
           - detected_items
           scanner_warning: false
           passed: true
-          category: content_filter
+          scanner_version: scanner_version
+          category: pii_detection
           sanitized_text: sanitized_text
         - reason: reason
           score: 0.8008281904610115
@@ -7843,7 +8760,8 @@ components:
           - detected_items
           scanner_warning: false
           passed: true
-          category: content_filter
+          scanner_version: scanner_version
+          category: pii_detection
           sanitized_text: sanitized_text
       properties:
         results:
@@ -8395,23 +9313,21 @@ components:
       type: string
     Execution:
       example:
-        _links:
-          key:
-            href: href
-            type: ""
-        created_at: 2000-01-23T04:56:07.000+00:00
-        created_by: created_by
         result: ""
-        feedback:
-          key: ""
         input: ""
         updated_at: 2000-01-23T04:56:07.000+00:00
         _embedded:
           key: ""
+        _links:
+          key:
+            href: href
+            type: ""
         capability_version: 0
         capability_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
         updated_by: updated_by
+        created_at: 2000-01-23T04:56:07.000+00:00
         id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        created_by: created_by
         status: ""
       properties:
         _embedded:
@@ -8430,10 +9346,6 @@ components:
           title: Result
         input:
           title: Input
-        feedback:
-          additionalProperties: true
-          nullable: true
-          type: object
         created_at:
           format: date-time
           title: Created At
@@ -8538,6 +9450,20 @@ components:
       - status
       - updated_at
       title: ExecutionCallback
+    ExecutionContext:
+      properties:
+        input:
+          title: Input
+        result:
+          title: Result
+        purged:
+          default: false
+          title: Purged
+          type: boolean
+      required:
+      - input
+      - result
+      title: ExecutionContext
     ExecutionCreate:
       example:
         callback_url: https://openapi-generator.tech
@@ -8558,18 +9484,12 @@ components:
     ExecutionResult:
       example:
         result: ""
-        feedback:
-          key: ""
         updated_at: 2000-01-23T04:56:07.000+00:00
         created_at: 2000-01-23T04:56:07.000+00:00
         id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
       properties:
         result:
           title: Result
-        feedback:
-          additionalProperties: true
-          nullable: true
-          type: object
         created_at:
           format: date-time
           title: Created At
@@ -8587,6 +9507,74 @@ components:
       - id
       - updated_at
       title: ExecutionResult
+    ExecutionSparse:
+      example:
+        feedback:
+          key: ""
+        updated_at: 2000-01-23T04:56:07.000+00:00
+        _embedded:
+          key: ""
+        _links:
+          key:
+            href: href
+            type: ""
+        capability_version: 0
+        capability_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        updated_by: updated_by
+        created_at: 2000-01-23T04:56:07.000+00:00
+        id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        created_by: created_by
+        status: ""
+      properties:
+        _embedded:
+          additionalProperties: true
+          nullable: true
+          type: object
+        _links:
+          additionalProperties:
+            $ref: "#/components/schemas/HateoasLink"
+          nullable: true
+        status:
+          allOf:
+          - $ref: "#/components/schemas/ExecutionStatus"
+          default: pending
+        feedback:
+          additionalProperties: true
+          nullable: true
+          type: object
+        created_at:
+          format: date-time
+          title: Created At
+          type: string
+        updated_at:
+          format: date-time
+          title: Updated At
+          type: string
+        created_by:
+          title: Created By
+          type: string
+        updated_by:
+          title: Updated By
+          type: string
+        id:
+          format: uuid
+          title: Id
+          type: string
+        capability_id:
+          format: uuid
+          title: Capability Id
+          type: string
+        capability_version:
+          nullable: true
+          type: integer
+      required:
+      - capability_id
+      - created_at
+      - created_by
+      - id
+      - updated_at
+      - updated_by
+      title: ExecutionSparse
     ExecutionStatus:
       enum:
       - pending
@@ -8826,26 +9814,225 @@ components:
       - name
       - type
       title: ExtractionCapabilityUpdate
-    FeedbackCreate:
+    Feedback:
       example:
-        feedback: feedback
+        execution_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        sentiment: positive
+        updated_at: 2000-01-23T04:56:07.000+00:00
+        _embedded:
+          key: ""
+        _links:
+          key:
+            href: href
+            type: ""
+        capability_version: 0
+        capability_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        execution_context: ""
+        created_at: 2000-01-23T04:56:07.000+00:00
+        comment: comment
+        id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        include_execution_context: true
       properties:
-        feedback:
-          title: Feedback
+        _embedded:
+          additionalProperties: true
+          nullable: true
+          type: object
+        _links:
+          additionalProperties:
+            $ref: "#/components/schemas/HateoasLink"
+          nullable: true
+        id:
+          format: uuid
+          title: Id
+          type: string
+        execution_id:
+          format: uuid
+          title: Execution Id
+          type: string
+        capability_id:
+          format: uuid
+          title: Capability Id
+          type: string
+        capability_version:
+          title: Capability Version
+          type: integer
+        sentiment:
+          $ref: "#/components/schemas/FeedbackSentiment"
+        comment:
+          nullable: true
+          type: string
+        include_execution_context:
+          title: Include Execution Context
+          type: boolean
+        execution_context:
+          allOf:
+          - $ref: "#/components/schemas/ExecutionContext"
+          nullable: true
+        created_at:
+          format: date-time
+          title: Created At
+          type: string
+        updated_at:
+          format: date-time
+          title: Updated At
           type: string
       required:
-      - feedback
+      - capability_id
+      - capability_version
+      - created_at
+      - execution_id
+      - id
+      - include_execution_context
+      - sentiment
+      - updated_at
+      title: Feedback
+    FeedbackCreate:
+      example:
+        sentiment: positive
+        comment: comment
+        include_execution_context: false
+      properties:
+        sentiment:
+          $ref: "#/components/schemas/FeedbackSentiment"
+        comment:
+          maxLength: 2000
+          nullable: true
+          type: string
+        include_execution_context:
+          default: false
+          title: Include Execution Context
+          type: boolean
+      required:
+      - sentiment
       title: FeedbackCreate
-    FieldType:
+    FeedbackSentiment:
       enum:
-      - text
-      - number
-      - boolean
-      - url
-      - key
-      - string_array
-      title: FieldType
+      - positive
+      - negative
+      title: FeedbackSentiment
       type: string
+    FieldProvenance_Any_:
+      additionalProperties: false
+      example:
+        alternatives:
+        - source: null
+          value: ""
+        - source: null
+          value: ""
+        chosen_sources:
+        - null
+        - null
+        chosen: ""
+      properties:
+        chosen:
+          title: Chosen
+        chosen_sources:
+          items:
+            $ref: "#/components/schemas/CatalogSource"
+          type: array
+        alternatives:
+          items:
+            $ref: "#/components/schemas/SourceObservation_Any_"
+          type: array
+      title: "FieldProvenance[Any]"
+    FieldValueFormat:
+      enum:
+      - json
+      title: FieldValueFormat
+      type: string
+    FileListPage:
+      example:
+        number: 6
+        size: 1
+        total_elements: 5
+        total_pages: 5
+      properties:
+        number:
+          title: Number
+          type: integer
+        size:
+          title: Size
+          type: integer
+        total_elements:
+          title: Total Elements
+          type: integer
+        total_pages:
+          title: Total Pages
+          type: integer
+      required:
+      - number
+      - size
+      - total_elements
+      - total_pages
+      title: FileListPage
+    FileListResponse:
+      example:
+        page:
+          number: 6
+          size: 1
+          total_elements: 5
+          total_pages: 5
+        items:
+        - filename: filename
+          size_bytes: 0
+          expires_at: 2000-01-23T04:56:07.000+00:00
+          content_type: content_type
+          created_at: 2000-01-23T04:56:07.000+00:00
+          id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        - filename: filename
+          size_bytes: 0
+          expires_at: 2000-01-23T04:56:07.000+00:00
+          content_type: content_type
+          created_at: 2000-01-23T04:56:07.000+00:00
+          id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+      properties:
+        items:
+          items:
+            $ref: "#/components/schemas/FileResponse"
+          type: array
+        page:
+          $ref: "#/components/schemas/FileListPage"
+      required:
+      - items
+      - page
+      title: FileListResponse
+    FileResponse:
+      description: File metadata returned by the API.
+      example:
+        filename: filename
+        size_bytes: 0
+        expires_at: 2000-01-23T04:56:07.000+00:00
+        content_type: content_type
+        created_at: 2000-01-23T04:56:07.000+00:00
+        id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+      properties:
+        id:
+          format: uuid
+          title: Id
+          type: string
+        filename:
+          title: Filename
+          type: string
+        content_type:
+          title: Content Type
+          type: string
+        size_bytes:
+          title: Size Bytes
+          type: integer
+        created_at:
+          format: date-time
+          nullable: true
+          type: string
+        expires_at:
+          format: date-time
+          nullable: true
+          type: string
+      required:
+      - content_type
+      - filename
+      - id
+      - size_bytes
+      title: FileResponse
     GeminiProviderValidationRequest:
       properties:
         configuration:
@@ -8891,13 +10078,6 @@ components:
       - name
       - provider_type
       title: GeminiProviderWithDeploymentsCreate
-    GroundednessRequirement:
-      properties:
-        enabled:
-          default: true
-          title: Enabled
-          type: boolean
-      title: GroundednessRequirement
     GuardrailEventListResponse:
       example:
         total: 0
@@ -9029,30 +10209,14 @@ components:
       title: GuardrailEventResponse
     GuardrailRow:
       example:
-        topic_restriction_topics:
-        - topic_restriction_topics
-        - topic_restriction_topics
         control_compliance:
           key: compliant
-        pii_detection_enabled: true
-        groundedness_enabled: true
-        data_retention_type: infinite
-        pii_detection_mode: ""
-        pii_detection_output_mode: ""
-        pii_detection_input_mode: ""
-        project_name: project_name
-        topic_restriction_threshold: 6.027456183070403
-        content_tracing: true
-        topic_restriction_enabled: true
         capability_name: capability_name
         project_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
         capability_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
-        content_filter_enabled: true
-        data_retention_hours: 0
-        prompt_shield_enabled: true
-        content_filter_thresholds:
-          key: low
-        topic_restriction_mode: ""
+        pii_detection_output_mode: ""
+        pii_detection_input_mode: ""
+        project_name: project_name
       properties:
         capability_id:
           format: uuid
@@ -9068,35 +10232,6 @@ components:
         project_name:
           nullable: true
           type: string
-        data_retention_type:
-          enum:
-          - infinite
-          - timed
-          nullable: true
-          type: string
-        data_retention_hours:
-          nullable: true
-          type: integer
-        content_tracing:
-          nullable: true
-          type: boolean
-        content_filter_enabled:
-          nullable: true
-          type: boolean
-        content_filter_thresholds:
-          additionalProperties:
-            $ref: "#/components/schemas/SeverityLevel"
-          nullable: true
-        prompt_shield_enabled:
-          nullable: true
-          type: boolean
-        pii_detection_enabled:
-          nullable: true
-          type: boolean
-        pii_detection_mode:
-          allOf:
-          - $ref: "#/components/schemas/PiiEnforcementMode"
-          nullable: true
         pii_detection_input_mode:
           allOf:
           - $ref: "#/components/schemas/PiiEnforcementMode"
@@ -9105,24 +10240,6 @@ components:
           allOf:
           - $ref: "#/components/schemas/PiiEnforcementMode"
           nullable: true
-        topic_restriction_enabled:
-          nullable: true
-          type: boolean
-        topic_restriction_mode:
-          allOf:
-          - $ref: "#/components/schemas/TopicRestrictionMode"
-          nullable: true
-        topic_restriction_topics:
-          items:
-            type: string
-          nullable: true
-          type: array
-        topic_restriction_threshold:
-          nullable: true
-          type: number
-        groundedness_enabled:
-          nullable: true
-          type: boolean
         control_compliance:
           additionalProperties:
             $ref: "#/components/schemas/ControlComplianceStatus"
@@ -9137,7 +10254,7 @@ components:
 
         Methods from the following RFCs are all observed:
 
-            * RFC 9110: HTTP Semantics, obsoletes 7231, which obsoleted 2616
+            * RFC 7231: Hypertext Transfer Protocol (HTTP/1.1), obsoletes 2616
             * RFC 5789: PATCH Method for HTTP
       enum:
       - CONNECT
@@ -9189,6 +10306,197 @@ components:
       required:
       - href
       title: HateoasLink
+    ImageGenerationCapability:
+      properties:
+        _links:
+          additionalProperties:
+            $ref: "#/components/schemas/HateoasLink"
+          nullable: true
+        name:
+          minLength: 1
+          title: Name
+          type: string
+        is_public:
+          nullable: true
+          type: boolean
+        type:
+          default: image_generation
+          enum:
+          - image_generation
+          title: Type
+          type: string
+        model_id:
+          format: uuid
+          nullable: true
+          type: string
+        model_pool_id:
+          format: uuid
+          nullable: true
+          type: string
+        config:
+          allOf:
+          - $ref: "#/components/schemas/CapabilityConfig"
+          nullable: true
+        project_id:
+          format: uuid
+          nullable: true
+          type: string
+        semantic_id:
+          minLength: 10
+          nullable: true
+          pattern: "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+          type: string
+        id:
+          format: uuid
+          title: Id
+          type: string
+        created_by:
+          title: Created By
+          type: string
+        updated_by:
+          title: Updated By
+          type: string
+        created_at:
+          format: date-time
+          title: Created At
+          type: string
+        updated_at:
+          format: date-time
+          title: Updated At
+          type: string
+        archived_at:
+          format: date-time
+          nullable: true
+          type: string
+        owner:
+          title: Owner
+          type: string
+        version:
+          default: 1
+          title: Version
+          type: integer
+        system_prompt:
+          nullable: true
+          type: string
+        output_type:
+          default: image
+          enum:
+          - image
+          title: Output Type
+          type: string
+        variables:
+          items:
+            type: string
+          nullable: true
+          type: array
+      required:
+      - created_at
+      - created_by
+      - id
+      - name
+      - owner
+      - updated_at
+      - updated_by
+      title: ImageGenerationCapability
+    ImageGenerationCapabilityCreate:
+      properties:
+        name:
+          minLength: 1
+          title: Name
+          type: string
+        is_public:
+          nullable: true
+          type: boolean
+        type:
+          default: image_generation
+          enum:
+          - image_generation
+          title: Type
+          type: string
+        model_id:
+          format: uuid
+          nullable: true
+          type: string
+        model_pool_id:
+          format: uuid
+          nullable: true
+          type: string
+        config:
+          allOf:
+          - $ref: "#/components/schemas/CapabilityConfig"
+          nullable: true
+        project_id:
+          format: uuid
+          nullable: true
+          type: string
+        semantic_id:
+          minLength: 10
+          nullable: true
+          pattern: "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+          type: string
+        system_prompt:
+          nullable: true
+          type: string
+        output_type:
+          default: image
+          enum:
+          - image
+          title: Output Type
+          type: string
+      required:
+      - name
+      title: ImageGenerationCapabilityCreate
+    ImageGenerationCapabilityUpdate:
+      properties:
+        name:
+          minLength: 1
+          title: Name
+          type: string
+        is_public:
+          nullable: true
+          type: boolean
+        type:
+          enum:
+          - image_generation
+          title: Type
+          type: string
+        model_id:
+          format: uuid
+          nullable: true
+          type: string
+        model_pool_id:
+          format: uuid
+          nullable: true
+          type: string
+        config:
+          allOf:
+          - $ref: "#/components/schemas/CapabilityConfig"
+          nullable: true
+        project_id:
+          format: uuid
+          nullable: true
+          type: string
+        semantic_id:
+          minLength: 10
+          nullable: true
+          pattern: "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+          type: string
+        system_prompt:
+          nullable: true
+          type: string
+        output_type:
+          default: image
+          enum:
+          - image
+          title: Output Type
+          type: string
+        set_as_default:
+          nullable: true
+          type: boolean
+      required:
+      - name
+      - type
+      title: ImageGenerationCapabilityUpdate
     InfiniteDataRetention:
       properties:
         type:
@@ -9198,6 +10506,184 @@ components:
           title: Type
           type: string
       title: InfiniteDataRetention
+    KeyConfigurationField:
+      properties:
+        name:
+          title: Name
+          type: string
+        label:
+          title: Label
+          type: string
+        required:
+          title: Required
+          type: boolean
+        description:
+          nullable: true
+          type: string
+        placeholder:
+          nullable: true
+          type: string
+        order:
+          default: 0
+          title: Order
+          type: integer
+        type:
+          default: key
+          enum:
+          - key
+          title: Type
+          type: string
+        value_format:
+          allOf:
+          - $ref: "#/components/schemas/FieldValueFormat"
+          nullable: true
+        multiline:
+          default: false
+          title: Multiline
+          type: boolean
+      required:
+      - label
+      - name
+      - required
+      title: KeyConfigurationField
+    Limits:
+      additionalProperties: false
+      description: Per-model token caps.
+      example:
+        context_window: 0
+        max_output_tokens: 0
+      properties:
+        context_window:
+          minimum: 0.0
+          nullable: true
+          type: integer
+        max_output_tokens:
+          minimum: 0.0
+          nullable: true
+          type: integer
+      title: Limits
+    MCPAuthModeSchema:
+      description: One selectable authentication mode and the fields it requires.
+      example:
+        label: label
+        type: type
+        disabled_reason: disabled_reason
+        fields:
+        - null
+        - null
+        enabled: true
+      properties:
+        type:
+          title: Type
+          type: string
+        label:
+          title: Label
+          type: string
+        enabled:
+          default: true
+          title: Enabled
+          type: boolean
+        disabled_reason:
+          nullable: true
+          type: string
+        fields:
+          items:
+            $ref: "#/components/schemas/ConfigurationField"
+          type: array
+      required:
+      - label
+      - type
+      title: MCPAuthModeSchema
+    MCPAuthSchema:
+      description: Auth section of the config schema.
+      example:
+        default: none
+        modes:
+        - label: label
+          type: type
+          disabled_reason: disabled_reason
+          fields:
+          - null
+          - null
+          enabled: true
+        - label: label
+          type: type
+          disabled_reason: disabled_reason
+          fields:
+          - null
+          - null
+          enabled: true
+      properties:
+        default:
+          default: none
+          title: Default
+          type: string
+        modes:
+          items:
+            $ref: "#/components/schemas/MCPAuthModeSchema"
+          type: array
+      required:
+      - modes
+      title: MCPAuthSchema
+    MCPConfigSchemaResponse:
+      description: |-
+        Renderable form schema for the MCP server editor.
+
+        The frontend fetches this once and builds the auth section from it: the
+        auth dropdown from ``auth.modes`` and the conditional fields from the
+        selected mode's ``fields``. Adding a new auth mode is a backend-only change.
+      example:
+        schema_version: 0
+        auth:
+          default: none
+          modes:
+          - label: label
+            type: type
+            disabled_reason: disabled_reason
+            fields:
+            - null
+            - null
+            enabled: true
+          - label: label
+            type: type
+            disabled_reason: disabled_reason
+            fields:
+            - null
+            - null
+            enabled: true
+        server_fields:
+        - default: default
+          name: name
+          pattern: pattern
+          description: description
+          label: label
+          placeholder: placeholder
+          type: text
+          required: true
+          order: 0
+        - default: default
+          name: name
+          pattern: pattern
+          description: description
+          label: label
+          placeholder: placeholder
+          type: text
+          required: true
+          order: 0
+      properties:
+        schema_version:
+          default: 1
+          title: Schema Version
+          type: integer
+        server_fields:
+          items:
+            $ref: "#/components/schemas/ConfigurationField"
+          type: array
+        auth:
+          $ref: "#/components/schemas/MCPAuthSchema"
+      required:
+      - auth
+      title: MCPConfigSchemaResponse
     MCPConnectionType:
       description: Supported transport protocols for MCP servers
       enum:
@@ -9413,10 +10899,14 @@ components:
             display_name: display_name
           id: id
           type: type
+        id: id
         content: Content
         structured_content:
           key: ""
       properties:
+        id:
+          title: Id
+          type: string
         role:
           enum:
           - system
@@ -9532,6 +11022,449 @@ components:
       - name
       - provider_type
       title: MistralProviderWithDeploymentsCreate
+    Modality:
+      description: Input/output modality understood by the catalog.
+      enum:
+      - text
+      - image
+      - audio
+      - video
+      title: Modality
+      type: string
+    ModalitySupport:
+      additionalProperties: false
+      description: Modalities the model accepts (``inputs``) and produces (``outputs``).
+      example:
+        outputs:
+        - null
+        - null
+        inputs:
+        - text
+        - text
+      properties:
+        inputs:
+          items:
+            $ref: "#/components/schemas/Modality"
+          type: array
+        outputs:
+          items:
+            $ref: "#/components/schemas/Modality"
+          type: array
+      required:
+      - inputs
+      - outputs
+      title: ModalitySupport
+    ModelCapability:
+      description: |-
+        Closed enum of capability flags surfaced by the catalog.
+
+        Membership matches ``contracts/snapshot.schema.json``.
+      enum:
+      - text_input
+      - image_input
+      - audio_input
+      - video_input
+      - text_output
+      - image_output
+      - audio_output
+      - tool_use
+      - parallel_tool_calls
+      - structured_output
+      - vision
+      - prompt_caching
+      - streaming
+      - assistants_api
+      - embeddings
+      - reasoning
+      title: ModelCapability
+      type: string
+    ModelCatalogEntry:
+      additionalProperties: false
+      description: A normalized model entry with full provenance.
+      example:
+        deprecation_note: deprecation_note
+        capabilities:
+        - text_input
+        - text_input
+        sources:
+        - null
+        - null
+        deprecated: false
+        raw_ids:
+          models_dev: models_dev
+          litellm: litellm
+        canonical_provider_slug: canonical_provider_slug
+        description: description
+        display_name: display_name
+        catalog_id: catalog_id
+        mode: chat
+        modalities:
+          outputs:
+          - null
+          - null
+          inputs:
+          - text
+          - text
+        vendor_provider: vendor_provider
+        canonical_model_slug: canonical_model_slug
+        conflicts:
+        - field: field
+          alternatives:
+          - source: null
+            value: ""
+          - source: null
+            value: ""
+          chosen:
+            source: null
+            value: ""
+        - field: field
+          alternatives:
+          - source: null
+            value: ""
+          - source: null
+            value: ""
+          chosen:
+            source: null
+            value: ""
+        deployment_id: deployment_id
+        limits:
+          context_window: 0
+          max_output_tokens: 0
+        pricing:
+          input_per_mtok: input_per_mtok
+          cache_read_per_mtok: cache_read_per_mtok
+          output_per_mtok: output_per_mtok
+          cache_write_per_mtok: cache_write_per_mtok
+        field_provenance:
+          key:
+            alternatives:
+            - source: null
+              value: ""
+            - source: null
+              value: ""
+            chosen_sources:
+            - null
+            - null
+            chosen: ""
+      properties:
+        catalog_id:
+          pattern: "^[a-z0-9](?:[a-z0-9-]{0,79})?:[a-z0-9](?:[a-z0-9.-]{0,79})?$"
+          title: Catalog Id
+          type: string
+        canonical_provider_slug:
+          pattern: "^[a-z0-9](?:[a-z0-9-]{0,79})?$"
+          title: Canonical Provider Slug
+          type: string
+        canonical_model_slug:
+          pattern: "^[a-z0-9](?:[a-z0-9.-]{0,79})?$"
+          title: Canonical Model Slug
+          type: string
+        deployment_id:
+          minLength: 1
+          title: Deployment Id
+          type: string
+        mode:
+          $ref: "#/components/schemas/ModelMode"
+        display_name:
+          title: Display Name
+          type: string
+        description:
+          nullable: true
+          type: string
+        modalities:
+          $ref: "#/components/schemas/ModalitySupport"
+        capabilities:
+          items:
+            $ref: "#/components/schemas/ModelCapability"
+          type: array
+        limits:
+          $ref: "#/components/schemas/Limits"
+        pricing:
+          $ref: "#/components/schemas/Price"
+        vendor_provider:
+          title: Vendor Provider
+          type: string
+        deprecated:
+          default: false
+          title: Deprecated
+          type: boolean
+        deprecation_note:
+          nullable: true
+          type: string
+        sources:
+          items:
+            $ref: "#/components/schemas/CatalogSource"
+          minItems: 1
+          type: array
+        raw_ids:
+          $ref: "#/components/schemas/RawIds"
+        field_provenance:
+          additionalProperties:
+            $ref: "#/components/schemas/FieldProvenance_Any_"
+          title: Field Provenance
+        conflicts:
+          items:
+            $ref: "#/components/schemas/ConflictView"
+          type: array
+      required:
+      - canonical_model_slug
+      - canonical_provider_slug
+      - capabilities
+      - catalog_id
+      - deployment_id
+      - display_name
+      - limits
+      - modalities
+      - mode
+      - pricing
+      - raw_ids
+      - sources
+      - vendor_provider
+      title: ModelCatalogEntry
+    ModelCatalogEntryResponse:
+      additionalProperties: false
+      description: "API response for ``GET /v1/model-catalog/{catalog_id}``."
+      example:
+        entry:
+          deprecation_note: deprecation_note
+          capabilities:
+          - text_input
+          - text_input
+          sources:
+          - null
+          - null
+          deprecated: false
+          raw_ids:
+            models_dev: models_dev
+            litellm: litellm
+          canonical_provider_slug: canonical_provider_slug
+          description: description
+          display_name: display_name
+          catalog_id: catalog_id
+          mode: chat
+          modalities:
+            outputs:
+            - null
+            - null
+            inputs:
+            - text
+            - text
+          vendor_provider: vendor_provider
+          canonical_model_slug: canonical_model_slug
+          conflicts:
+          - field: field
+            alternatives:
+            - source: null
+              value: ""
+            - source: null
+              value: ""
+            chosen:
+              source: null
+              value: ""
+          - field: field
+            alternatives:
+            - source: null
+              value: ""
+            - source: null
+              value: ""
+            chosen:
+              source: null
+              value: ""
+          deployment_id: deployment_id
+          limits:
+            context_window: 0
+            max_output_tokens: 0
+          pricing:
+            input_per_mtok: input_per_mtok
+            cache_read_per_mtok: cache_read_per_mtok
+            output_per_mtok: output_per_mtok
+            cache_write_per_mtok: cache_write_per_mtok
+          field_provenance:
+            key:
+              alternatives:
+              - source: null
+                value: ""
+              - source: null
+                value: ""
+              chosen_sources:
+              - null
+              - null
+              chosen: ""
+        metadata:
+          source_snapshots:
+          - fetched_at: 2000-01-23T04:56:07.000+00:00
+            source: models_dev
+            content_hash: content_hash
+            source_url: https://openapi-generator.tech
+          - fetched_at: 2000-01-23T04:56:07.000+00:00
+            source: models_dev
+            content_hash: content_hash
+            source_url: https://openapi-generator.tech
+          generated_at: 2000-01-23T04:56:07.000+00:00
+      properties:
+        metadata:
+          $ref: "#/components/schemas/CatalogStalenessMetadata"
+        entry:
+          $ref: "#/components/schemas/ModelCatalogEntry"
+      required:
+      - entry
+      - metadata
+      title: ModelCatalogEntryResponse
+    ModelCatalogListResponse:
+      additionalProperties: false
+      description: API response for ``GET /v1/model-catalog/``.
+      example:
+        metadata:
+          source_snapshots:
+          - fetched_at: 2000-01-23T04:56:07.000+00:00
+            source: models_dev
+            content_hash: content_hash
+            source_url: https://openapi-generator.tech
+          - fetched_at: 2000-01-23T04:56:07.000+00:00
+            source: models_dev
+            content_hash: content_hash
+            source_url: https://openapi-generator.tech
+          generated_at: 2000-01-23T04:56:07.000+00:00
+        entries:
+        - deprecation_note: deprecation_note
+          capabilities:
+          - text_input
+          - text_input
+          sources:
+          - null
+          - null
+          deprecated: false
+          raw_ids:
+            models_dev: models_dev
+            litellm: litellm
+          canonical_provider_slug: canonical_provider_slug
+          description: description
+          display_name: display_name
+          catalog_id: catalog_id
+          mode: chat
+          modalities:
+            outputs:
+            - null
+            - null
+            inputs:
+            - text
+            - text
+          vendor_provider: vendor_provider
+          canonical_model_slug: canonical_model_slug
+          conflicts:
+          - field: field
+            alternatives:
+            - source: null
+              value: ""
+            - source: null
+              value: ""
+            chosen:
+              source: null
+              value: ""
+          - field: field
+            alternatives:
+            - source: null
+              value: ""
+            - source: null
+              value: ""
+            chosen:
+              source: null
+              value: ""
+          deployment_id: deployment_id
+          limits:
+            context_window: 0
+            max_output_tokens: 0
+          pricing:
+            input_per_mtok: input_per_mtok
+            cache_read_per_mtok: cache_read_per_mtok
+            output_per_mtok: output_per_mtok
+            cache_write_per_mtok: cache_write_per_mtok
+          field_provenance:
+            key:
+              alternatives:
+              - source: null
+                value: ""
+              - source: null
+                value: ""
+              chosen_sources:
+              - null
+              - null
+              chosen: ""
+        - deprecation_note: deprecation_note
+          capabilities:
+          - text_input
+          - text_input
+          sources:
+          - null
+          - null
+          deprecated: false
+          raw_ids:
+            models_dev: models_dev
+            litellm: litellm
+          canonical_provider_slug: canonical_provider_slug
+          description: description
+          display_name: display_name
+          catalog_id: catalog_id
+          mode: chat
+          modalities:
+            outputs:
+            - null
+            - null
+            inputs:
+            - text
+            - text
+          vendor_provider: vendor_provider
+          canonical_model_slug: canonical_model_slug
+          conflicts:
+          - field: field
+            alternatives:
+            - source: null
+              value: ""
+            - source: null
+              value: ""
+            chosen:
+              source: null
+              value: ""
+          - field: field
+            alternatives:
+            - source: null
+              value: ""
+            - source: null
+              value: ""
+            chosen:
+              source: null
+              value: ""
+          deployment_id: deployment_id
+          limits:
+            context_window: 0
+            max_output_tokens: 0
+          pricing:
+            input_per_mtok: input_per_mtok
+            cache_read_per_mtok: cache_read_per_mtok
+            output_per_mtok: output_per_mtok
+            cache_write_per_mtok: cache_write_per_mtok
+          field_provenance:
+            key:
+              alternatives:
+              - source: null
+                value: ""
+              - source: null
+                value: ""
+              chosen_sources:
+              - null
+              - null
+              chosen: ""
+      properties:
+        metadata:
+          $ref: "#/components/schemas/CatalogStalenessMetadata"
+        entries:
+          items:
+            $ref: "#/components/schemas/ModelCatalogEntry"
+          type: array
+      required:
+      - entries
+      - metadata
+      title: ModelCatalogListResponse
     ModelDeployment:
       example:
         is_active: true
@@ -9646,6 +11579,163 @@ components:
       - provider_id
       - supported_tasks
       title: ModelDeploymentCreate
+    ModelDeploymentPool:
+      example:
+        updated_at: 2000-01-23T04:56:07.000+00:00
+        _links:
+          key:
+            href: href
+            type: ""
+        members:
+        - is_active: true
+          _links:
+            key:
+              href: href
+              type: ""
+          weight: 1
+          id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          priority: 1
+          pool_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          last_failure_at: 2000-01-23T04:56:07.000+00:00
+          model_deployment_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        - is_active: true
+          _links:
+            key:
+              href: href
+              type: ""
+          weight: 1
+          id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          priority: 1
+          pool_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          last_failure_at: 2000-01-23T04:56:07.000+00:00
+          model_deployment_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        name: name
+        cooldown_seconds: 0
+        updated_by: updated_by
+        created_at: 2000-01-23T04:56:07.000+00:00
+        id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        strategy: ""
+        fallback_mode: ""
+        created_by: created_by
+      properties:
+        _links:
+          additionalProperties:
+            $ref: "#/components/schemas/HateoasLink"
+          nullable: true
+        name:
+          maxLength: 100
+          minLength: 1
+          title: Name
+          type: string
+        strategy:
+          allOf:
+          - $ref: "#/components/schemas/PoolStrategy"
+          default: weighted_random
+        cooldown_seconds:
+          default: 60
+          minimum: 0.0
+          title: Cooldown Seconds
+          type: integer
+        fallback_mode:
+          allOf:
+          - $ref: "#/components/schemas/PoolFallbackMode"
+          default: try_next
+        id:
+          format: uuid
+          title: Id
+          type: string
+        created_at:
+          format: date-time
+          title: Created At
+          type: string
+        updated_at:
+          format: date-time
+          nullable: true
+          type: string
+        created_by:
+          title: Created By
+          type: string
+        updated_by:
+          nullable: true
+          type: string
+        members:
+          default: []
+          items:
+            $ref: "#/components/schemas/PoolMember"
+          type: array
+      required:
+      - created_at
+      - created_by
+      - id
+      - name
+      title: ModelDeploymentPool
+    ModelDeploymentPoolCreate:
+      example:
+        members:
+        - is_active: true
+          weight: 1
+          priority: 1
+          model_deployment_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        - is_active: true
+          weight: 1
+          priority: 1
+          model_deployment_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        name: name
+        cooldown_seconds: 0
+        strategy: ""
+        fallback_mode: ""
+      properties:
+        name:
+          maxLength: 100
+          minLength: 1
+          title: Name
+          type: string
+        strategy:
+          allOf:
+          - $ref: "#/components/schemas/PoolStrategy"
+          default: weighted_random
+        cooldown_seconds:
+          default: 60
+          minimum: 0.0
+          title: Cooldown Seconds
+          type: integer
+        fallback_mode:
+          allOf:
+          - $ref: "#/components/schemas/PoolFallbackMode"
+          default: try_next
+        members:
+          items:
+            $ref: "#/components/schemas/PoolMemberCreate"
+          nullable: true
+          type: array
+      required:
+      - name
+      title: ModelDeploymentPoolCreate
+    ModelDeploymentPoolUpdate:
+      example:
+        name: name
+        cooldown_seconds: 0
+        strategy: ""
+        fallback_mode: ""
+      properties:
+        name:
+          maxLength: 100
+          minLength: 1
+          nullable: true
+          type: string
+        strategy:
+          allOf:
+          - $ref: "#/components/schemas/PoolStrategy"
+          nullable: true
+        cooldown_seconds:
+          minimum: 0.0
+          nullable: true
+          type: integer
+        fallback_mode:
+          allOf:
+          - $ref: "#/components/schemas/PoolFallbackMode"
+          nullable: true
+      title: ModelDeploymentPoolUpdate
     ModelDeploymentUpdate:
       example:
         is_active: true
@@ -9686,6 +11776,30 @@ components:
       - provider_id
       - supported_tasks
       title: ModelDeploymentUpdate
+    ModelMode:
+      description: |-
+        Closed enum of model categorization modes sourced from LiteLLM.
+
+        Indicates what the model is *for* (categorization), orthogonal to
+        :class:`ModelCapability` which indicates what the model *can do*.
+      enum:
+      - chat
+      - embedding
+      - image_generation
+      - audio_speech
+      - audio_transcription
+      - completion
+      - image_edit
+      - rerank
+      - video_generation
+      - search
+      - ocr
+      - moderation
+      - realtime
+      - vector_store
+      - responses
+      title: ModelMode
+      type: string
     ModelProvider:
       example:
         provider_type: provider_type
@@ -9774,25 +11888,19 @@ components:
             href: href
             type: ""
         configuration:
-        - default: Default
-          min: 1
-          max: 6
+        - default: default
           name: name
           pattern: pattern
           description: description
-          step: 5
           label: label
           placeholder: placeholder
           type: text
           required: true
           order: 0
-        - default: Default
-          min: 1
-          max: 6
+        - default: default
           name: name
           pattern: pattern
           description: description
-          step: 5
           label: label
           placeholder: placeholder
           type: text
@@ -9802,30 +11910,8 @@ components:
         description: description
         label: label
         model_deployment_configuration:
-        - default: Default
-          min: 1
-          max: 6
-          name: name
-          pattern: pattern
-          description: description
-          step: 5
-          label: label
-          placeholder: placeholder
-          type: text
-          required: true
-          order: 0
-        - default: Default
-          min: 1
-          max: 6
-          name: name
-          pattern: pattern
-          description: description
-          step: 5
-          label: label
-          placeholder: placeholder
-          type: text
-          required: true
-          order: 0
+        - null
+        - null
       properties:
         _links:
           additionalProperties:
@@ -9886,6 +11972,93 @@ components:
       - name
       - provider_type
       title: ModelProviderUpdate
+    MultiSelectConfigurationField:
+      properties:
+        name:
+          title: Name
+          type: string
+        label:
+          title: Label
+          type: string
+        required:
+          title: Required
+          type: boolean
+        description:
+          nullable: true
+          type: string
+        placeholder:
+          nullable: true
+          type: string
+        order:
+          default: 0
+          title: Order
+          type: integer
+        type:
+          default: multi_select
+          enum:
+          - multi_select
+          title: Type
+          type: string
+        options:
+          items:
+            $ref: "#/components/schemas/ConfigurationFieldOption"
+          type: array
+        max:
+          nullable: true
+          type: integer
+      required:
+      - label
+      - name
+      - options
+      - required
+      title: MultiSelectConfigurationField
+    NumberConfigurationField:
+      properties:
+        name:
+          title: Name
+          type: string
+        label:
+          title: Label
+          type: string
+        required:
+          title: Required
+          type: boolean
+        description:
+          nullable: true
+          type: string
+        placeholder:
+          nullable: true
+          type: string
+        order:
+          default: 0
+          title: Order
+          type: integer
+        type:
+          default: number
+          enum:
+          - number
+          title: Type
+          type: string
+        default:
+          title: Default
+          type: number
+        min:
+          title: Min
+          type: number
+        step:
+          title: Step
+          type: number
+        max:
+          nullable: true
+          type: number
+      required:
+      - default
+      - label
+      - min
+      - name
+      - required
+      - step
+      title: NumberConfigurationField
     ObjectProperty-Input:
       properties:
         type:
@@ -10279,25 +12452,19 @@ components:
           name: name
           description: description
           configuration_fields:
-          - default: Default
-            min: 1
-            max: 6
+          - default: default
             name: name
             pattern: pattern
             description: description
-            step: 5
             label: label
             placeholder: placeholder
             type: text
             required: true
             order: 0
-          - default: Default
-            min: 1
-            max: 6
+          - default: default
             name: name
             pattern: pattern
             description: description
-            step: 5
             label: label
             placeholder: placeholder
             type: text
@@ -10315,25 +12482,19 @@ components:
           name: name
           description: description
           configuration_fields:
-          - default: Default
-            min: 1
-            max: 6
+          - default: default
             name: name
             pattern: pattern
             description: description
-            step: 5
             label: label
             placeholder: placeholder
             type: text
             required: true
             order: 0
-          - default: Default
-            min: 1
-            max: 6
+          - default: default
             name: name
             pattern: pattern
             description: description
-            step: 5
             label: label
             placeholder: placeholder
             type: text
@@ -10578,6 +12739,7 @@ components:
                 display_name: display_name
               id: id
               type: type
+            id: id
             content: Content
             structured_content:
               key: ""
@@ -10601,6 +12763,7 @@ components:
                 display_name: display_name
               id: id
               type: type
+            id: id
             content: Content
             structured_content:
               key: ""
@@ -10639,6 +12802,7 @@ components:
                 display_name: display_name
               id: id
               type: type
+            id: id
             content: Content
             structured_content:
               key: ""
@@ -10662,6 +12826,7 @@ components:
                 display_name: display_name
               id: id
               type: type
+            id: id
             content: Content
             structured_content:
               key: ""
@@ -11056,44 +13221,40 @@ components:
       - _embedded
       - page
       title: "PagedResponseModel[EvaluationExecutionRepresentation]"
-    PagedResponseModel_Execution_:
+    PagedResponseModel_ExecutionSparse_:
       example:
         _embedded:
-        - _links:
-            key:
-              href: href
-              type: ""
-          created_at: 2000-01-23T04:56:07.000+00:00
-          created_by: created_by
-          result: ""
-          feedback:
+        - feedback:
             key: ""
-          input: ""
           updated_at: 2000-01-23T04:56:07.000+00:00
           _embedded:
             key: ""
+          _links:
+            key:
+              href: href
+              type: ""
           capability_version: 0
           capability_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
           updated_by: updated_by
+          created_at: 2000-01-23T04:56:07.000+00:00
           id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          created_by: created_by
           status: ""
-        - _links:
-            key:
-              href: href
-              type: ""
-          created_at: 2000-01-23T04:56:07.000+00:00
-          created_by: created_by
-          result: ""
-          feedback:
+        - feedback:
             key: ""
-          input: ""
           updated_at: 2000-01-23T04:56:07.000+00:00
           _embedded:
             key: ""
+          _links:
+            key:
+              href: href
+              type: ""
           capability_version: 0
           capability_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
           updated_by: updated_by
+          created_at: 2000-01-23T04:56:07.000+00:00
           id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          created_by: created_by
           status: ""
         _links:
           key:
@@ -11107,7 +13268,7 @@ components:
       properties:
         _embedded:
           items:
-            $ref: "#/components/schemas/Execution"
+            $ref: "#/components/schemas/ExecutionSparse"
           type: array
         page:
           $ref: "#/components/schemas/Page"
@@ -11118,7 +13279,66 @@ components:
       required:
       - _embedded
       - page
-      title: "PagedResponseModel[Execution]"
+      title: "PagedResponseModel[ExecutionSparse]"
+    PagedResponseModel_Feedback_:
+      example:
+        _embedded:
+        - execution_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          sentiment: positive
+          updated_at: 2000-01-23T04:56:07.000+00:00
+          _embedded:
+            key: ""
+          _links:
+            key:
+              href: href
+              type: ""
+          capability_version: 0
+          capability_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          execution_context: ""
+          created_at: 2000-01-23T04:56:07.000+00:00
+          comment: comment
+          id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          include_execution_context: true
+        - execution_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          sentiment: positive
+          updated_at: 2000-01-23T04:56:07.000+00:00
+          _embedded:
+            key: ""
+          _links:
+            key:
+              href: href
+              type: ""
+          capability_version: 0
+          capability_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          execution_context: ""
+          created_at: 2000-01-23T04:56:07.000+00:00
+          comment: comment
+          id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          include_execution_context: true
+        _links:
+          key:
+            href: href
+            type: ""
+        page:
+          number: 6
+          size: 1
+          total_elements: 5
+          total_pages: 5
+      properties:
+        _embedded:
+          items:
+            $ref: "#/components/schemas/Feedback"
+          type: array
+        page:
+          $ref: "#/components/schemas/Page"
+        _links:
+          additionalProperties:
+            $ref: "#/components/schemas/HateoasLink"
+          nullable: true
+      required:
+      - _embedded
+      - page
+      title: "PagedResponseModel[Feedback]"
     PagedResponseModel_MCPServerResponse_:
       example:
         _embedded:
@@ -11172,6 +13392,105 @@ components:
       - _embedded
       - page
       title: "PagedResponseModel[MCPServerResponse]"
+    PagedResponseModel_ModelDeploymentPool_:
+      example:
+        _embedded:
+        - updated_at: 2000-01-23T04:56:07.000+00:00
+          _links:
+            key:
+              href: href
+              type: ""
+          members:
+          - is_active: true
+            _links:
+              key:
+                href: href
+                type: ""
+            weight: 1
+            id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            priority: 1
+            pool_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            last_failure_at: 2000-01-23T04:56:07.000+00:00
+            model_deployment_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          - is_active: true
+            _links:
+              key:
+                href: href
+                type: ""
+            weight: 1
+            id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            priority: 1
+            pool_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            last_failure_at: 2000-01-23T04:56:07.000+00:00
+            model_deployment_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          name: name
+          cooldown_seconds: 0
+          updated_by: updated_by
+          created_at: 2000-01-23T04:56:07.000+00:00
+          id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          strategy: ""
+          fallback_mode: ""
+          created_by: created_by
+        - updated_at: 2000-01-23T04:56:07.000+00:00
+          _links:
+            key:
+              href: href
+              type: ""
+          members:
+          - is_active: true
+            _links:
+              key:
+                href: href
+                type: ""
+            weight: 1
+            id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            priority: 1
+            pool_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            last_failure_at: 2000-01-23T04:56:07.000+00:00
+            model_deployment_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          - is_active: true
+            _links:
+              key:
+                href: href
+                type: ""
+            weight: 1
+            id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            priority: 1
+            pool_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+            last_failure_at: 2000-01-23T04:56:07.000+00:00
+            model_deployment_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          name: name
+          cooldown_seconds: 0
+          updated_by: updated_by
+          created_at: 2000-01-23T04:56:07.000+00:00
+          id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+          strategy: ""
+          fallback_mode: ""
+          created_by: created_by
+        _links:
+          key:
+            href: href
+            type: ""
+        page:
+          number: 6
+          size: 1
+          total_elements: 5
+          total_pages: 5
+      properties:
+        _embedded:
+          items:
+            $ref: "#/components/schemas/ModelDeploymentPool"
+          type: array
+        page:
+          $ref: "#/components/schemas/Page"
+        _links:
+          additionalProperties:
+            $ref: "#/components/schemas/HateoasLink"
+          nullable: true
+      required:
+      - _embedded
+      - page
+      title: "PagedResponseModel[ModelDeploymentPool]"
     PagedResponseModel_ModelDeployment_:
       example:
         _embedded:
@@ -11244,25 +13563,19 @@ components:
               href: href
               type: ""
           configuration:
-          - default: Default
-            min: 1
-            max: 6
+          - default: default
             name: name
             pattern: pattern
             description: description
-            step: 5
             label: label
             placeholder: placeholder
             type: text
             required: true
             order: 0
-          - default: Default
-            min: 1
-            max: 6
+          - default: default
             name: name
             pattern: pattern
             description: description
-            step: 5
             label: label
             placeholder: placeholder
             type: text
@@ -11272,55 +13585,27 @@ components:
           description: description
           label: label
           model_deployment_configuration:
-          - default: Default
-            min: 1
-            max: 6
-            name: name
-            pattern: pattern
-            description: description
-            step: 5
-            label: label
-            placeholder: placeholder
-            type: text
-            required: true
-            order: 0
-          - default: Default
-            min: 1
-            max: 6
-            name: name
-            pattern: pattern
-            description: description
-            step: 5
-            label: label
-            placeholder: placeholder
-            type: text
-            required: true
-            order: 0
+          - null
+          - null
         - icon_url: icon_url
           _links:
             key:
               href: href
               type: ""
           configuration:
-          - default: Default
-            min: 1
-            max: 6
+          - default: default
             name: name
             pattern: pattern
             description: description
-            step: 5
             label: label
             placeholder: placeholder
             type: text
             required: true
             order: 0
-          - default: Default
-            min: 1
-            max: 6
+          - default: default
             name: name
             pattern: pattern
             description: description
-            step: 5
             label: label
             placeholder: placeholder
             type: text
@@ -11330,30 +13615,8 @@ components:
           description: description
           label: label
           model_deployment_configuration:
-          - default: Default
-            min: 1
-            max: 6
-            name: name
-            pattern: pattern
-            description: description
-            step: 5
-            label: label
-            placeholder: placeholder
-            type: text
-            required: true
-            order: 0
-          - default: Default
-            min: 1
-            max: 6
-            name: name
-            pattern: pattern
-            description: description
-            step: 5
-            label: label
-            placeholder: placeholder
-            type: text
-            required: true
-            order: 0
+          - null
+          - null
         _links:
           key:
             href: href
@@ -11626,6 +13889,8 @@ components:
       - evaluations:execute
       - compliance:read
       - compliance:write
+      - files:read
+      - files:write
       - users:manage
       - roles:manage
       title: Permission
@@ -11651,6 +13916,9 @@ components:
       - id
       title: PermissionItem
     PiiDetectionDirectionRequirement:
+      additionalProperties: false
+      example:
+        mode: allow
       properties:
         mode:
           $ref: "#/components/schemas/PiiEnforcementMode"
@@ -11658,29 +13926,47 @@ components:
       - mode
       title: PiiDetectionDirectionRequirement
     PiiDetectionRequirement-Input:
+      additionalProperties: false
+      example:
+        output:
+          mode: allow
+        input:
+          mode: allow
+        entities:
+        - EMAIL
+        - EMAIL
       properties:
-        enabled:
-          default: true
-          title: Enabled
-          type: boolean
         input:
           $ref: "#/components/schemas/PiiDetectionDirectionRequirement"
         output:
           $ref: "#/components/schemas/PiiDetectionDirectionRequirement"
+        entities:
+          items:
+            $ref: "#/components/schemas/PiiEntity"
+          type: array
       required:
       - input
       - output
       title: PiiDetectionRequirement
     PiiDetectionRequirement-Output:
+      additionalProperties: false
+      example:
+        output:
+          mode: allow
+        input:
+          mode: allow
+        entities:
+        - EMAIL
+        - EMAIL
       properties:
-        enabled:
-          default: true
-          title: Enabled
-          type: boolean
         input:
           $ref: "#/components/schemas/PiiDetectionDirectionRequirement"
         output:
           $ref: "#/components/schemas/PiiDetectionDirectionRequirement"
+        entities:
+          items:
+            $ref: "#/components/schemas/PiiEntity"
+          type: array
       required:
       - input
       - output
@@ -11691,6 +13977,16 @@ components:
       - block
       - redact
       title: PiiEnforcementMode
+      type: string
+    PiiEntity:
+      enum:
+      - EMAIL
+      - IBAN
+      - PAYMENT_CARD
+      - NATIONAL_IDENTITY_NUMBER
+      - PHONE_NUMBER
+      - PERSON
+      title: PiiEntity
       type: string
     PolicyComplianceResult:
       example:
@@ -11728,97 +14024,56 @@ components:
       - policy_name
       title: PolicyComplianceResult
     PolicyControls-Input:
+      additionalProperties: false
       example:
-        content_tracing: ""
-        content_filter: ""
-        pii_detection: ""
-        groundedness: ""
-        topic_restriction: ""
-        data_retention: ""
-        prompt_shield: ""
-      properties:
-        data_retention:
-          allOf:
-          - $ref: "#/components/schemas/DataRetentionRequirement"
-          nullable: true
-        content_tracing:
-          allOf:
-          - $ref: "#/components/schemas/ContentTracingRequirement"
-          nullable: true
-        content_filter:
-          allOf:
-          - $ref: "#/components/schemas/ContentFilterRequirement"
-          nullable: true
-        prompt_shield:
-          allOf:
-          - $ref: "#/components/schemas/PromptShieldRequirement"
-          nullable: true
         pii_detection:
-          allOf:
-          - $ref: "#/components/schemas/PiiDetectionRequirement-Input"
-          nullable: true
-        topic_restriction:
-          allOf:
-          - $ref: "#/components/schemas/TopicRestrictionRequirement"
-          nullable: true
-        groundedness:
-          allOf:
-          - $ref: "#/components/schemas/GroundednessRequirement"
-          nullable: true
+          output:
+            mode: allow
+          input:
+            mode: allow
+          entities:
+          - EMAIL
+          - EMAIL
+      properties:
+        pii_detection:
+          $ref: "#/components/schemas/PiiDetectionRequirement-Input"
+      required:
+      - pii_detection
       title: PolicyControls
     PolicyControls-Output:
+      additionalProperties: false
       example:
-        content_tracing: ""
-        content_filter: ""
-        pii_detection: ""
-        groundedness: ""
-        topic_restriction: ""
-        data_retention: ""
-        prompt_shield: ""
-      properties:
-        data_retention:
-          allOf:
-          - $ref: "#/components/schemas/DataRetentionRequirement"
-          nullable: true
-        content_tracing:
-          allOf:
-          - $ref: "#/components/schemas/ContentTracingRequirement"
-          nullable: true
-        content_filter:
-          allOf:
-          - $ref: "#/components/schemas/ContentFilterRequirement"
-          nullable: true
-        prompt_shield:
-          allOf:
-          - $ref: "#/components/schemas/PromptShieldRequirement"
-          nullable: true
         pii_detection:
-          allOf:
-          - $ref: "#/components/schemas/PiiDetectionRequirement-Output"
-          nullable: true
-        topic_restriction:
-          allOf:
-          - $ref: "#/components/schemas/TopicRestrictionRequirement"
-          nullable: true
-        groundedness:
-          allOf:
-          - $ref: "#/components/schemas/GroundednessRequirement"
-          nullable: true
+          output:
+            mode: allow
+          input:
+            mode: allow
+          entities:
+          - EMAIL
+          - EMAIL
+      properties:
+        pii_detection:
+          $ref: "#/components/schemas/PiiDetectionRequirement-Output"
+      required:
+      - pii_detection
       title: PolicyControls
     PolicyCreate:
       example:
         controls:
-          content_tracing: ""
-          content_filter: ""
-          pii_detection: ""
-          groundedness: ""
-          topic_restriction: ""
-          data_retention: ""
-          prompt_shield: ""
+          pii_detection:
+            output:
+              mode: allow
+            input:
+              mode: allow
+            entities:
+            - EMAIL
+            - EMAIL
         is_active: true
-        scope_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
         name: name
         description: description
+        scope_ids:
+        - 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        - 046b6c7f-0b8a-43b9-b35d-6489e6daee91
         scope_type: global
         exceptions:
         - 046b6c7f-0b8a-43b9-b35d-6489e6daee91
@@ -11833,10 +14088,11 @@ components:
           type: string
         scope_type:
           $ref: "#/components/schemas/PolicyScopeType"
-        scope_id:
-          format: uuid
-          nullable: true
-          type: string
+        scope_ids:
+          items:
+            format: uuid
+            type: string
+          type: array
         controls:
           $ref: "#/components/schemas/PolicyControls-Input"
         is_active:
@@ -11871,13 +14127,14 @@ components:
     PolicyResponse:
       example:
         controls:
-          content_tracing: ""
-          content_filter: ""
-          pii_detection: ""
-          groundedness: ""
-          topic_restriction: ""
-          data_retention: ""
-          prompt_shield: ""
+          pii_detection:
+            output:
+              mode: allow
+            input:
+              mode: allow
+            entities:
+            - EMAIL
+            - EMAIL
         is_active: true
         _links:
           key:
@@ -11886,12 +14143,14 @@ components:
         description: description
         created_at: 2000-01-23T04:56:07.000+00:00
         compliance_summary: ""
+        scope_ids:
+        - 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        - 046b6c7f-0b8a-43b9-b35d-6489e6daee91
         created_by: created_by
         exceptions:
         - 046b6c7f-0b8a-43b9-b35d-6489e6daee91
         - 046b6c7f-0b8a-43b9-b35d-6489e6daee91
         updated_at: 2000-01-23T04:56:07.000+00:00
-        scope_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
         name: name
         updated_by: updated_by
         id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
@@ -11913,10 +14172,11 @@ components:
           type: string
         scope_type:
           $ref: "#/components/schemas/PolicyScopeType"
-        scope_id:
-          format: uuid
-          nullable: true
-          type: string
+        scope_ids:
+          items:
+            format: uuid
+            type: string
+          type: array
         controls:
           $ref: "#/components/schemas/PolicyControls-Output"
         is_active:
@@ -11967,9 +14227,11 @@ components:
       example:
         controls: ""
         is_active: true
-        scope_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
         name: name
         description: description
+        scope_ids:
+        - 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        - 046b6c7f-0b8a-43b9-b35d-6489e6daee91
         scope_type: ""
         exceptions:
         - 046b6c7f-0b8a-43b9-b35d-6489e6daee91
@@ -11986,10 +14248,12 @@ components:
           allOf:
           - $ref: "#/components/schemas/PolicyScopeType"
           nullable: true
-        scope_id:
-          format: uuid
+        scope_ids:
+          items:
+            format: uuid
+            type: string
           nullable: true
-          type: string
+          type: array
         controls:
           allOf:
           - $ref: "#/components/schemas/PolicyControls-Input"
@@ -12004,6 +14268,142 @@ components:
           nullable: true
           type: array
       title: PolicyUpdate
+    PoolFallbackMode:
+      enum:
+      - fail_fast
+      - try_next
+      title: PoolFallbackMode
+      type: string
+    PoolMember:
+      example:
+        is_active: true
+        _links:
+          key:
+            href: href
+            type: ""
+        weight: 1
+        id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        priority: 1
+        pool_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        last_failure_at: 2000-01-23T04:56:07.000+00:00
+        model_deployment_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+      properties:
+        _links:
+          additionalProperties:
+            $ref: "#/components/schemas/HateoasLink"
+          nullable: true
+        model_deployment_id:
+          format: uuid
+          title: Model Deployment Id
+          type: string
+        weight:
+          default: 1
+          minimum: 1.0
+          title: Weight
+          type: integer
+        priority:
+          default: 1
+          minimum: 1.0
+          title: Priority
+          type: integer
+        is_active:
+          default: true
+          title: Is Active
+          type: boolean
+        id:
+          format: uuid
+          title: Id
+          type: string
+        pool_id:
+          format: uuid
+          title: Pool Id
+          type: string
+        last_failure_at:
+          format: date-time
+          nullable: true
+          type: string
+      required:
+      - id
+      - model_deployment_id
+      - pool_id
+      title: PoolMember
+    PoolMemberCreate:
+      example:
+        is_active: true
+        weight: 1
+        priority: 1
+        model_deployment_id: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+      properties:
+        model_deployment_id:
+          format: uuid
+          title: Model Deployment Id
+          type: string
+        weight:
+          default: 1
+          minimum: 1.0
+          title: Weight
+          type: integer
+        priority:
+          default: 1
+          minimum: 1.0
+          title: Priority
+          type: integer
+        is_active:
+          default: true
+          title: Is Active
+          type: boolean
+      required:
+      - model_deployment_id
+      title: PoolMemberCreate
+    PoolMemberUpdate:
+      example:
+        is_active: true
+        weight: 1
+        priority: 1
+      properties:
+        weight:
+          minimum: 1.0
+          nullable: true
+          type: integer
+        priority:
+          minimum: 1.0
+          nullable: true
+          type: integer
+        is_active:
+          nullable: true
+          type: boolean
+      title: PoolMemberUpdate
+    PoolStrategy:
+      enum:
+      - weighted_random
+      title: PoolStrategy
+      type: string
+    Price:
+      additionalProperties: false
+      description: "USD per 1,000,000 tokens. Decimals are JSON-encoded as strings."
+      example:
+        input_per_mtok: input_per_mtok
+        cache_read_per_mtok: cache_read_per_mtok
+        output_per_mtok: output_per_mtok
+        cache_write_per_mtok: cache_write_per_mtok
+      properties:
+        input_per_mtok:
+          nullable: true
+          pattern: "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+          type: string
+        output_per_mtok:
+          nullable: true
+          pattern: "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+          type: string
+        cache_read_per_mtok:
+          nullable: true
+          pattern: "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+          type: string
+        cache_write_per_mtok:
+          nullable: true
+          pattern: "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+          type: string
+      title: Price
     Project:
       example:
         owner: owner
@@ -12112,20 +14512,14 @@ components:
       required:
       - name
       title: ProjectUpdate
-    PromptShieldRequirement:
-      properties:
-        enabled:
-          default: true
-          title: Enabled
-          type: boolean
-      title: PromptShieldRequirement
     ProviderHealthResponse:
       description: |-
-        Credential-only health response for a model provider.
+        Health response for a model provider.
 
-        Reflects whether the provider's stored credentials authenticate
-        successfully against the upstream service. Per-model availability is
-        reported by ``DeploymentHealthResponse`` on the deployment endpoint.
+        Semantics are provider-contract dependent: credential-backed providers
+        report whether stored credentials authenticate against upstream model
+        listing, while providers whose catalogs are deployment-scoped may report
+        ``unknown`` until individual deployments are checked.
       example:
         error_message: error_message
         checked_at: 2000-01-23T04:56:07.000+00:00
@@ -12148,6 +14542,64 @@ components:
       required:
       - status
       title: ProviderHealthResponse
+    ProviderListResponse:
+      additionalProperties: false
+      description: API response for ``GET /v1/model-catalog/providers``.
+      example:
+        metadata:
+          source_snapshots:
+          - fetched_at: 2000-01-23T04:56:07.000+00:00
+            source: models_dev
+            content_hash: content_hash
+            source_url: https://openapi-generator.tech
+          - fetched_at: 2000-01-23T04:56:07.000+00:00
+            source: models_dev
+            content_hash: content_hash
+            source_url: https://openapi-generator.tech
+          generated_at: 2000-01-23T04:56:07.000+00:00
+        providers:
+        - model_count: 0
+          display_name: display_name
+          slug: slug
+        - model_count: 0
+          display_name: display_name
+          slug: slug
+      properties:
+        metadata:
+          $ref: "#/components/schemas/CatalogStalenessMetadata"
+        providers:
+          items:
+            $ref: "#/components/schemas/ProviderSummary"
+          type: array
+      required:
+      - metadata
+      - providers
+      title: ProviderListResponse
+    ProviderSummary:
+      additionalProperties: false
+      description: "A unique provider in the catalog with a canonical slug, display\
+        \ name, and model count."
+      example:
+        model_count: 0
+        display_name: display_name
+        slug: slug
+      properties:
+        slug:
+          pattern: "^[a-z0-9](?:[a-z0-9-]{0,79})?$"
+          title: Slug
+          type: string
+        display_name:
+          title: Display Name
+          type: string
+        model_count:
+          minimum: 0.0
+          title: Model Count
+          type: integer
+      required:
+      - display_name
+      - model_count
+      - slug
+      title: ProviderSummary
     ProviderValidationResponse:
       description: Response from provider validation.
       example:
@@ -12188,6 +14640,20 @@ components:
       required:
       - valid
       title: ProviderValidationResponse
+    RawIds:
+      additionalProperties: false
+      description: Original IDs as each source spelled them; ``null`` if absent.
+      example:
+        models_dev: models_dev
+        litellm: litellm
+      properties:
+        models_dev:
+          nullable: true
+          type: string
+        litellm:
+          nullable: true
+          type: string
+      title: RawIds
     RemoveControlsResponse:
       example:
         message: message
@@ -12330,11 +14796,7 @@ components:
       title: RoleUpdate
     ScanCategory:
       enum:
-      - content_filter
-      - prompt_shield
       - pii_detection
-      - topic_restriction
-      - groundedness
       title: ScanCategory
       type: string
     ScanDirection:
@@ -12352,7 +14814,8 @@ components:
         - detected_items
         scanner_warning: false
         passed: true
-        category: content_filter
+        scanner_version: scanner_version
+        category: pii_detection
         sanitized_text: sanitized_text
       properties:
         passed:
@@ -12378,17 +14841,43 @@ components:
           default: false
           title: Scanner Warning
           type: boolean
+        scanner_version:
+          title: Scanner Version
+          type: string
       required:
       - category
       - passed
+      - scanner_version
       title: ScanResult
-    SeverityLevel:
-      enum:
-      - low
-      - medium
-      - high
-      title: SeverityLevel
-      type: string
+    SourceObservation:
+      additionalProperties: false
+      description: "A single ``(source, value)`` pair contributed to a tracked field."
+      example:
+        source: null
+        value: ""
+      properties:
+        source:
+          $ref: "#/components/schemas/CatalogSource"
+        value:
+          title: Value
+      required:
+      - source
+      - value
+      title: SourceObservation
+    SourceObservation_Any_:
+      additionalProperties: false
+      example:
+        source: null
+        value: ""
+      properties:
+        source:
+          $ref: "#/components/schemas/CatalogSource"
+        value:
+          title: Value
+      required:
+      - source
+      - value
+      title: "SourceObservation[Any]"
     SpeechToTextCapability:
       properties:
         _links:
@@ -12582,6 +15071,38 @@ components:
       - sse
       title: StreamingTransport
       type: string
+    StringArrayConfigurationField:
+      properties:
+        name:
+          title: Name
+          type: string
+        label:
+          title: Label
+          type: string
+        required:
+          title: Required
+          type: boolean
+        description:
+          nullable: true
+          type: string
+        placeholder:
+          nullable: true
+          type: string
+        order:
+          default: 0
+          title: Order
+          type: integer
+        type:
+          default: string_array
+          enum:
+          - string_array
+          title: Type
+          type: string
+      required:
+      - label
+      - name
+      - required
+      title: StringArrayConfigurationField
     TestResult:
       properties:
         name:
@@ -12628,6 +15149,54 @@ components:
       - name
       - success
       title: TestResult
+    TextConfigurationField:
+      example:
+        default: default
+        name: name
+        pattern: pattern
+        description: description
+        label: label
+        placeholder: placeholder
+        type: text
+        required: true
+        order: 0
+      properties:
+        name:
+          title: Name
+          type: string
+        label:
+          title: Label
+          type: string
+        required:
+          title: Required
+          type: boolean
+        description:
+          nullable: true
+          type: string
+        placeholder:
+          nullable: true
+          type: string
+        order:
+          default: 0
+          title: Order
+          type: integer
+        type:
+          default: text
+          enum:
+          - text
+          title: Type
+          type: string
+        pattern:
+          nullable: true
+          type: string
+        default:
+          nullable: true
+          type: string
+      required:
+      - label
+      - name
+      - required
+      title: TextConfigurationField
     TimedDataRetention:
       properties:
         type:
@@ -12685,37 +15254,44 @@ components:
       - id
       - type
       title: ToolCallMessage
-    TopicRestrictionMode:
-      enum:
-      - allowlist
-      - blocklist
-      title: TopicRestrictionMode
-      type: string
-    TopicRestrictionRequirement:
+    UrlConfigurationField:
       properties:
-        enabled:
-          default: true
-          title: Enabled
+        name:
+          title: Name
+          type: string
+        label:
+          title: Label
+          type: string
+        required:
+          title: Required
           type: boolean
-        mode:
-          $ref: "#/components/schemas/TopicRestrictionMode"
-        topics:
-          items:
-            type: string
-          minItems: 1
-          type: array
-        threshold:
-          default: 0.75
-          description: Confidence threshold for zero-shot topic classification. Higher
-            = fewer false positives. Default 0.75 is recommended.
-          maximum: 1.0
-          minimum: 0.0
-          title: Threshold
-          type: number
+        description:
+          nullable: true
+          type: string
+        placeholder:
+          nullable: true
+          type: string
+        order:
+          default: 0
+          title: Order
+          type: integer
+        type:
+          default: url
+          enum:
+          - url
+          title: Type
+          type: string
+        default:
+          nullable: true
+          type: string
+        pattern:
+          nullable: true
+          type: string
       required:
-      - mode
-      - topics
-      title: TopicRestrictionRequirement
+      - label
+      - name
+      - required
+      title: UrlConfigurationField
     UserRBAC:
       example:
         role_name: role_name
@@ -12834,12 +15410,76 @@ components:
       - msg
       - type
       title: ValidationError
+    VertexAIConfiguration:
+      additionalProperties: false
+      description: Configuration for Vertex AI provider.
+      properties:
+        vertex_credentials:
+          title: Vertex Credentials
+          type: string
+        vertex_project:
+          title: Vertex Project
+          type: string
+        vertex_location:
+          title: Vertex Location
+          type: string
+      required:
+      - vertex_credentials
+      - vertex_location
+      - vertex_project
+      title: VertexAIConfiguration
+    VertexAiProviderValidationRequest:
+      properties:
+        configuration:
+          allOf:
+          - $ref: "#/components/schemas/VertexAIConfiguration"
+          description: Provider configuration including credentials
+        provider_type:
+          description: Provider type
+          enum:
+          - vertex_ai
+          title: Provider Type
+          type: string
+      required:
+      - configuration
+      - provider_type
+      title: VertexAiProviderValidationRequest
+    VertexAiProviderWithDeploymentsCreate:
+      properties:
+        configuration:
+          allOf:
+          - $ref: "#/components/schemas/VertexAIConfiguration"
+          description: Provider configuration
+        name:
+          description: Provider display name
+          maxLength: 50
+          minLength: 1
+          title: Name
+          type: string
+        provider_type:
+          description: Provider type
+          enum:
+          - vertex_ai
+          title: Provider Type
+          type: string
+        deployments:
+          description: Deployments to create
+          items:
+            $ref: "#/components/schemas/DeploymentCreate"
+          type: array
+      required:
+      - configuration
+      - deployments
+      - name
+      - provider_type
+      title: VertexAiProviderWithDeploymentsCreate
     Capability_1:
       anyOf:
       - $ref: "#/components/schemas/CompletionCapabilityCreate"
       - $ref: "#/components/schemas/ChatCapabilityCreate"
       - $ref: "#/components/schemas/ExtractionCapabilityCreate"
       - $ref: "#/components/schemas/SpeechToTextCapabilityCreate"
+      - $ref: "#/components/schemas/ImageGenerationCapabilityCreate"
       title: Capability
     Response_Create_Capability_V1_Capabilities_Post:
       anyOf:
@@ -12847,6 +15487,7 @@ components:
       - $ref: "#/components/schemas/ChatCapability"
       - $ref: "#/components/schemas/ExtractionCapability"
       - $ref: "#/components/schemas/SpeechToTextCapability"
+      - $ref: "#/components/schemas/ImageGenerationCapability"
       title: Response Create Capability V1 Capabilities Post
     Capability_Id:
       anyOf:
@@ -12863,6 +15504,7 @@ components:
       - $ref: "#/components/schemas/ChatCapabilityUpdate"
       - $ref: "#/components/schemas/ExtractionCapabilityUpdate"
       - $ref: "#/components/schemas/SpeechToTextCapabilityUpdate"
+      - $ref: "#/components/schemas/ImageGenerationCapabilityUpdate"
       title: Capability
     Capability_Id_1:
       anyOf:
@@ -12884,6 +15526,7 @@ components:
       - $ref: "#/components/schemas/OpenAIProviderWithDeploymentsCreate"
       - $ref: "#/components/schemas/OpenAILikeProviderWithDeploymentsCreate"
       - $ref: "#/components/schemas/OpenRouterProviderWithDeploymentsCreate"
+      - $ref: "#/components/schemas/VertexAiProviderWithDeploymentsCreate"
       title: Data
     Request:
       anyOf:
@@ -12898,6 +15541,7 @@ components:
       - $ref: "#/components/schemas/OpenAIProviderValidationRequest"
       - $ref: "#/components/schemas/OpenAILikeProviderValidationRequest"
       - $ref: "#/components/schemas/OpenRouterProviderValidationRequest"
+      - $ref: "#/components/schemas/VertexAiProviderValidationRequest"
       title: Request
     Items:
       discriminator:
@@ -12978,31 +15622,6 @@ components:
       - $ref: "#/components/schemas/ObjectProperty-Input"
       - $ref: "#/components/schemas/ArrayProperty-Input"
       - $ref: "#/components/schemas/BasicProperty"
-    Default:
-      anyOf:
-      - type: string
-      - items: {}
-        type: array
-      nullable: true
-      title: Default
-    Max:
-      anyOf:
-      - type: integer
-      - type: number
-      nullable: true
-      title: Max
-    Min:
-      anyOf:
-      - type: integer
-      - type: number
-      nullable: true
-      title: Min
-    Step:
-      anyOf:
-      - type: integer
-      - type: number
-      nullable: true
-      title: Step
     Content:
       anyOf:
       - type: string

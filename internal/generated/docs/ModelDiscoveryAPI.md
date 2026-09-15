@@ -29,7 +29,7 @@ import (
 )
 
 func main() {
-	request := *openapiclient.NewRequest(*openapiclient.NewOpenAIConfiguration("ApiKey_example"), "ProviderType_example") // Request | 
+	request := *openapiclient.NewRequest(*openapiclient.NewVertexAIConfiguration("VertexCredentials_example", "VertexProject_example", "VertexLocation_example"), "ProviderType_example") // Request | 
 
 	configuration := openapiclient.NewConfiguration()
 	apiClient := openapiclient.NewAPIClient(configuration)
