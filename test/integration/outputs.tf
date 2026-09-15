@@ -31,3 +31,17 @@ output "completion_capability" {
 output "speech_to_text_capability_id" {
   value = var.enable_speech_to_text ? corax_speech_to_text_capability.test[0].id : null
 }
+
+output "extraction_capability" {
+  value = {
+    id          = corax_extraction_capability.test.id
+    semantic_id = corax_extraction_capability.test.semantic_id
+    output_type = corax_extraction_capability.test.output_type
+    type        = corax_extraction_capability.test.type
+  }
+}
+
+# The API-generated semantic_id, to confirm it is populated and stable.
+output "extraction_capability_generated_semantic_id" {
+  value = corax_extraction_capability.generated_semantic_id.semantic_id
+}
