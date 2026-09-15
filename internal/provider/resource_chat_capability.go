@@ -111,6 +111,7 @@ func (r *ChatCapabilityResource) Schema(ctx context.Context, req resource.Schema
 				Computed:            true,
 				MarkdownDescription: "Configuration settings for the capability's behavior.",
 				Attributes:          capabilityConfigSchemaAttributes(), // Use shared schema attributes
+				Validators:          []validator.Object{contentTracingRetentionValidator{}},
 				PlanModifiers:       []planmodifier.Object{objectplanmodifier.UseStateForUnknown()},
 			},
 			"owner": schema.StringAttribute{Computed: true, MarkdownDescription: "Owner of the capability.", PlanModifiers: []planmodifier.String{stringplanmodifier.UseStateForUnknown()}},

@@ -16,6 +16,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"math"
+	"math/big"
 
 	api "terraform-provider-corax/internal/generated"
 )
@@ -62,6 +63,52 @@ func (v dataRetentionValidator) Description(ctx context.Context) string {
 
 func (v dataRetentionValidator) MarkdownDescription(ctx context.Context) string {
 	return v.Description(ctx)
+}
+
+// contentTracingRetentionValidator validates the capability config object as a
+// whole. The Corax API forces content_tracing to false whenever data retention
+// is timed, so accepting content_tracing = true alongside it would only fail at
+// apply time with an inconsistent-result error.
+type contentTracingRetentionValidator struct{}
+
+func (v contentTracingRetentionValidator) Description(ctx context.Context) string {
+	return "Validates that 'content_tracing' is not enabled together with timed data retention, " +
+		"which the API does not allow."
+}
+
+func (v contentTracingRetentionValidator) MarkdownDescription(ctx context.Context) string {
+	return v.Description(ctx)
+}
+
+func (v contentTracingRetentionValidator) ValidateObject(ctx context.Context, req validator.ObjectRequest, resp *validator.ObjectResponse) {
+	if req.ConfigValue.IsNull() || req.ConfigValue.IsUnknown() {
+		return
+	}
+
+	attrs := req.ConfigValue.Attributes()
+
+	contentTracing, ok := attrs["content_tracing"].(types.Bool)
+	if !ok || contentTracing.IsNull() || contentTracing.IsUnknown() || !contentTracing.ValueBool() {
+		return
+	}
+
+	retention, ok := attrs["data_retention"].(types.Object)
+	if !ok || retention.IsNull() || retention.IsUnknown() {
+		return
+	}
+
+	retentionType, ok := retention.Attributes()["type"].(types.String)
+	if !ok || retentionType.IsNull() || retentionType.IsUnknown() || retentionType.ValueString() != "timed" {
+		return
+	}
+
+	resp.Diagnostics.AddAttributeError(
+		req.Path.AtName("content_tracing"),
+		"Invalid content_tracing Configuration",
+		"content_tracing cannot be true when data_retention.type is 'timed'. The API forces "+
+			"content_tracing to false for timed data retention. Set content_tracing to false, omit it, "+
+			"or use data_retention.type = 'infinite'.",
+	)
 }
 
 func (v dataRetentionValidator) ValidateObject(ctx context.Context, req validator.ObjectRequest, resp *validator.ObjectResponse) {
@@ -400,7 +447,10 @@ func capabilityConfigAPItoModel(ctx context.Context, apiConfig *api.CapabilityCo
 
 	attrs["custom_parameters"] = customParametersAPIToTerraform(apiConfig.CustomParameters, diags)
 
-	if apiConfig.McpServerIds != nil {
+	// The API always returns mcp_server_ids, using [] when no servers are
+	// attached. Map that back to null so it matches a config that omitted the
+	// attribute, instead of tripping Terraform's "unexpected new value" check.
+	if len(apiConfig.McpServerIds) > 0 {
 		listVal, listDiags := types.ListValueFrom(ctx, types.StringType, apiConfig.McpServerIds)
 		diags.Append(listDiags...)
 		attrs["mcp_server_ids"] = listVal
@@ -527,6 +577,52 @@ func convertAttrValueToInterface(val attr.Value) (interface{}, error) {
 			return nil, nil
 		}
 		return v.ValueFloat64(), nil
+	case types.Number:
+		// Terraform passes bare HCL number literals in a Dynamic attribute as
+		// NumberType. Preserve integers as int64 so they do not serialize as
+		// "3e+00", and fall back to float64 otherwise.
+		if v.IsNull() || v.IsUnknown() {
+			return nil, nil
+		}
+		bf := v.ValueBigFloat()
+		if bf == nil {
+			return nil, nil
+		}
+		if i, acc := bf.Int64(); acc == big.Exact {
+			return i, nil
+		}
+		f, _ := bf.Float64()
+		return f, nil
+	case types.Tuple:
+		// Terraform passes bare HCL list literals in a Dynamic attribute as
+		// TupleType, since the elements need not share a type.
+		if v.IsNull() || v.IsUnknown() {
+			return nil, nil
+		}
+		elements := v.Elements()
+		result := make([]interface{}, 0, len(elements))
+		for _, elem := range elements {
+			converted, err := convertAttrValueToInterface(elem)
+			if err != nil {
+				return nil, err
+			}
+			result = append(result, converted)
+		}
+		return result, nil
+	case types.Set:
+		if v.IsNull() || v.IsUnknown() {
+			return nil, nil
+		}
+		elements := v.Elements()
+		result := make([]interface{}, 0, len(elements))
+		for _, elem := range elements {
+			converted, err := convertAttrValueToInterface(elem)
+			if err != nil {
+				return nil, err
+			}
+			result = append(result, converted)
+		}
+		return result, nil
 	case types.List:
 		if v.IsNull() || v.IsUnknown() {
 			return nil, nil
