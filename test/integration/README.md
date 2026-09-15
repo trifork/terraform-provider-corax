@@ -37,6 +37,7 @@ across plans; `integration-destroy` removes it.
 | `corax_mcp_server` | `config` attribute map, `null` defaults, computed `slug` |
 | `corax_chat_capability` | nested `config`, `data_retention = timed`, `blob_config`, dynamic `custom_parameters`, `mcp_server_ids` referencing another resource, `semantic_id` round-trip |
 | `corax_completion_capability` | `output_type = "schema"` with `schema_def`, `variables` set, `data_retention = infinite` |
+| `corax_extraction_capability` | nested `config`, `data_retention = timed`, `blob_config`, `custom_parameters`, `mcp_server_ids`, explicit `semantic_id`, plus a second instance with `semantic_id` omitted to cover the API-generated `Optional + Computed` round-trip |
 | `corax_speech_to_text_capability` | opt-in via `enable_speech_to_text` (needs a default STT model) |
 | `corax_api_key` | opt-in via `enable_api_key` (secret lands in state) |
 

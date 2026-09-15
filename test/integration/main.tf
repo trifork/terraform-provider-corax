@@ -116,6 +116,44 @@ resource "corax_completion_capability" "test" {
   }
 }
 
+resource "corax_extraction_capability" "test" {
+  name          = "${local.prefix}-extraction"
+  semantic_id   = "${local.prefix}-extraction"
+  project_id    = corax_project.test.id
+  output_type   = "text"
+  system_prompt = "Extract the invoice number and total from the supplied document (rev ${var.revision})."
+  is_public     = false
+
+  config = {
+    temperature     = var.revision * 0.1
+    content_tracing = false
+    mcp_server_ids  = [corax_mcp_server.test.id]
+
+    data_retention = {
+      type  = "timed"
+      hours = 48
+    }
+
+    blob_config = {
+      max_blobs          = 3
+      max_file_size_mb   = 10
+      allowed_mime_types = ["application/pdf"]
+    }
+
+    custom_parameters = {
+      harness = "terraform-integration"
+      retries = 2
+    }
+  }
+}
+
+# semantic_id omitted on purpose: the API generates one, which exercises the
+# Optional + Computed round-trip that has caused drift on other capabilities.
+resource "corax_extraction_capability" "generated_semantic_id" {
+  name       = "${local.prefix}-extraction-gen"
+  project_id = corax_project.test.id
+}
+
 resource "corax_speech_to_text_capability" "test" {
   count = var.enable_speech_to_text ? 1 : 0
 
