@@ -8,6 +8,7 @@ Method | HTTP request | Description
 [**CheckMcpServerHealthV1McpServersServerIdHealthGet**](MCPServersAPI.md#CheckMcpServerHealthV1McpServersServerIdHealthGet) | **Get** /v1/mcp-servers/{server_id}/health | Check MCP server health status
 [**CreateMcpServerV1McpServersPost**](MCPServersAPI.md#CreateMcpServerV1McpServersPost) | **Post** /v1/mcp-servers | Create a new MCP server
 [**DeleteMcpServerV1McpServersServerIdDelete**](MCPServersAPI.md#DeleteMcpServerV1McpServersServerIdDelete) | **Delete** /v1/mcp-servers/{server_id} | Delete an MCP server
+[**GetMcpConfigSchemaV1McpServersConfigSchemaGet**](MCPServersAPI.md#GetMcpConfigSchemaV1McpServersConfigSchemaGet) | **Get** /v1/mcp-servers/config-schema | Get the MCP server config schema
 [**GetMcpServerConnectedCapabilitiesV1McpServersServerIdConnectedCapabilitiesGet**](MCPServersAPI.md#GetMcpServerConnectedCapabilitiesV1McpServersServerIdConnectedCapabilitiesGet) | **Get** /v1/mcp-servers/{server_id}/connected-capabilities | Get capabilities connected to this MCP server
 [**GetMcpServerEntitiesV1McpServersServerIdEntitiesGet**](MCPServersAPI.md#GetMcpServerEntitiesV1McpServersServerIdEntitiesGet) | **Get** /v1/mcp-servers/{server_id}/entities | Get all entities from an MCP server
 [**GetMcpServerPromptsV1McpServersServerIdPromptsGet**](MCPServersAPI.md#GetMcpServerPromptsV1McpServersServerIdPromptsGet) | **Get** /v1/mcp-servers/{server_id}/prompts | Get all prompts from an MCP server
@@ -281,6 +282,67 @@ Name | Type | Description  | Notes
 ### Return type
 
  (empty response body)
+
+### Authorization
+
+[APIKeyHeader](../README.md#APIKeyHeader), [HTTPBearer](../README.md#HTTPBearer)
+
+### HTTP request headers
+
+- **Content-Type**: Not defined
+- **Accept**: application/json
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints)
+[[Back to Model list]](../README.md#documentation-for-models)
+[[Back to README]](../README.md)
+
+
+## GetMcpConfigSchemaV1McpServersConfigSchemaGet
+
+> MCPConfigSchemaResponse GetMcpConfigSchemaV1McpServersConfigSchemaGet(ctx).Execute()
+
+Get the MCP server config schema
+
+
+
+### Example
+
+```go
+package main
+
+import (
+	"context"
+	"fmt"
+	"os"
+	openapiclient "github.com/GIT_USER_ID/GIT_REPO_ID/api"
+)
+
+func main() {
+
+	configuration := openapiclient.NewConfiguration()
+	apiClient := openapiclient.NewAPIClient(configuration)
+	resp, r, err := apiClient.MCPServersAPI.GetMcpConfigSchemaV1McpServersConfigSchemaGet(context.Background()).Execute()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error when calling `MCPServersAPI.GetMcpConfigSchemaV1McpServersConfigSchemaGet``: %v\n", err)
+		fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
+	}
+	// response from `GetMcpConfigSchemaV1McpServersConfigSchemaGet`: MCPConfigSchemaResponse
+	fmt.Fprintf(os.Stdout, "Response from `MCPServersAPI.GetMcpConfigSchemaV1McpServersConfigSchemaGet`: %v\n", resp)
+}
+```
+
+### Path Parameters
+
+This endpoint does not need any parameter.
+
+### Other Parameters
+
+Other parameters are passed through a pointer to a apiGetMcpConfigSchemaV1McpServersConfigSchemaGetRequest struct via the builder pattern
+
+
+### Return type
+
+[**MCPConfigSchemaResponse**](MCPConfigSchemaResponse.md)
 
 ### Authorization
 

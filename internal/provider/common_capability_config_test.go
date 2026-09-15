@@ -4,12 +4,15 @@ package provider
 
 import (
 	"context"
+	"math/big"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
+	api "terraform-provider-corax/internal/generated"
 )
 
 func TestCustomParametersToAPI(t *testing.T) {
@@ -123,6 +126,46 @@ func TestCustomParametersToAPI(t *testing.T) {
 				"temperature": 0.7,
 				"max_tokens":  int64(1000),
 				"stream":      true,
+			},
+			expectError: false,
+		},
+		{
+			// Terraform hands a bare HCL number literal to a Dynamic attribute
+			// as NumberType, not Int64Type/Float64Type.
+			name: "HCL object with number values as written in HCL",
+			input: types.DynamicValue(types.ObjectValueMust(
+				map[string]attr.Type{
+					"retries":     types.NumberType,
+					"temperature": types.NumberType,
+				},
+				map[string]attr.Value{
+					"retries":     types.NumberValue(big.NewFloat(3)),
+					"temperature": types.NumberValue(big.NewFloat(0.7)),
+				},
+			)),
+			expectedMap: map[string]interface{}{
+				"retries":     int64(3),
+				"temperature": 0.7,
+			},
+			expectError: false,
+		},
+		{
+			// Terraform hands a bare HCL list literal to a Dynamic attribute
+			// as TupleType, not ListType.
+			name: "HCL object with tuple value as written in HCL",
+			input: types.DynamicValue(types.ObjectValueMust(
+				map[string]attr.Type{
+					"stop": types.TupleType{ElemTypes: []attr.Type{types.StringType, types.NumberType}},
+				},
+				map[string]attr.Value{
+					"stop": types.TupleValueMust(
+						[]attr.Type{types.StringType, types.NumberType},
+						[]attr.Value{types.StringValue("END"), types.NumberValue(big.NewFloat(2))},
+					),
+				},
+			)),
+			expectedMap: map[string]interface{}{
+				"stop": []interface{}{"END", int64(2)},
 			},
 			expectError: false,
 		},
@@ -703,4 +746,115 @@ func TestPreserveUnknownsFromState(t *testing.T) {
 			t.Errorf("content_tracing = %v, want unknown", ct)
 		}
 	})
+}
+
+// TestCapabilityConfigAPItoModelMcpServerIds covers the API returning an empty
+// mcp_server_ids list for a config that never set one. Mapping [] to an empty
+// list instead of null makes Terraform reject the apply with "produced an
+// unexpected new value: .config.mcp_server_ids: was null, but now
+// cty.ListValEmpty(cty.String)".
+func TestCapabilityConfigAPItoModelMcpServerIds(t *testing.T) {
+	tests := []struct {
+		name     string
+		apiIDs   []string
+		wantNull bool
+		wantIDs  []string
+	}{
+		{name: "nil from API is null", apiIDs: nil, wantNull: true},
+		{name: "empty list from API is null", apiIDs: []string{}, wantNull: true},
+		{
+			name:    "populated list from API is preserved",
+			apiIDs:  []string{"11111111-1111-1111-1111-111111111111"},
+			wantIDs: []string{"11111111-1111-1111-1111-111111111111"},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			var diags diag.Diagnostics
+			obj := capabilityConfigAPItoModel(context.Background(), &api.CapabilityConfig{McpServerIds: tt.apiIDs}, &diags)
+			if diags.HasError() {
+				t.Fatalf("unexpected error: %v", diags.Errors())
+			}
+
+			got, ok := obj.Attributes()["mcp_server_ids"].(types.List)
+			if !ok {
+				t.Fatalf("mcp_server_ids is not a List: %T", obj.Attributes()["mcp_server_ids"])
+			}
+			if tt.wantNull {
+				if !got.IsNull() {
+					t.Fatalf("mcp_server_ids = %v, want null", got)
+				}
+				return
+			}
+			var ids []string
+			got.ElementsAs(context.Background(), &ids, false)
+			if len(ids) != len(tt.wantIDs) || (len(ids) > 0 && ids[0] != tt.wantIDs[0]) {
+				t.Fatalf("mcp_server_ids = %v, want %v", ids, tt.wantIDs)
+			}
+		})
+	}
+}
+
+// TestCapabilityConfigValidatorContentTracing covers the cross-field rule the
+// Corax API enforces server-side: timed data retention forces content_tracing
+// to false. Without a plan-time error the apply fails much later with
+// "produced an unexpected new value: .config.content_tracing: was cty.True,
+// but now cty.False".
+func TestCapabilityConfigValidatorContentTracing(t *testing.T) {
+	newConfig := func(contentTracing attr.Value, retentionType string) types.Object {
+		retention := types.ObjectNull(dataRetentionAttributeTypes())
+		if retentionType != "" {
+			retention = types.ObjectValueMust(dataRetentionAttributeTypes(), map[string]attr.Value{
+				"type":  types.StringValue(retentionType),
+				"hours": types.Int64Value(24),
+			})
+		}
+		return configObject(t, map[string]attr.Value{
+			"content_tracing": contentTracing,
+			"data_retention":  retention,
+		})
+	}
+
+	tests := []struct {
+		name      string
+		config    types.Object
+		expectErr bool
+	}{
+		{
+			name:      "content_tracing true with timed retention is rejected",
+			config:    newConfig(types.BoolValue(true), "timed"),
+			expectErr: true,
+		},
+		{
+			name:   "content_tracing false with timed retention is allowed",
+			config: newConfig(types.BoolValue(false), "timed"),
+		},
+		{
+			name:   "content_tracing true with infinite retention is allowed",
+			config: newConfig(types.BoolValue(true), "infinite"),
+		},
+		{
+			name:   "content_tracing true without retention is allowed",
+			config: newConfig(types.BoolValue(true), ""),
+		},
+		{
+			name:   "content_tracing unset with timed retention is allowed",
+			config: newConfig(types.BoolNull(), "timed"),
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			resp := &validator.ObjectResponse{}
+			contentTracingRetentionValidator{}.ValidateObject(
+				context.Background(),
+				validator.ObjectRequest{ConfigValue: tt.config},
+				resp,
+			)
+			if got := resp.Diagnostics.HasError(); got != tt.expectErr {
+				t.Fatalf("HasError() = %v, want %v (diags: %v)", got, tt.expectErr, resp.Diagnostics)
+			}
+		})
+	}
 }
