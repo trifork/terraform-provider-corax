@@ -123,13 +123,15 @@ func (r *CompletionCapabilityResource) Schema(ctx context.Context, req resource.
 			},
 			"schema_def": schema.StringAttribute{
 				Optional:            true,
-				MarkdownDescription: "Defines the structure of the output when `output_type` is 'schema'. A JSON-encoded string (use `jsonencode()`) defining the schema fields. Required if `output_type` is 'schema', must be null or omitted if `output_type` is 'text'.",
+				MarkdownDescription: "Defines the structure of the output when `output_type` is 'schema'. A JSON-encoded string (use `jsonencode()`) mapping each field name to a property definition with a `type` of `string`, `integer`, `number`, `boolean`, `enum` (plus `enum`), `array` (plus `items`) or `object` (plus `properties`), and an optional `description`. Required if `output_type` is 'schema', must be null or omitted if `output_type` is 'text'.",
+				Validators:          []validator.String{schemaDefValidator{}},
 			},
 			"config": schema.SingleNestedAttribute{ // Reusing the same config structure as chat
 				Optional:            true,
 				Computed:            true,
 				MarkdownDescription: "Configuration settings for the capability's behavior.",
 				Attributes:          capabilityConfigSchemaAttributes(), // Defined in chat_capability_resource.go (or move to a common place)
+				Validators:          []validator.Object{contentTracingRetentionValidator{}},
 				PlanModifiers:       []planmodifier.Object{objectplanmodifier.UseStateForUnknown()},
 			},
 			"owner": schema.StringAttribute{Computed: true, MarkdownDescription: "Owner of the capability.", PlanModifiers: []planmodifier.String{stringplanmodifier.UseStateForUnknown()}},
@@ -270,92 +272,17 @@ func mapCompletionCapabilityRepresentationToModel(apiCap *api.CapabilityRepresen
 		tflog.Debug(ctx, fmt.Sprintf("apiCap.Output is nil for capability %s. OutputType will be unknown and SchemaDef null.", apiCap.Id))
 	}
 
-	// Populate Variables from apiCap.Input
-	if apiCap.Input != nil {
-		if varsData, found := apiCap.Input["variables"]; found && varsData != nil {
-			if vars, ok := varsData.([]interface{}); ok {
-				if len(vars) == 0 {
-					model.Variables = types.SetNull(types.StringType)
-				} else {
-					strVars := make([]string, len(vars))
-					allStrings := true
-					for i, v := range vars {
-						if strV, isString := v.(string); isString {
-							strVars[i] = strV
-						} else {
-							allStrings = false
-							diags.AddAttributeWarning(
-								path.Root("variables"),
-								"Invalid Variable Type in API Response",
-								fmt.Sprintf("Variable at index %d is not a string (actual type: %T). Treating variables as null.", i, v),
-							)
-							break
-						}
-					}
-					if allStrings {
-						setValue, conversionDiags := types.SetValueFrom(ctx, types.StringType, strVars)
-						diags.Append(conversionDiags...)
-						if !conversionDiags.HasError() {
-							model.Variables = setValue
-						} else {
-							model.Variables = types.SetNull(types.StringType)
-						}
-					} else {
-						model.Variables = types.SetNull(types.StringType)
-					}
-				}
-			} else if varsMap, ok := varsData.(map[string]interface{}); ok {
-				if len(varsMap) == 0 {
-					model.Variables = types.SetNull(types.StringType)
-				} else {
-					strVarKeys := make([]string, 0, len(varsMap))
-					for k := range varsMap {
-						strVarKeys = append(strVarKeys, k)
-					}
-
-					setValue, conversionDiags := types.SetValueFrom(ctx, types.StringType, strVarKeys)
-					diags.Append(conversionDiags...)
-					if !conversionDiags.HasError() {
-						model.Variables = setValue
-					} else {
-						model.Variables = types.SetNull(types.StringType)
-						diags.AddAttributeError(
-							path.Root("variables"),
-							"Variable Conversion Error (Map to Set)",
-							fmt.Sprintf("Failed to convert variable keys from API map to set: %v", conversionDiags),
-						)
-					}
-				}
-			} else if vars, ok := varsData.([]string); ok {
-				if len(vars) == 0 {
-					model.Variables = types.SetNull(types.StringType)
-				} else {
-					setValue, conversionDiags := types.SetValueFrom(ctx, types.StringType, vars)
-					diags.Append(conversionDiags...)
-					if !conversionDiags.HasError() {
-						model.Variables = setValue
-					} else {
-						model.Variables = types.SetNull(types.StringType)
-					}
-				}
-			} else {
-				diags.AddAttributeWarning(
-					path.Root("variables"),
-					"Incorrect Type for Variables in API Response",
-					fmt.Sprintf("Expected 'variables' in API input to be a list or map of strings, but got %T. Treating variables as null.", varsData),
-				)
-				model.Variables = types.SetNull(types.StringType)
-			}
-		} else {
-			if model.Variables.IsNull() || model.Variables.IsUnknown() {
-				model.Variables = types.SetNull(types.StringType)
-			}
+	// Populate Variables. The API does not round-trip variables (it reports
+	// them as null/empty even when they were supplied on create), so only
+	// overwrite the configured value when the API actually returns some.
+	if vars, ok := variablesFromAPIInput(apiCap.Input, diags); ok && len(vars) > 0 {
+		setValue, conversionDiags := types.SetValueFrom(ctx, types.StringType, vars)
+		diags.Append(conversionDiags...)
+		if !conversionDiags.HasError() {
+			model.Variables = setValue
 		}
-	} else {
-		if model.Variables.IsNull() || model.Variables.IsUnknown() {
-			model.Variables = types.SetNull(types.StringType)
-		}
-		tflog.Debug(ctx, fmt.Sprintf("apiCap.Input is nil for capability %s. Variables will be null.", apiCap.Id))
+	} else if model.Variables.IsUnknown() {
+		model.Variables = types.SetNull(types.StringType)
 	}
 
 	// Extract config from NullableCapabilityConfig
@@ -370,6 +297,53 @@ func mapCompletionCapabilityRepresentationToModel(apiCap *api.CapabilityRepresen
 	model.UpdatedAt = types.StringValue(apiCap.UpdatedAt.Format(time.RFC3339))
 	model.CreatedBy = types.StringValue(apiCap.CreatedBy)
 	model.UpdatedBy = types.StringValue(apiCap.UpdatedBy)
+}
+
+// variablesFromAPIInput extracts the variable names from the "variables" entry
+// of an API capability input. The API has been observed to return them as a
+// list of names and as a map keyed by name; ok is false when no usable value is
+// present.
+func variablesFromAPIInput(input map[string]interface{}, diags *diag.Diagnostics) ([]string, bool) {
+	if input == nil {
+		return nil, false
+	}
+	varsData, found := input["variables"]
+	if !found || varsData == nil {
+		return nil, false
+	}
+
+	switch vars := varsData.(type) {
+	case []string:
+		return vars, true
+	case []interface{}:
+		names := make([]string, 0, len(vars))
+		for i, v := range vars {
+			name, isString := v.(string)
+			if !isString {
+				diags.AddAttributeWarning(
+					path.Root("variables"),
+					"Invalid Variable Type in API Response",
+					fmt.Sprintf("Variable at index %d is not a string (actual type: %T). Ignoring the API value.", i, v),
+				)
+				return nil, false
+			}
+			names = append(names, name)
+		}
+		return names, true
+	case map[string]interface{}:
+		names := make([]string, 0, len(vars))
+		for name := range vars {
+			names = append(names, name)
+		}
+		return names, true
+	default:
+		diags.AddAttributeWarning(
+			path.Root("variables"),
+			"Incorrect Type for Variables in API Response",
+			fmt.Sprintf("Expected 'variables' in the API input to be a list or map of strings, but got %T. Ignoring the API value.", varsData),
+		)
+		return nil, false
+	}
 }
 
 // mapCompletionCapabilityCreateResponseToModel maps an api.CompletionCapability (from Create) to the TF model.
@@ -404,9 +378,12 @@ func mapCompletionCapabilityCreateResponseToModel(apiCap *api.CompletionCapabili
 	model.CompletionPrompt = types.StringValue(apiCap.CompletionPrompt)
 	model.OutputType = types.StringValue(apiCap.OutputType)
 
-	// Variables from typed []string
+	// Variables from typed []string. The API does not echo variables back, so
+	// leave whatever the plan configured in place rather than nulling it out.
 	if len(apiCap.Variables) == 0 {
-		model.Variables = types.SetNull(types.StringType)
+		if model.Variables.IsUnknown() {
+			model.Variables = types.SetNull(types.StringType)
+		}
 	} else {
 		setValue, conversionDiags := types.SetValueFrom(ctx, types.StringType, apiCap.Variables)
 		diags.Append(conversionDiags...)

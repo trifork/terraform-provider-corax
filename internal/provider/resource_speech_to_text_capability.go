@@ -121,6 +121,7 @@ func (r *SpeechToTextCapabilityResource) Schema(ctx context.Context, req resourc
 				Computed:            true,
 				MarkdownDescription: "Configuration settings for the capability's behavior.",
 				Attributes:          capabilityConfigSchemaAttributes(),
+				Validators:          []validator.Object{contentTracingRetentionValidator{}},
 				PlanModifiers:       []planmodifier.Object{objectplanmodifier.UseStateForUnknown()},
 			},
 			"owner":      schema.StringAttribute{Computed: true, MarkdownDescription: "Owner of the capability.", PlanModifiers: []planmodifier.String{stringplanmodifier.UseStateForUnknown()}},
