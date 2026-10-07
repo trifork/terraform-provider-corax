@@ -50,7 +50,7 @@ type ExtractionCapabilityResourceModel struct {
 	ProjectID    types.String `tfsdk:"project_id"`    // Nullable
 	SemanticID   types.String `tfsdk:"semantic_id"`   // Nullable
 	SystemPrompt types.String `tfsdk:"system_prompt"` // Nullable
-	OutputType   types.String `tfsdk:"output_type"`   // Default "text"
+	OutputType   types.String `tfsdk:"output_type"`   // "text" or "schema", default "text"
 	Owner        types.String `tfsdk:"owner"`         // Computed
 	Type         types.String `tfsdk:"type"`          // Computed, should always be "extraction"
 	CreatedAt    types.String `tfsdk:"created_at"`    // Computed
@@ -115,7 +115,8 @@ func (r *ExtractionCapabilityResource) Schema(ctx context.Context, req resource.
 				Optional:            true,
 				Computed:            true,
 				Default:             stringdefault.StaticString("text"),
-				MarkdownDescription: "The output format type. Defaults to 'text'.",
+				MarkdownDescription: "The output format of an execution: `text` returns the extracted markdown as a string; `schema` also stores the extracted images and returns `{markdown, file_ids, files}`. Defaults to `text`.",
+				Validators:          []validator.String{stringvalidator.OneOf("text", "schema")},
 			},
 			"config": schema.SingleNestedAttribute{
 				Optional:            true,

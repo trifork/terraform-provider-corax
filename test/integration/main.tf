@@ -120,9 +120,11 @@ resource "corax_extraction_capability" "test" {
   name          = "${local.prefix}-extraction"
   semantic_id   = "${local.prefix}-extraction"
   project_id    = corax_project.test.id
-  output_type   = "text"
   system_prompt = "Extract the invoice number and total from the supplied document (rev ${var.revision})."
   is_public     = false
+
+  # Switches output type on revision 2 to exercise the in-place update path.
+  output_type = var.revision == 1 ? "schema" : "text"
 
   config = {
     temperature     = var.revision * 0.1
