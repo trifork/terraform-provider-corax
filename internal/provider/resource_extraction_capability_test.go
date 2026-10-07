@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"os"
+	"regexp"
 	"strings"
 	"sync"
 	"testing"
@@ -19,6 +20,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	fwresource "github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/plancheck"
 )
 
 // TestMapExtractionCapabilityRepresentationToModel verifies that a capability
@@ -549,4 +551,71 @@ func TestAccExtractionCapabilityResource_configAgainstFakeAPI(t *testing.T) {
 			},
 		},
 	})
+}
+
+// TestAccExtractionCapabilityResource_outputTypeAgainstFakeAPI covers both
+// supported output types, including switching between them in place.
+func TestAccExtractionCapabilityResource_outputTypeAgainstFakeAPI(t *testing.T) {
+	server := newFakeCapabilityAPI(t)
+
+	t.Setenv("TF_ACC", "1")
+	t.Setenv("CORAX_API_ENDPOINT", server.URL)
+	t.Setenv("CORAX_API_KEY", "fake-api-key")
+
+	resourceName := "corax_extraction_capability.test_output_type"
+
+	resource.Test(t, resource.TestCase{
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccExtractionCapabilityResourceOutputTypeConfig("schema"),
+				Check:  resource.TestCheckResourceAttr(resourceName, "output_type", "schema"),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccExtractionCapabilityResourceOutputTypeConfig("text"),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction(resourceName, plancheck.ResourceActionUpdate),
+					},
+				},
+				Check: resource.TestCheckResourceAttr(resourceName, "output_type", "text"),
+			},
+		},
+	})
+}
+
+// TestAccExtractionCapabilityResource_rejectsUnsupportedOutputType verifies an
+// output type the API does not support fails at plan time, before any API call.
+func TestAccExtractionCapabilityResource_rejectsUnsupportedOutputType(t *testing.T) {
+	server := newFakeCapabilityAPI(t)
+
+	t.Setenv("TF_ACC", "1")
+	t.Setenv("CORAX_API_ENDPOINT", server.URL)
+	t.Setenv("CORAX_API_KEY", "fake-api-key")
+
+	resource.Test(t, resource.TestCase{
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config:      testAccExtractionCapabilityResourceOutputTypeConfig("json"),
+				ExpectError: regexp.MustCompile(`value must be one of: \["text" "schema"\]`),
+			},
+		},
+	})
+}
+
+func testAccExtractionCapabilityResourceOutputTypeConfig(outputType string) string {
+	return fmt.Sprintf(`
+provider "corax" {}
+
+resource "corax_extraction_capability" "test_output_type" {
+  name        = "tf-unit-test-extraction-output-type"
+  output_type = %[1]q
+}
+`, outputType)
 }
