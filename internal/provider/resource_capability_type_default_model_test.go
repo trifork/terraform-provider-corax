@@ -3,16 +3,62 @@
 package provider
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"testing"
 
+	fwresource "github.com/hashicorp/terraform-plugin-framework/resource"
+	resourceschema "github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
+	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
-	// "github.com/hashicorp/terraform-plugin-testing/terraform" // Not explicitly used for checks here.
 )
 
 const testAccCapabilityTypeDefaultModelDeploymentIDEnvVar = "CORAX_TEST_DEFAULT_MODEL_DEPLOYMENT_ID"
 const testAccCapabilityTypeDefaultModelDeploymentIDEnvVar2 = "CORAX_TEST_DEFAULT_MODEL_DEPLOYMENT_ID_2" // For update test
+
+func TestCapabilityTypeDefaultModelResourceCapabilityTypeValidator(t *testing.T) {
+	ctx := context.Background()
+	r := NewCapabilityTypeDefaultModelResource()
+	schemaResp := &fwresource.SchemaResponse{}
+	r.Schema(ctx, fwresource.SchemaRequest{}, schemaResp)
+
+	if schemaResp.Diagnostics.HasError() {
+		t.Fatalf("schema method diagnostics: %v", schemaResp.Diagnostics)
+	}
+	if diags := schemaResp.Schema.ValidateImplementation(ctx); diags.HasError() {
+		t.Fatalf("invalid schema implementation: %v", diags)
+	}
+
+	attribute, ok := schemaResp.Schema.Attributes["capability_type"].(resourceschema.StringAttribute)
+	if !ok {
+		t.Fatal("capability_type is not a string attribute")
+	}
+	if len(attribute.Validators) == 0 {
+		t.Fatal("capability_type has no validators")
+	}
+
+	for _, capabilityType := range []string{"chat", "completion", "embedding", "speech_to_text", "image_generation"} {
+		t.Run(capabilityType, func(t *testing.T) {
+			for _, attributeValidator := range attribute.Validators {
+				resp := &validator.StringResponse{}
+				attributeValidator.ValidateString(ctx, validator.StringRequest{ConfigValue: types.StringValue(capabilityType)}, resp)
+				if resp.Diagnostics.HasError() {
+					t.Fatalf("capability type %q was rejected: %v", capabilityType, resp.Diagnostics)
+				}
+			}
+		})
+	}
+
+	for _, attributeValidator := range attribute.Validators {
+		resp := &validator.StringResponse{}
+		attributeValidator.ValidateString(ctx, validator.StringRequest{ConfigValue: types.StringValue("not_a_capability_type")}, resp)
+		if !resp.Diagnostics.HasError() {
+			t.Fatal("invalid capability type was accepted")
+		}
+	}
+}
 
 func TestAccCapabilityTypeDefaultModelResource_basic(t *testing.T) {
 	if os.Getenv("CORAX_API_ENDPOINT") == "" || os.Getenv("CORAX_API_KEY") == "" {

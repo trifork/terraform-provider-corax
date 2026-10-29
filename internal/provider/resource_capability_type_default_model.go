@@ -47,13 +47,19 @@ func (r *CapabilityTypeDefaultModelResource) Metadata(ctx context.Context, req r
 
 func (r *CapabilityTypeDefaultModelResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		MarkdownDescription: "Manages the default Model Deployment for a specific Capability Type (e.g., 'chat', 'completion').",
+		MarkdownDescription: "Manages the default Model Deployment for a specific Capability Type.",
 		Attributes: map[string]schema.Attribute{
 			"capability_type": schema.StringAttribute{
 				Required:            true,
-				MarkdownDescription: "The type of the capability (e.g., 'chat', 'completion', 'embedding'). This also serves as the resource ID.",
-				PlanModifiers:       []planmodifier.String{stringplanmodifier.RequiresReplace()},                                    // Changing this means managing a different capability type's default
-				Validators:          []validator.String{stringvalidator.OneOf("chat", "completion", "embedding", "speech_to_text")}, // Based on CapabilityType enum
+				MarkdownDescription: "The type of the capability (`chat`, `completion`, `embedding`, `speech_to_text`, or `image_generation`). This also serves as the resource ID.",
+				PlanModifiers:       []planmodifier.String{stringplanmodifier.RequiresReplace()}, // Changing this means managing a different capability type's default
+				Validators: []validator.String{stringvalidator.OneOf(
+					string(api.CHAT),
+					string(api.COMPLETION),
+					string(api.EMBEDDING),
+					string(api.SPEECH_TO_TEXT),
+					string(api.IMAGE_GENERATION),
+				)},
 			},
 			"default_model_deployment_id": schema.StringAttribute{
 				Required:            true,

@@ -59,7 +59,7 @@ Sets the default model for a capability type.
 
 ```hcl
 resource "corax_capability_type_default_model" "chat_default" {
-  capability_type             = "chat"  # chat, completion, or embedding
+  capability_type             = "chat"
   default_model_deployment_id = corax_model_deployment.gpt4.id
 }
 ```
