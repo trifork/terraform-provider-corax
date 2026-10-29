@@ -1,0 +1,99 @@
+name: Create Release Tag
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version tag, or 'next-minor' to calculate it from the latest stable tag"
+        required: true
+        default: next-minor
+        type: string
+
+permissions:
+  contents: write
+
+concurrency:
+  group: create-release-tag
+  cancel-in-progress: false
+
+jobs:
+  create-tag:
+    name: Create release tag
+    runs-on: ubuntu-latest
+    outputs:
+      tag: ${{ steps.version.outputs.tag }}
+    steps:
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.repository.default_branch }}
+
+      - name: Select version
+        id: version
+        shell: bash
+        env:
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+          REQUESTED_VERSION: ${{ inputs.version }}
+        run: |
+          set -euo pipefail
+
+          latest_tag="$({
+            git tag --list --sort=-v:refname
+          } | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | head -n 1 || true)"
+
+          if [[ "$REQUESTED_VERSION" == "next-minor" ]]; then
+            if [[ -z "$latest_tag" ]]; then
+              tag="v0.1.0"
+            elif [[ "$latest_tag" =~ ^v([0-9]+)\.([0-9]+)\.[0-9]+$ ]]; then
+              tag="v${BASH_REMATCH[1]}.$((BASH_REMATCH[2] + 1)).0"
+            else
+              echo "Unable to calculate the next minor version from '$latest_tag'." >&2
+              exit 1
+            fi
+          else
+            tag="$REQUESTED_VERSION"
+            if [[ "$tag" != v* ]]; then
+              tag="v$tag"
+            fi
+            if [[ ! "$tag" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+              echo "Version must be 'next-minor' or a stable semantic version such as v1.8.0." >&2
+              exit 1
+            fi
+          fi
+
+          if git show-ref --tags --verify --quiet "refs/tags/$tag"; then
+            echo "Tag '$tag' already exists." >&2
+            exit 1
+          fi
+
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+          {
+            echo "### Release tag"
+            echo
+            echo "- Latest stable tag: \`${latest_tag:-none}\`"
+            echo "- Selected tag: \`$tag\`"
+            echo "- Target: \`$(git rev-parse HEAD)\` on \`$DEFAULT_BRANCH\`"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Create tag
+        env:
+          ACTOR: ${{ github.actor }}
+          ACTOR_ID: ${{ github.actor_id }}
+          TAG: ${{ steps.version.outputs.tag }}
+        run: |
+          set -euo pipefail
+
+          git config user.name "$ACTOR"
+          git config user.email "${ACTOR_ID}+${ACTOR}@users.noreply.github.com"
+          git tag --annotate "$TAG" --message "Release $TAG" HEAD
+          git push origin "refs/tags/$TAG"
+
+  release:
+    name: Release
+    needs: create-tag
+    permissions:
+      contents: write
+    uses: ./.github/workflows/release.yml
+    with:
+      tag: ${{ needs.create-tag.outputs.tag }}
+    secrets: inherit
