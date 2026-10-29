@@ -3,12 +3,12 @@
 page_title: "corax_capability_type_default_model Resource - corax"
 subcategory: ""
 description: |-
-  Manages the default Model Deployment for a specific Capability Type (e.g., 'chat', 'completion').
+  Manages the default Model Deployment for a specific Capability Type.
 ---
 
 # corax_capability_type_default_model (Resource)
 
-Manages the default Model Deployment for a specific Capability Type (e.g., 'chat', 'completion').
+Manages the default Model Deployment for a specific Capability Type.
 
 
 
@@ -17,7 +17,7 @@ Manages the default Model Deployment for a specific Capability Type (e.g., 'chat
 
 ### Required
 
-- `capability_type` (String) The type of the capability (e.g., 'chat', 'completion', 'embedding'). This also serves as the resource ID.
+- `capability_type` (String) The type of the capability (`chat`, `completion`, `embedding`, `extraction`, `speech_to_text`, `image_generation`). This also serves as the resource ID.
 - `default_model_deployment_id` (String) The UUID of the Model Deployment to set as the default for this capability type.
 
 ### Read-Only

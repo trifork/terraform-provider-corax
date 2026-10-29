@@ -5,6 +5,7 @@ package provider
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/path"
@@ -28,6 +29,14 @@ func NewCapabilityTypeDefaultModelResource() resource.Resource {
 	return &CapabilityTypeDefaultModelResource{}
 }
 
+func capabilityTypeValues() []string {
+	values := make([]string, len(api.AllowedCapabilityTypeEnumValues))
+	for i, capabilityType := range api.AllowedCapabilityTypeEnumValues {
+		values[i] = string(capabilityType)
+	}
+	return values
+}
+
 // CapabilityTypeDefaultModelResource defines the resource implementation.
 type CapabilityTypeDefaultModelResource struct {
 	client *coraxclient.Client
@@ -46,14 +55,15 @@ func (r *CapabilityTypeDefaultModelResource) Metadata(ctx context.Context, req r
 }
 
 func (r *CapabilityTypeDefaultModelResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+	capabilityTypes := capabilityTypeValues()
 	resp.Schema = schema.Schema{
-		MarkdownDescription: "Manages the default Model Deployment for a specific Capability Type (e.g., 'chat', 'completion').",
+		MarkdownDescription: "Manages the default Model Deployment for a specific Capability Type.",
 		Attributes: map[string]schema.Attribute{
 			"capability_type": schema.StringAttribute{
 				Required:            true,
-				MarkdownDescription: "The type of the capability (e.g., 'chat', 'completion', 'embedding'). This also serves as the resource ID.",
-				PlanModifiers:       []planmodifier.String{stringplanmodifier.RequiresReplace()},                                    // Changing this means managing a different capability type's default
-				Validators:          []validator.String{stringvalidator.OneOf("chat", "completion", "embedding", "speech_to_text")}, // Based on CapabilityType enum
+				MarkdownDescription: fmt.Sprintf("The type of the capability (`%s`). This also serves as the resource ID.", strings.Join(capabilityTypes, "`, `")),
+				PlanModifiers:       []planmodifier.String{stringplanmodifier.RequiresReplace()}, // Changing this means managing a different capability type's default
+				Validators:          []validator.String{stringvalidator.OneOf(capabilityTypes...)},
 			},
 			"default_model_deployment_id": schema.StringAttribute{
 				Required:            true,
