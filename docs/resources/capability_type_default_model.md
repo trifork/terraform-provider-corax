@@ -17,7 +17,7 @@ Manages the default Model Deployment for a specific Capability Type.
 
 ### Required
 
-- `capability_type` (String) The type of the capability (`chat`, `completion`, `embedding`, `speech_to_text`, or `image_generation`). This also serves as the resource ID.
+- `capability_type` (String) The type of the capability (`chat`, `completion`, `embedding`, `extraction`, `speech_to_text`, `image_generation`). This also serves as the resource ID.
 - `default_model_deployment_id` (String) The UUID of the Model Deployment to set as the default for this capability type.
 
 ### Read-Only

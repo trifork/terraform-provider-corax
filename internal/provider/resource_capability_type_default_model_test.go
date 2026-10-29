@@ -13,6 +13,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+
+	api "terraform-provider-corax/internal/generated"
 )
 
 const testAccCapabilityTypeDefaultModelDeploymentIDEnvVar = "CORAX_TEST_DEFAULT_MODEL_DEPLOYMENT_ID"
@@ -39,7 +41,8 @@ func TestCapabilityTypeDefaultModelResourceCapabilityTypeValidator(t *testing.T)
 		t.Fatal("capability_type has no validators")
 	}
 
-	for _, capabilityType := range []string{"chat", "completion", "embedding", "speech_to_text", "image_generation"} {
+	for _, capabilityType := range api.AllowedCapabilityTypeEnumValues {
+		capabilityType := string(capabilityType)
 		t.Run(capabilityType, func(t *testing.T) {
 			for _, attributeValidator := range attribute.Validators {
 				resp := &validator.StringResponse{}
