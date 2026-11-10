@@ -47,6 +47,7 @@ type CompletionCapabilityResourceModel struct {
 	SemanticID       types.String `tfsdk:"semantic_id"` // Optional
 	IsPublic         types.Bool   `tfsdk:"is_public"`
 	ModelID          types.String `tfsdk:"model_id"`      // Nullable
+	ModelPoolID      types.String `tfsdk:"model_pool_id"` // Nullable
 	Config           types.Object `tfsdk:"config"`        // Nullable, uses CapabilityConfigModel from chat_capability.go
 	ProjectID        types.String `tfsdk:"project_id"`    // Nullable
 	SystemPrompt     types.String `tfsdk:"system_prompt"` // Shared with Chat, but also in Completion
@@ -97,7 +98,12 @@ func (r *CompletionCapabilityResource) Schema(ctx context.Context, req resource.
 			},
 			"model_id": schema.StringAttribute{
 				Optional:            true,
-				MarkdownDescription: "The UUID of the model deployment to use for this capability. If not provided, a default model for 'completion' type may be used by the API.",
+				MarkdownDescription: "The UUID of the model deployment to use for this capability. If not provided, a default model for 'completion' type may be used by the API. Mutually exclusive with model_pool_id.",
+			},
+			"model_pool_id": schema.StringAttribute{
+				Optional:            true,
+				MarkdownDescription: "The UUID of the model pool to use for this capability. Mutually exclusive with model_id.",
+				Validators:          []validator.String{stringvalidator.ConflictsWith(path.MatchRoot("model_id"))},
 			},
 			"project_id": schema.StringAttribute{
 				Optional:            true,
@@ -215,6 +221,11 @@ func mapCompletionCapabilityRepresentationToModel(apiCap *api.CapabilityRepresen
 		model.ModelID = types.StringValue(*modelId)
 	} else {
 		model.ModelID = types.StringNull()
+	}
+	if modelPoolId, ok := apiCap.GetModelPoolIdOk(); ok && modelPoolId != nil {
+		model.ModelPoolID = types.StringValue(*modelPoolId)
+	} else {
+		model.ModelPoolID = types.StringNull()
 	}
 	if projectId, ok := apiCap.GetProjectIdOk(); ok && projectId != nil {
 		model.ProjectID = types.StringValue(*projectId)
@@ -363,6 +374,11 @@ func mapCompletionCapabilityCreateResponseToModel(apiCap *api.CompletionCapabili
 	} else {
 		model.ModelID = types.StringNull()
 	}
+	if modelPoolId, ok := apiCap.GetModelPoolIdOk(); ok && modelPoolId != nil {
+		model.ModelPoolID = types.StringValue(*modelPoolId)
+	} else {
+		model.ModelPoolID = types.StringNull()
+	}
 	if projectId, ok := apiCap.GetProjectIdOk(); ok && projectId != nil {
 		model.ProjectID = types.StringValue(*projectId)
 	} else {
@@ -500,6 +516,9 @@ func (r *CompletionCapabilityResource) Create(ctx context.Context, req resource.
 	if !plan.ModelID.IsNull() && !plan.ModelID.IsUnknown() {
 		apiPayload.SetModelId(plan.ModelID.ValueString())
 	}
+	if !plan.ModelPoolID.IsNull() && !plan.ModelPoolID.IsUnknown() {
+		apiPayload.SetModelPoolId(plan.ModelPoolID.ValueString())
+	}
 	if !plan.ProjectID.IsNull() && !plan.ProjectID.IsUnknown() {
 		apiPayload.SetProjectId(plan.ProjectID.ValueString())
 	}
@@ -633,6 +652,12 @@ func (r *CompletionCapabilityResource) Update(ctx context.Context, req resource.
 	// ModelID
 	if !plan.ModelID.IsNull() && !plan.ModelID.IsUnknown() {
 		updatePayload.SetModelId(plan.ModelID.ValueString())
+		updatePayload.SetModelPoolIdNil()
+	}
+	// ModelPoolID (mutually exclusive with ModelID; null the other so switching between them works)
+	if !plan.ModelPoolID.IsNull() && !plan.ModelPoolID.IsUnknown() {
+		updatePayload.SetModelPoolId(plan.ModelPoolID.ValueString())
+		updatePayload.SetModelIdNil()
 	}
 
 	// ProjectID
