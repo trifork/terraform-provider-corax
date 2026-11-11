@@ -1083,3 +1083,93 @@ func (c *Client) ListCapabilityTypes(ctx context.Context) (*api.CapabilityTypesR
 
 	return result, nil
 }
+
+// --- Model Pool Methods ---
+
+// CreateModelPool creates a model deployment pool, including its initial members.
+// Corresponds to POST /v1/model-pools.
+func (c *Client) CreateModelPool(ctx context.Context, create api.ModelDeploymentPoolCreate) (*api.ModelDeploymentPool, error) {
+	result, resp, err := c.generated.ModelDeploymentPoolsAPI.CreateModelPoolV1ModelPoolsPost(c.withAuth(ctx)).
+		ModelDeploymentPoolCreate(create).
+		Execute()
+	if err != nil {
+		return nil, convertError(err, resp)
+	}
+	return result, nil
+}
+
+// GetModelPool retrieves a model deployment pool, including its members.
+// Corresponds to GET /v1/model-pools/{pool_id}.
+func (c *Client) GetModelPool(ctx context.Context, poolID string) (*api.ModelDeploymentPool, error) {
+	if strings.TrimSpace(poolID) == "" {
+		return nil, fmt.Errorf("poolID cannot be empty")
+	}
+	result, resp, err := c.generated.ModelDeploymentPoolsAPI.GetModelPoolV1ModelPoolsPoolIdGet(c.withAuth(ctx), poolID).Execute()
+	if err != nil {
+		return nil, convertError(err, resp)
+	}
+	return result, nil
+}
+
+// UpdateModelPool updates the pool-level settings. Members are managed through
+// the member endpoints.
+// Corresponds to PUT /v1/model-pools/{pool_id}.
+func (c *Client) UpdateModelPool(ctx context.Context, poolID string, update api.ModelDeploymentPoolUpdate) (*api.ModelDeploymentPool, error) {
+	if strings.TrimSpace(poolID) == "" {
+		return nil, fmt.Errorf("poolID cannot be empty")
+	}
+	result, resp, err := c.generated.ModelDeploymentPoolsAPI.UpdateModelPoolV1ModelPoolsPoolIdPut(c.withAuth(ctx), poolID).
+		ModelDeploymentPoolUpdate(update).
+		Execute()
+	if err != nil {
+		return nil, convertError(err, resp)
+	}
+	return result, nil
+}
+
+// DeleteModelPool deletes a model deployment pool.
+// Corresponds to DELETE /v1/model-pools/{pool_id}.
+func (c *Client) DeleteModelPool(ctx context.Context, poolID string) error {
+	if strings.TrimSpace(poolID) == "" {
+		return fmt.Errorf("poolID cannot be empty")
+	}
+	resp, err := c.generated.ModelDeploymentPoolsAPI.DeleteModelPoolV1ModelPoolsPoolIdDelete(c.withAuth(ctx), poolID).Execute()
+	if err != nil {
+		return convertError(err, resp)
+	}
+	return nil
+}
+
+// AddPoolMember adds a model deployment to a pool.
+// Corresponds to POST /v1/model-pools/{pool_id}/members.
+func (c *Client) AddPoolMember(ctx context.Context, poolID string, create api.PoolMemberCreate) (*api.PoolMember, error) {
+	result, resp, err := c.generated.ModelDeploymentPoolsAPI.AddPoolMemberV1ModelPoolsPoolIdMembersPost(c.withAuth(ctx), poolID).
+		PoolMemberCreate(create).
+		Execute()
+	if err != nil {
+		return nil, convertError(err, resp)
+	}
+	return result, nil
+}
+
+// UpdatePoolMember updates a pool member's weight, priority or active flag.
+// Corresponds to PUT /v1/model-pools/{pool_id}/members/{member_id}.
+func (c *Client) UpdatePoolMember(ctx context.Context, poolID, memberID string, update api.PoolMemberUpdate) (*api.PoolMember, error) {
+	result, resp, err := c.generated.ModelDeploymentPoolsAPI.UpdatePoolMemberV1ModelPoolsPoolIdMembersMemberIdPut(c.withAuth(ctx), poolID, memberID).
+		PoolMemberUpdate(update).
+		Execute()
+	if err != nil {
+		return nil, convertError(err, resp)
+	}
+	return result, nil
+}
+
+// RemovePoolMember removes a member from a pool.
+// Corresponds to DELETE /v1/model-pools/{pool_id}/members/{member_id}.
+func (c *Client) RemovePoolMember(ctx context.Context, poolID, memberID string) error {
+	resp, err := c.generated.ModelDeploymentPoolsAPI.RemovePoolMemberV1ModelPoolsPoolIdMembersMemberIdDelete(c.withAuth(ctx), poolID, memberID).Execute()
+	if err != nil {
+		return convertError(err, resp)
+	}
+	return nil
+}
