@@ -6,6 +6,8 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"math"
+	"regexp"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/mapvalidator"
@@ -94,7 +96,7 @@ func (r *ModelPoolResource) Schema(ctx context.Context, req resource.SchemaReque
 				Computed:            true,
 				Default:             int64default.StaticInt64(60),
 				MarkdownDescription: "How long a failed member is skipped before it is tried again. Defaults to 60.",
-				Validators:          []validator.Int64{int64validator.AtLeast(0)},
+				Validators:          []validator.Int64{int64validator.Between(0, math.MaxInt32)},
 			},
 			"fallback_mode": schema.StringAttribute{
 				Optional:            true,
@@ -105,8 +107,15 @@ func (r *ModelPoolResource) Schema(ctx context.Context, req resource.SchemaReque
 			},
 			"members": schema.MapNestedAttribute{
 				Required:            true,
-				MarkdownDescription: "The model deployments in the pool, keyed by model deployment UUID. Use `{}` to take the member defaults.",
-				Validators:          []validator.Map{mapvalidator.SizeAtLeast(1)},
+				MarkdownDescription: "The model deployments in the pool, keyed by lower-case model deployment UUID. At least one member is required: a pool without members cannot route. Use `{}` to take the member defaults.",
+				Validators: []validator.Map{
+					mapvalidator.SizeAtLeast(1),
+					// The API returns UUIDs lower-cased; any other spelling would diff on every plan.
+					mapvalidator.KeysAre(stringvalidator.RegexMatches(
+						regexp.MustCompile(`^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$`),
+						"must be a lower-case UUID",
+					)),
+				},
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"weight": schema.Int64Attribute{
@@ -114,14 +123,14 @@ func (r *ModelPoolResource) Schema(ctx context.Context, req resource.SchemaReque
 							Computed:            true,
 							Default:             int64default.StaticInt64(1),
 							MarkdownDescription: "Relative share of traffic for this member. Defaults to 1.",
-							Validators:          []validator.Int64{int64validator.AtLeast(1)},
+							Validators:          []validator.Int64{int64validator.Between(1, math.MaxInt32)},
 						},
 						"priority": schema.Int64Attribute{
 							Optional:            true,
 							Computed:            true,
 							Default:             int64default.StaticInt64(1),
 							MarkdownDescription: "Member priority. Defaults to 1.",
-							Validators:          []validator.Int64{int64validator.AtLeast(1)},
+							Validators:          []validator.Int64{int64validator.Between(1, math.MaxInt32)},
 						},
 						"is_active": schema.BoolAttribute{
 							Optional:            true,
@@ -222,8 +231,9 @@ func (r *ModelPoolResource) Read(ctx context.Context, req resource.ReadRequest, 
 }
 
 // Update sets the pool-level fields, then reconciles members against what the
-// API currently holds. Removals run last so the pool is never left empty
-// mid-update.
+// API currently holds. Steps that could stop the pool serving run last:
+// additions and other changes first, then deactivations, then removals. If a
+// step fails, the members still serving are untouched.
 func (r *ModelPoolResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
 	var plan, state ModelPoolResourceModel
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &plan)...)
@@ -239,17 +249,35 @@ func (r *ModelPoolResource) Update(ctx context.Context, req resource.UpdateReque
 	update.SetCooldownSeconds(int32(plan.CooldownSeconds.ValueInt64()))
 	update.SetFallbackMode(api.PoolFallbackMode(plan.FallbackMode.ValueString()))
 
-	pool, err := r.client.UpdateModelPool(ctx, poolID, *update)
-	if err != nil {
+	if _, err := r.client.UpdateModelPool(ctx, poolID, *update); err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to update model pool %s: %s", poolID, err))
 		return
 	}
 
+	// Current members come from GET: the PUT response isn't guaranteed to list them.
+	pool, err := r.client.GetModelPool(ctx, poolID)
+	if err != nil {
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read model pool %s: %s", poolID, err))
+		return
+	}
 	current := make(map[string]api.PoolMember, len(pool.Members))
 	for _, m := range pool.Members {
 		current[m.ModelDeploymentId] = m
 	}
 
+	updateMember := func(deploymentID string, existing api.PoolMember, m ModelPoolMemberModel) bool {
+		memberUpdate := api.NewPoolMemberUpdate()
+		memberUpdate.SetWeight(int32(m.Weight.ValueInt64()))
+		memberUpdate.SetPriority(int32(m.Priority.ValueInt64()))
+		memberUpdate.SetIsActive(m.IsActive.ValueBool())
+		if _, err := r.client.UpdatePoolMember(ctx, poolID, existing.Id, *memberUpdate); err != nil {
+			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to update model deployment %s in pool %s: %s", deploymentID, poolID, err))
+			return false
+		}
+		return true
+	}
+
+	deactivations := map[string]api.PoolMember{}
 	for deploymentID, m := range plan.Members {
 		existing, ok := current[deploymentID]
 		delete(current, deploymentID)
@@ -271,12 +299,17 @@ func (r *ModelPoolResource) Update(ctx context.Context, req resource.UpdateReque
 			existing.GetIsActive() == m.IsActive.ValueBool() {
 			continue
 		}
-		memberUpdate := api.NewPoolMemberUpdate()
-		memberUpdate.SetWeight(int32(m.Weight.ValueInt64()))
-		memberUpdate.SetPriority(int32(m.Priority.ValueInt64()))
-		memberUpdate.SetIsActive(m.IsActive.ValueBool())
-		if _, err := r.client.UpdatePoolMember(ctx, poolID, existing.Id, *memberUpdate); err != nil {
-			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to update model deployment %s in pool %s: %s", deploymentID, poolID, err))
+		if existing.GetIsActive() && !m.IsActive.ValueBool() {
+			deactivations[deploymentID] = existing
+			continue
+		}
+		if !updateMember(deploymentID, existing, m) {
+			return
+		}
+	}
+
+	for deploymentID, existing := range deactivations {
+		if !updateMember(deploymentID, existing, plan.Members[deploymentID]) {
 			return
 		}
 	}

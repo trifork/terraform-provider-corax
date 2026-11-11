@@ -44,7 +44,7 @@ resource "corax_completion_capability" "summary" {
 
 ### Required
 
-- `members` (Attributes Map) The model deployments in the pool, keyed by model deployment UUID. Use `{}` to take the member defaults. (see [below for nested schema](#nestedatt--members))
+- `members` (Attributes Map) The model deployments in the pool, keyed by lower-case model deployment UUID. At least one member is required: a pool without members cannot route. Use `{}` to take the member defaults. (see [below for nested schema](#nestedatt--members))
 - `name` (String) A user-defined name for the model pool.
 
 ### Optional

@@ -649,16 +649,10 @@ func (r *CompletionCapabilityResource) Update(ctx context.Context, req resource.
 		updatePayload.SetSemanticId(plan.SemanticID.ValueString())
 	}
 
-	// ModelID
-	if !plan.ModelID.IsNull() && !plan.ModelID.IsUnknown() {
-		updatePayload.SetModelId(plan.ModelID.ValueString())
-		updatePayload.SetModelPoolIdNil()
-	}
-	// ModelPoolID (mutually exclusive with ModelID; null the other so switching between them works)
-	if !plan.ModelPoolID.IsNull() && !plan.ModelPoolID.IsUnknown() {
-		updatePayload.SetModelPoolId(plan.ModelPoolID.ValueString())
-		updatePayload.SetModelIdNil()
-	}
+	// Always send both routing fields, null included: removing one from the
+	// config (or switching to the other) must clear it on the server.
+	updatePayload.ModelId.Set(plan.ModelID.ValueStringPointer())
+	updatePayload.ModelPoolId.Set(plan.ModelPoolID.ValueStringPointer())
 
 	// ProjectID
 	if !plan.ProjectID.IsNull() && !plan.ProjectID.IsUnknown() {
