@@ -29,14 +29,6 @@ func NewCapabilityTypeDefaultModelResource() resource.Resource {
 	return &CapabilityTypeDefaultModelResource{}
 }
 
-func capabilityTypeValues() []string {
-	values := make([]string, len(api.AllowedCapabilityTypeEnumValues))
-	for i, capabilityType := range api.AllowedCapabilityTypeEnumValues {
-		values[i] = string(capabilityType)
-	}
-	return values
-}
-
 // CapabilityTypeDefaultModelResource defines the resource implementation.
 type CapabilityTypeDefaultModelResource struct {
 	client *coraxclient.Client
@@ -55,7 +47,7 @@ func (r *CapabilityTypeDefaultModelResource) Metadata(ctx context.Context, req r
 }
 
 func (r *CapabilityTypeDefaultModelResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
-	capabilityTypes := capabilityTypeValues()
+	capabilityTypes := enumStrings(api.AllowedCapabilityTypeEnumValues)
 	resp.Schema = schema.Schema{
 		MarkdownDescription: "Manages the default Model Deployment for a specific Capability Type.",
 		Attributes: map[string]schema.Attribute{

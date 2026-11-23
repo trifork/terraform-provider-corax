@@ -45,3 +45,7 @@ output "extraction_capability" {
 output "extraction_capability_generated_semantic_id" {
   value = corax_extraction_capability.generated_semantic_id.semantic_id
 }
+
+output "model_pool_id" {
+  value = length(var.pool_model_deployment_ids) > 0 ? corax_model_pool.test[0].id : null
+}

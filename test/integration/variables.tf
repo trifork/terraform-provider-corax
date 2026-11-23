@@ -28,3 +28,9 @@ variable "enable_api_key" {
   type        = bool
   default     = false
 }
+
+variable "pool_model_deployment_ids" {
+  description = "Existing model deployment IDs to put in a model pool. When set, a pool and a completion capability using it are created."
+  type        = list(string)
+  default     = []
+}

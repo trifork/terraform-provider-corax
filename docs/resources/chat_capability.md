@@ -24,7 +24,8 @@ Manages a Corax Chat Capability. Chat capabilities define configurations for con
 
 - `config` (Attributes) Configuration settings for the capability's behavior. (see [below for nested schema](#nestedatt--config))
 - `is_public` (Boolean) Indicates whether the capability is publicly accessible. Defaults to false.
-- `model_id` (String) The UUID of the model deployment to use for this capability. If not provided, a default model for 'chat' type may be used by the API.
+- `model_id` (String) The UUID of the model deployment to use for this capability. If not provided, a default model for 'chat' type may be used by the API. Mutually exclusive with model_pool_id.
+- `model_pool_id` (String) The UUID of the model pool to use for this capability. Mutually exclusive with model_id.
 - `project_id` (String) The UUID of the project this capability belongs to. If not provided, it might be associated with a default or no project.
 - `semantic_id` (String) A semantic identifier for the chat capability that can be used for referencing.
 

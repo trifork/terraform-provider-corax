@@ -26,7 +26,8 @@ Manages a Corax Completion Capability. Completion capabilities define configurat
 
 - `config` (Attributes) Configuration settings for the capability's behavior. (see [below for nested schema](#nestedatt--config))
 - `is_public` (Boolean) Indicates whether the capability is publicly accessible. Defaults to false.
-- `model_id` (String) The UUID of the model deployment to use for this capability. If not provided, a default model for 'completion' type may be used by the API.
+- `model_id` (String) The UUID of the model deployment to use for this capability. If not provided, a default model for 'completion' type may be used by the API. Mutually exclusive with model_pool_id.
+- `model_pool_id` (String) The UUID of the model pool to use for this capability. Mutually exclusive with model_id.
 - `project_id` (String) The UUID of the project this capability belongs to.
 - `schema_def` (String) Defines the structure of the output when `output_type` is 'schema'. A JSON-encoded string (use `jsonencode()`) mapping each field name to a property definition with a `type` of `string`, `integer`, `number`, `boolean`, `enum` (plus `enum`), `array` (plus `items`) or `object` (plus `properties`), and an optional `description`. Required if `output_type` is 'schema', must be null or omitted if `output_type` is 'text'.
 - `semantic_id` (String) A semantic identifier for the completion capability that can be used for referencing.

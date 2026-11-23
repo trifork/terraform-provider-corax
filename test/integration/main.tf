@@ -176,3 +176,29 @@ resource "corax_api_key" "test" {
     ignore_changes = [expires_at]
   }
 }
+
+resource "corax_model_pool" "test" {
+  count = length(var.pool_model_deployment_ids) > 0 ? 1 : 0
+
+  name             = "${local.prefix}-pool"
+  cooldown_seconds = 30 * var.revision
+
+  # First member's weight changes on revision 2 to exercise the member update path.
+  members = {
+    for i, id in var.pool_model_deployment_ids :
+    id => { weight = i == 0 ? var.revision : 1 }
+  }
+}
+
+resource "corax_completion_capability" "pooled" {
+  count = length(var.pool_model_deployment_ids) > 0 ? 1 : 0
+
+  name              = "${local.prefix}-completion-pooled"
+  semantic_id       = "${local.prefix}-completion-pooled"
+  project_id        = corax_project.test.id
+  model_pool_id     = corax_model_pool.test[0].id
+  system_prompt     = "You are a terse assistant used by an integration test."
+  completion_prompt = "Echo: {{text}}"
+  variables         = ["text"]
+  output_type       = "text"
+}

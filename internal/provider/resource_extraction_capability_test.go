@@ -331,12 +331,21 @@ resource "corax_extraction_capability" "test_config" {
 // in-memory store. It lets the full Terraform lifecycle (create, read, update,
 // import, destroy) run against real HTTP without requiring a live Corax API.
 func newFakeCapabilityAPI(t *testing.T) *httptest.Server {
+	server, _ := newFakeCapabilityAPIOfType(t, "extraction")
+	return server
+}
+
+// newFakeCapabilityAPIOfType is newFakeCapabilityAPI for any capability type.
+// It also records every PUT body, so tests can tell an absent key from an
+// explicit null (the store can't: PUT replaces the record).
+func newFakeCapabilityAPIOfType(t *testing.T, capType string) (*httptest.Server, *[]map[string]interface{}) {
 	t.Helper()
 
 	var (
 		mu    sync.Mutex
 		store = map[string]map[string]interface{}{}
 		next  = 0
+		puts  []map[string]interface{}
 	)
 
 	// representation renders a stored capability in the CapabilityRepresentation
@@ -354,6 +363,9 @@ func newFakeCapabilityAPI(t *testing.T) *httptest.Server {
 		if v, ok := stored["output_type"]; ok && v != nil {
 			configuration["output_type"] = v
 		}
+		if v, ok := stored["completion_prompt"]; ok && v != nil {
+			configuration["completion_prompt"] = v
+		}
 		rep["configuration"] = configuration
 		if _, ok := rep["config"]; !ok {
 			// The API always materialises the capability config, applying
@@ -362,6 +374,9 @@ func newFakeCapabilityAPI(t *testing.T) *httptest.Server {
 		}
 		rep["input"] = map[string]interface{}{}
 		rep["output"] = map[string]interface{}{}
+		if v, ok := stored["output_type"]; ok && v != nil {
+			rep["output"] = map[string]interface{}{"type": v}
+		}
 		rep["is_default_version"] = true
 		if _, ok := rep["semantic_id"]; !ok || rep["semantic_id"] == nil {
 			rep["semantic_id"] = "generated-semantic-id"
@@ -393,8 +408,8 @@ func newFakeCapabilityAPI(t *testing.T) *httptest.Server {
 			http.Error(w, "bad request", http.StatusBadRequest)
 			return
 		}
-		if got := body["type"]; got != "extraction" {
-			t.Errorf("create payload type = %v, want \"extraction\"", got)
+		if got := body["type"]; got != capType {
+			t.Errorf("create payload type = %v, want %q", got, capType)
 		}
 
 		mu.Lock()
@@ -443,9 +458,10 @@ func newFakeCapabilityAPI(t *testing.T) *httptest.Server {
 				http.Error(w, "bad request", http.StatusBadRequest)
 				return
 			}
-			if got := body["type"]; got != "extraction" {
-				t.Errorf("update payload type = %v, want \"extraction\"", got)
+			if got := body["type"]; got != capType {
+				t.Errorf("update payload type = %v, want %q", got, capType)
 			}
+			puts = append(puts, body)
 			existing := store[id]
 			body["id"] = id
 			body["owner"] = existing["owner"]
@@ -469,7 +485,7 @@ func newFakeCapabilityAPI(t *testing.T) *httptest.Server {
 
 	server := httptest.NewServer(mux)
 	t.Cleanup(server.Close)
-	return server
+	return server, &puts
 }
 
 // TestAccExtractionCapabilityResource_againstFakeAPI drives the whole resource

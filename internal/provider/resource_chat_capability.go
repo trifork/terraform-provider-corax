@@ -44,9 +44,10 @@ type ChatCapabilityResourceModel struct {
 	Name         types.String `tfsdk:"name"`
 	SemanticID   types.String `tfsdk:"semantic_id"` // Optional
 	IsPublic     types.Bool   `tfsdk:"is_public"`
-	ModelID      types.String `tfsdk:"model_id"`   // Nullable
-	Config       types.Object `tfsdk:"config"`     // Nullable
-	ProjectID    types.String `tfsdk:"project_id"` // Nullable
+	ModelID      types.String `tfsdk:"model_id"`      // Nullable
+	ModelPoolID  types.String `tfsdk:"model_pool_id"` // Nullable
+	Config       types.Object `tfsdk:"config"`        // Nullable
+	ProjectID    types.String `tfsdk:"project_id"`    // Nullable
 	SystemPrompt types.String `tfsdk:"system_prompt"`
 	// CollectionIDs types.List   `tfsdk:"collection_ids"` // Omitted for now as per decision to skip collection-related features
 	Owner     types.String `tfsdk:"owner"`      // Computed
@@ -89,8 +90,13 @@ func (r *ChatCapabilityResource) Schema(ctx context.Context, req resource.Schema
 			},
 			"model_id": schema.StringAttribute{
 				Optional:            true,
-				MarkdownDescription: "The UUID of the model deployment to use for this capability. If not provided, a default model for 'chat' type may be used by the API.",
+				MarkdownDescription: "The UUID of the model deployment to use for this capability. If not provided, a default model for 'chat' type may be used by the API. Mutually exclusive with model_pool_id.",
 				// TODO: Add validator for UUID format
+			},
+			"model_pool_id": schema.StringAttribute{
+				Optional:            true,
+				MarkdownDescription: "The UUID of the model pool to use for this capability. Mutually exclusive with model_id.",
+				Validators:          []validator.String{stringvalidator.ConflictsWith(path.MatchRoot("model_id"))},
 			},
 			"project_id": schema.StringAttribute{
 				Optional:            true,
@@ -167,6 +173,11 @@ func mapChatCapabilityRepresentationToModel(apiCap *api.CapabilityRepresentation
 	} else {
 		model.ModelID = types.StringNull()
 	}
+	if modelPoolId, ok := apiCap.GetModelPoolIdOk(); ok && modelPoolId != nil {
+		model.ModelPoolID = types.StringValue(*modelPoolId)
+	} else {
+		model.ModelPoolID = types.StringNull()
+	}
 	if projectId, ok := apiCap.GetProjectIdOk(); ok && projectId != nil {
 		model.ProjectID = types.StringValue(*projectId)
 	} else {
@@ -211,6 +222,11 @@ func mapChatCapabilityCreateResponseToModel(apiCap *api.ChatCapability, model *C
 		model.ModelID = types.StringValue(*modelId)
 	} else {
 		model.ModelID = types.StringNull()
+	}
+	if modelPoolId, ok := apiCap.GetModelPoolIdOk(); ok && modelPoolId != nil {
+		model.ModelPoolID = types.StringValue(*modelPoolId)
+	} else {
+		model.ModelPoolID = types.StringNull()
 	}
 	if projectId, ok := apiCap.GetProjectIdOk(); ok && projectId != nil {
 		model.ProjectID = types.StringValue(*projectId)
@@ -258,6 +274,9 @@ func (r *ChatCapabilityResource) Create(ctx context.Context, req resource.Create
 	}
 	if !plan.ModelID.IsNull() && !plan.ModelID.IsUnknown() {
 		apiPayload.SetModelId(plan.ModelID.ValueString())
+	}
+	if !plan.ModelPoolID.IsNull() && !plan.ModelPoolID.IsUnknown() {
+		apiPayload.SetModelPoolId(plan.ModelPoolID.ValueString())
 	}
 	if !plan.ProjectID.IsNull() && !plan.ProjectID.IsUnknown() {
 		apiPayload.SetProjectId(plan.ProjectID.ValueString())
@@ -360,10 +379,10 @@ func (r *ChatCapabilityResource) Update(ctx context.Context, req resource.Update
 		updatePayload.SetSemanticId(plan.SemanticID.ValueString())
 	}
 
-	// ModelID
-	if !plan.ModelID.IsNull() && !plan.ModelID.IsUnknown() {
-		updatePayload.SetModelId(plan.ModelID.ValueString())
-	}
+	// Always send both routing fields, null included: removing one from the
+	// config (or switching to the other) must clear it on the server.
+	updatePayload.ModelId.Set(plan.ModelID.ValueStringPointer())
+	updatePayload.ModelPoolId.Set(plan.ModelPoolID.ValueStringPointer())
 
 	// ProjectID
 	if !plan.ProjectID.IsNull() && !plan.ProjectID.IsUnknown() {

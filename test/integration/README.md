@@ -40,6 +40,7 @@ across plans; `integration-destroy` removes it.
 | `corax_extraction_capability` | `output_type = "schema"` switched to `"text"` on revision 2, nested `config`, `data_retention = timed`, `blob_config`, `custom_parameters`, `mcp_server_ids`, explicit `semantic_id`, plus a second instance with `semantic_id` omitted to cover the API-generated `Optional + Computed` round-trip |
 | `corax_speech_to_text_capability` | opt-in via `enable_speech_to_text` (needs a default STT model) |
 | `corax_api_key` | opt-in via `enable_api_key` (secret lands in state) |
+| `corax_model_pool` + pooled `corax_completion_capability` | opt-in via `pool_model_deployment_ids` (existing deployment IDs); member weight and `cooldown_seconds` change on revision 2, and `model_pool_id` on a capability |
 
 Deliberately not covered: `corax_model_provider` and `corax_model_deployment`
 (need real third-party provider credentials) and
@@ -49,6 +50,12 @@ Enable the opt-in resources with:
 
 ```shell
 TF_VAR_enable_speech_to_text=true TF_VAR_enable_api_key=true make integration-apply
+```
+
+For the model pool, pass existing deployment IDs:
+
+```shell
+TF_VAR_pool_model_deployment_ids='["<deployment-uuid>","<deployment-uuid>"]' make integration-apply
 ```
 
 Exercise the in-place update path by bumping `revision`, which feeds into the
