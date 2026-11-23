@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"reflect"
+	"strings"
 	"sync"
 	"testing"
 
@@ -41,14 +42,16 @@ func testModelProviderState(t *testing.T, state tfsdk.State) ModelProviderResour
 }
 
 func TestModelProviderCredentialLifecycle(t *testing.T) {
-	for _, tc := range []struct{ providerType, secret string }{
-		{"azure_ai_service_principal", "client_secret"},
-		{"azure_service_principal", "client_secret"},
-		{"azure_ai_service_principal_certificate", "certificate_password"},
-		{"azure_service_principal_certificate", "certificate_password"},
-		{"azure_ai", "api_key"},
+	for _, tc := range []struct{ providerType, secret, action string }{
+		{"azure_ai_service_principal", "client_secret", "rotation"},
+		{"azure_service_principal", "client_secret", "rotation"},
+		{"azure_ai_service_principal_certificate", "certificate_password", "clear"},
+		{"azure_ai_service_principal_certificate", "certificate_password", "switch"},
+		{"azure_service_principal_certificate", "certificate_password", "clear"},
+		{"azure_service_principal_certificate", "certificate_password", "switch"},
+		{"azure_ai", "api_key", "rotation"},
 	} {
-		t.Run(tc.providerType, func(t *testing.T) {
+		t.Run(tc.providerType+"/"+tc.action, func(t *testing.T) {
 			ctx := context.Background()
 			requests := make(chan coraxclient.ModelProviderUpdate, 3)
 			var mu sync.Mutex
@@ -151,17 +154,21 @@ func TestModelProviderCredentialLifecycle(t *testing.T) {
 				return
 			}
 
-			switched := current
-			switched.ProviderType = types.StringValue("azure_ai_service_principal")
-			switched.Configuration = testModelProviderMap(t, map[string]string{"api_endpoint": "https://example.services.ai.azure.com", "tenant_id": "test-tenant", "client_id": "test-client", "client_secret": "test-new-secret"})
-			requireModelProviderDiagnostics(t, plan.Set(ctx, &switched))
-			switchedResponse := resource.UpdateResponse{State: reread.State}
-			subject.Update(ctx, resource.UpdateRequest{Plan: plan, State: reread.State}, &switchedResponse)
-			requireModelProviderDiagnostics(t, switchedResponse.Diagnostics)
-			switchedBody := <-requests
-			if _, copied := switchedBody.Configuration[certificatePasswordConfigurationKey]; copied {
-				t.Fatal("A provider type change must not add the old certificate password field")
+			if tc.action == "switch" {
+				switched := current
+				switched.ProviderType = types.StringValue("azure_ai_service_principal")
+				switched.Configuration = testModelProviderMap(t, map[string]string{"api_endpoint": "https://example.services.ai.azure.com", "tenant_id": "test-tenant", "client_id": "test-client", "client_secret": "test-new-secret"})
+				requireModelProviderDiagnostics(t, plan.Set(ctx, &switched))
+				switchedResponse := resource.UpdateResponse{State: reread.State}
+				subject.Update(ctx, resource.UpdateRequest{Plan: plan, State: reread.State}, &switchedResponse)
+				requireModelProviderDiagnostics(t, switchedResponse.Diagnostics)
+				switchedBody := <-requests
+				if _, copied := switchedBody.Configuration[certificatePasswordConfigurationKey]; copied {
+					t.Fatal("A provider type change must not add the old certificate password field")
+				}
+				return
 			}
+
 			delete(configuration, tc.secret)
 			current.Configuration = testModelProviderMap(t, configuration)
 			requireModelProviderDiagnostics(t, plan.Set(ctx, &current))
@@ -179,6 +186,7 @@ func TestModelProviderCredentialLifecycle(t *testing.T) {
 			if !testModelProviderState(t, readCleared.State).Configuration.Equal(current.Configuration) {
 				t.Fatal("Refresh reintroduced an omitted, cleared password")
 			}
+
 		})
 	}
 }
@@ -193,6 +201,13 @@ func TestModelProviderSecretResponseReconciliation(t *testing.T) {
 		{"legacy API-key omitted", "azure_ai", "azure_ai", map[string]string{"api_key": "sk-legacy-secret"}, map[string]string{}, map[string]string{"api_key": "sk-legacy-secret"}},
 		{"short secret mask", "azure_ai_service_principal", "azure_ai_service_principal", map[string]string{"client_secret": "short"}, map[string]string{"client_secret": "********"}, map[string]string{"client_secret": "short"}},
 		{"unicode secret mask", "azure_ai_service_principal_certificate", "azure_ai_service_principal_certificate", map[string]string{"certificate_password": "æø-long-密碼abcd"}, map[string]string{"certificate_password": "æø...abcd"}, map[string]string{"certificate_password": "æø-long-密碼abcd"}},
+		{"changed secret prefix", "azure_ai_service_principal", "azure_ai_service_principal", map[string]string{"client_secret": "prior-secret"}, map[string]string{"client_secret": "xx...cret"}, map[string]string{"client_secret": "xx...cret"}},
+		{"changed password suffix", "azure_ai_service_principal_certificate", "azure_ai_service_principal_certificate", map[string]string{"certificate_password": "prior-password"}, map[string]string{"certificate_password": "pr...xxxx"}, map[string]string{"certificate_password": "pr...xxxx"}},
+		{"long secret became short", "azure_ai_service_principal", "azure_ai_service_principal", map[string]string{"client_secret": "prior-secret"}, map[string]string{"client_secret": "********"}, map[string]string{"client_secret": "********"}},
+		{"short secret became long", "azure_ai_service_principal", "azure_ai_service_principal", map[string]string{"client_secret": "short"}, map[string]string{"client_secret": "ne...cret"}, map[string]string{"client_secret": "ne...cret"}},
+		{"changed API-key mask", "azure_ai", "azure_ai", map[string]string{"api_key": "sk-original-secret"}, map[string]string{"api_key": "xx...cret"}, map[string]string{"api_key": "xx...cret"}},
+		{"matching API-key mask", "azure_ai", "azure_ai", map[string]string{"api_key": "sk-original-secret"}, map[string]string{"api_key": "sk...cret"}, map[string]string{"api_key": "sk-original-secret"}},
+		{"eight character secret", "azure_ai_service_principal", "azure_ai_service_principal", map[string]string{"client_secret": "abcdefgh"}, map[string]string{"client_secret": "ab...efgh"}, map[string]string{"client_secret": "abcdefgh"}},
 		{"nonsecret drift", "azure_ai_service_principal", "azure_ai_service_principal", map[string]string{"api_endpoint": "https://before.invalid"}, map[string]string{"api_endpoint": "https://after.invalid"}, map[string]string{"api_endpoint": "https://after.invalid"}},
 		{"explicit empty password", "azure_ai_service_principal_certificate", "azure_ai_service_principal_certificate", map[string]string{"certificate_password": ""}, map[string]string{"certificate_password": ""}, map[string]string{"certificate_password": ""}},
 		{"unencrypted certificate without password", "azure_ai_service_principal_certificate", "azure_ai_service_principal_certificate", map[string]string{}, map[string]string{}, map[string]string{}},
@@ -212,5 +227,74 @@ func TestModelProviderSecretResponseReconciliation(t *testing.T) {
 				t.Fatal("Unexpected reconciled configuration")
 			}
 		})
+	}
+}
+
+func TestModelProviderReservedCredentialUpdate(t *testing.T) {
+	for _, field := range []string{"client_secret", "certificate_password", "api_key"} {
+		for _, value := range []string{"********", "ab...wxyz", "æø...密碼ab"} {
+			t.Run(field+"/"+value, func(t *testing.T) {
+				ctx := context.Background()
+				requests := make(chan struct{}, 1)
+				server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
+					requests <- struct{}{}
+					var body coraxclient.ModelProviderUpdate
+					if err := json.NewDecoder(req.Body).Decode(&body); err != nil {
+						t.Errorf("Decode request: %v", err)
+						w.WriteHeader(http.StatusBadRequest)
+						return
+					}
+					w.Header().Set("Content-Type", "application/json")
+					if err := json.NewEncoder(w).Encode(coraxclient.ModelProvider{
+						ID: body.ID, Name: body.Name, ProviderType: body.ProviderType, Configuration: body.Configuration,
+						CreatedAt: "2026-01-01T00:00:00Z", CreatedBy: "terraform-test",
+					}); err != nil {
+						t.Errorf("Encode response: %v", err)
+					}
+				}))
+				t.Cleanup(server.Close)
+				client, err := coraxclient.NewClient(server.URL, "test-api-key")
+				if err != nil {
+					t.Fatal(err)
+				}
+				subject := ModelProviderResource{client: client}
+				var schemaResponse resource.SchemaResponse
+				subject.Schema(ctx, resource.SchemaRequest{}, &schemaResponse)
+				model := ModelProviderResourceModel{
+					ID:   types.StringValue("00000000-0000-0000-0000-000000000001"),
+					Name: types.StringValue("Test connection"), ProviderType: types.StringValue("azure_ai_service_principal_certificate"),
+					Configuration: testModelProviderMap(t, map[string]string{field: "original-credential"}),
+				}
+				state := tfsdk.State{Schema: schemaResponse.Schema}
+				requireModelProviderDiagnostics(t, state.Set(ctx, &model))
+				model.Configuration = testModelProviderMap(t, map[string]string{field: value})
+				plan := tfsdk.Plan{Schema: schemaResponse.Schema}
+				requireModelProviderDiagnostics(t, plan.Set(ctx, &model))
+				response := resource.UpdateResponse{State: state}
+				subject.Update(ctx, resource.UpdateRequest{State: state, Plan: plan}, &response)
+				if !response.Diagnostics.HasError() {
+					t.Fatal("Expected a diagnostic for a changed credential matching a display mask")
+				}
+				if len(requests) != 0 {
+					t.Fatal("A rejected credential must not be sent to Corax")
+				}
+				for _, diagnostic := range response.Diagnostics {
+					if !strings.Contains(diagnostic.Detail(), field) || strings.Contains(diagnostic.Detail(), value) || strings.Contains(diagnostic.Detail(), "original-credential") {
+						t.Fatal("Diagnostic must identify the field without exposing credential values")
+					}
+				}
+
+				// A mask already in state may be submitted unchanged during a rename.
+				requireModelProviderDiagnostics(t, state.Set(ctx, &model))
+				model.Name = types.StringValue("Renamed connection")
+				requireModelProviderDiagnostics(t, plan.Set(ctx, &model))
+				unchanged := resource.UpdateResponse{State: state}
+				subject.Update(ctx, resource.UpdateRequest{State: state, Plan: plan}, &unchanged)
+				requireModelProviderDiagnostics(t, unchanged.Diagnostics)
+				if len(requests) != 1 {
+					t.Fatal("An unchanged credential mask must not prevent other updates")
+				}
+			})
+		}
 	}
 }

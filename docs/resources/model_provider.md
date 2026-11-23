@@ -49,10 +49,16 @@ mounted key must be unencrypted before applying that change; otherwise the
 backend rejects the update with a certificate-loading error.
 
 Corax returns display masks for secrets. Create and refresh preserve locally
-known secret values, while non-secret values continue to reflect API changes.
+known secret values when their masks match, while non-secret values continue to
+reflect API changes. A changed mask is kept in refreshed state so Terraform can
+plan to restore the configured credential.
 Import cannot recover a secret from its display mask: provide the original
 client secret or certificate password in the Terraform configuration. Secret
-rotation outside Terraform cannot always be detected from a masked response.
+rotation outside Terraform cannot always be detected from a masked response:
+changes hidden behind the same visible characters (including short-secret masks)
+remain indistinguishable. Changed credentials matching the reserved display-mask
+formats (`********` or two characters, `...`, and four characters) are rejected
+before an update, because Corax would preserve the old credential instead.
 The configuration map is sensitive in Terraform output, but its values remain
 in Terraform state. Private key bytes remain in the backend mount.
 

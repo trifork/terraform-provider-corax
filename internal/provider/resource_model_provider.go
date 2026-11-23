@@ -139,6 +139,14 @@ func isMaskedModelProviderSecret(value string) bool {
 	return value == "********" || (len(chars) == 9 && string(chars[2:5]) == "...")
 }
 
+func modelProviderSecretDisplayMask(value string) string {
+	chars := []rune(value)
+	if len(chars) < 8 {
+		return "********"
+	}
+	return string(chars[:2]) + "..." + string(chars[len(chars)-4:])
+}
+
 func isModelProviderSecret(name string) bool {
 	name = strings.ToLower(name)
 	for _, part := range []string{"key", "token", "secret", "password", "credential"} {
@@ -160,7 +168,7 @@ func mapAPIModelProviderToResourceModel(ctx context.Context, apiProvider *coraxc
 	}
 	configuration := make(map[string]string, len(apiProvider.Configuration))
 	for key, value := range apiProvider.Configuration {
-		if prior, ok := known[key]; ok && prior != "" && isModelProviderSecret(key) && isMaskedModelProviderSecret(value) {
+		if prior, ok := known[key]; ok && prior != "" && isModelProviderSecret(key) && value == modelProviderSecretDisplayMask(prior) {
 			value = prior
 		}
 		// Removing the optional password sends an explicit empty string to Corax.
@@ -175,7 +183,9 @@ func mapAPIModelProviderToResourceModel(ctx context.Context, apiProvider *coraxc
 	// Keep the existing API-key behavior for older APIs that omit the key or
 	// use a different truncation format than the current display masks.
 	if key := known[apiKeyConfigurationKey]; key != "" {
-		configuration[apiKeyConfigurationKey] = key
+		if remote, present := apiProvider.Configuration[apiKeyConfigurationKey]; !present || !isMaskedModelProviderSecret(remote) {
+			configuration[apiKeyConfigurationKey] = key
+		}
 	}
 	model.ID = types.StringValue(apiProvider.ID)
 	model.Name = types.StringValue(apiProvider.Name)
@@ -280,6 +290,18 @@ func (r *ModelProviderResource) Update(ctx context.Context, req resource.UpdateR
 	if prior.ProviderType.Equal(plan.ProviderType) && !prior.Configuration.IsNull() && !prior.Configuration.IsUnknown() {
 		known := make(map[string]string)
 		resp.Diagnostics.Append(prior.Configuration.ElementsAs(ctx, &known, false)...)
+		if resp.Diagnostics.HasError() {
+			return
+		}
+		for key, value := range apiUpdatePayload.Configuration {
+			if isModelProviderSecret(key) && value != known[key] && isMaskedModelProviderSecret(value) {
+				resp.Diagnostics.AddAttributeError(
+					path.Root("configuration").AtMapKey(key),
+					"Reserved credential value",
+					fmt.Sprintf("The changed credential field %q matches Corax's display-mask format. Corax would preserve the existing credential instead of storing this value. Choose a different credential value.", key),
+				)
+			}
+		}
 		if resp.Diagnostics.HasError() {
 			return
 		}
