@@ -6,6 +6,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"strings"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
@@ -21,7 +22,10 @@ import (
 	"terraform-provider-corax/internal/coraxclient"
 )
 
-const apiKeyConfigurationKey = "api_key"
+const (
+	apiKeyConfigurationKey              = "api_key"
+	certificatePasswordConfigurationKey = "certificate_password"
+)
 
 // Ensure provider defined types fully satisfy framework interfaces.
 var _ resource.Resource = &ModelProviderResource{}
@@ -50,7 +54,7 @@ func (r *ModelProviderResource) Metadata(ctx context.Context, req resource.Metad
 
 func (r *ModelProviderResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		MarkdownDescription: "Manages a Corax Model Provider. Model Providers store configurations (like API keys and endpoints) for different LLM providers (e.g., Azure OpenAI, OpenAI, Bedrock).",
+		MarkdownDescription: "Manages a Corax Model Provider. Model Providers store configurations (like API keys, service principal credentials, and endpoints) for different LLM providers (e.g., Azure OpenAI, OpenAI, Bedrock).",
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
 				Computed:            true,
@@ -64,13 +68,13 @@ func (r *ModelProviderResource) Schema(ctx context.Context, req resource.SchemaR
 			},
 			"provider_type": schema.StringAttribute{
 				Required:            true,
-				MarkdownDescription: "The type of the model provider (e.g., 'azure_openai', 'openai', 'bedrock'). This should match a type known to the Corax API.",
+				MarkdownDescription: "The type of the model provider (e.g., 'azure', 'azure_ai', 'azure_ai_service_principal', 'azure_ai_service_principal_certificate', 'openai', 'bedrock'). This should match a type known to the Corax API.",
 				// TODO: Consider a validator if the list of types is fixed and small, or link to a data source for valid types.
 			},
 			"configuration": schema.MapAttribute{
 				ElementType:         types.StringType,
 				Required:            true,
-				MarkdownDescription: "Configuration key-value pairs for the model provider. Specific keys depend on the `provider_type`. For example, 'api_key', 'api_endpoint'. Some values may be sensitive.",
+				MarkdownDescription: "Configuration key-value pairs for the model provider. Specific keys depend on the `provider_type`. For example, 'api_key', 'api_endpoint', 'tenant_id', 'client_id', 'client_secret', or optional 'certificate_password'. Certificate files are mounted on the backend and selected by client ID, not uploaded through Terraform. Sensitive values are stored in Terraform state.",
 				Sensitive:           true, // Mark the whole map as sensitive as it often contains API keys.
 			},
 		},
@@ -128,14 +132,65 @@ func modelProviderResourceModelToAPIUpdate(ctx context.Context, plan ModelProvid
 	return apiUpdate, nil
 }
 
-// Helper to map API response to TF model.
+// Corax masks secret fields as two leading and four trailing characters, or
+// eight asterisks for short secrets. Preserve locally known values, not masks.
+func isMaskedModelProviderSecret(value string) bool {
+	chars := []rune(value)
+	return value == "********" || (len(chars) == 9 && string(chars[2:5]) == "...")
+}
+
+func modelProviderSecretDisplayMask(value string) string {
+	chars := []rune(value)
+	if len(chars) < 8 {
+		return "********"
+	}
+	return string(chars[:2]) + "..." + string(chars[len(chars)-4:])
+}
+
+func isModelProviderSecret(name string) bool {
+	name = strings.ToLower(name)
+	for _, part := range []string{"key", "token", "secret", "password", "credential"} {
+		if strings.Contains(name, part) {
+			return true
+		}
+	}
+	return false
+}
+
+// Helper to map API response to TF model while preserving locally known secrets.
 func mapAPIModelProviderToResourceModel(ctx context.Context, apiProvider *coraxclient.ModelProvider, model *ModelProviderResourceModel, diags *diag.Diagnostics) {
+	known := make(map[string]string)
+	if model.ProviderType.ValueString() == apiProvider.ProviderType && !model.Configuration.IsNull() && !model.Configuration.IsUnknown() {
+		diags.Append(model.Configuration.ElementsAs(ctx, &known, false)...)
+		if diags.HasError() {
+			return
+		}
+	}
+	configuration := make(map[string]string, len(apiProvider.Configuration))
+	for key, value := range apiProvider.Configuration {
+		if prior, ok := known[key]; ok && prior != "" && isModelProviderSecret(key) && value == modelProviderSecretDisplayMask(prior) {
+			value = prior
+		}
+		// Removing the optional password sends an explicit empty string to Corax.
+		// Do not reintroduce that empty server value into an omitted TF map key.
+		if key == certificatePasswordConfigurationKey && value == "" {
+			if _, configured := known[key]; !configured {
+				continue
+			}
+		}
+		configuration[key] = value
+	}
+	// Keep the existing API-key behavior for older APIs that omit the key or
+	// use a different truncation format than the current display masks.
+	if key := known[apiKeyConfigurationKey]; key != "" {
+		if remote, present := apiProvider.Configuration[apiKeyConfigurationKey]; !present || !isMaskedModelProviderSecret(remote) {
+			configuration[apiKeyConfigurationKey] = key
+		}
+	}
 	model.ID = types.StringValue(apiProvider.ID)
 	model.Name = types.StringValue(apiProvider.Name)
 	model.ProviderType = types.StringValue(apiProvider.ProviderType)
-
-	configMap, mapDiags := types.MapValueFrom(ctx, types.StringType, apiProvider.Configuration)
-	tflog.Debug(ctx, fmt.Sprintf("Mapping configuration: %v", configMap))
+	configMap, mapDiags := types.MapValueFrom(ctx, types.StringType, configuration)
 	diags.Append(mapDiags...)
 	model.Configuration = configMap
 }
@@ -146,9 +201,6 @@ func (r *ModelProviderResource) Create(ctx context.Context, req resource.CreateR
 	if resp.Diagnostics.HasError() {
 		return
 	}
-
-	// Store the planned configuration to preserve sensitive values like the full API key
-	plannedConfiguration := plan.Configuration
 
 	apiCreatePayload, err := modelProviderResourceModelToAPICreate(ctx, plan, &resp.Diagnostics)
 	if err != nil {
@@ -170,34 +222,6 @@ func (r *ModelProviderResource) Create(ctx context.Context, req resource.CreateR
 		return
 	}
 
-	// If the planned configuration for "api_key" was set, ensure it's preserved
-	// over any potentially truncated value returned by the API.
-	if !plannedConfiguration.IsNull() && !plannedConfiguration.IsUnknown() {
-		plannedConfigMap := make(map[string]string)
-		diags := plannedConfiguration.ElementsAs(ctx, &plannedConfigMap, false)
-		resp.Diagnostics.Append(diags...)
-
-		if !resp.Diagnostics.HasError() {
-			if fullAPIKey, ok := plannedConfigMap[apiKeyConfigurationKey]; ok && fullAPIKey != "" {
-				currentConfigMap := make(map[string]string)
-				// plan.Configuration might be null/unknown if API returned nothing for config
-				if !plan.Configuration.IsNull() && !plan.Configuration.IsUnknown() {
-					diags = plan.Configuration.ElementsAs(ctx, &currentConfigMap, false)
-					resp.Diagnostics.Append(diags...)
-				}
-
-				if !resp.Diagnostics.HasError() {
-					currentConfigMap[apiKeyConfigurationKey] = fullAPIKey // Overwrite with full key
-					updatedConfigTFMap, mapDiags := types.MapValueFrom(ctx, types.StringType, currentConfigMap)
-					resp.Diagnostics.Append(mapDiags...)
-					if !resp.Diagnostics.HasError() {
-						plan.Configuration = updatedConfigTFMap
-					}
-				}
-			}
-		}
-	}
-
 	tflog.Info(ctx, fmt.Sprintf("Model Provider %s created successfully with ID %s", plan.Name.ValueString(), plan.ID.ValueString()))
 	resp.Diagnostics.Append(resp.State.Set(ctx, &plan)...)
 }
@@ -208,9 +232,6 @@ func (r *ModelProviderResource) Read(ctx context.Context, req resource.ReadReque
 	if resp.Diagnostics.HasError() {
 		return
 	}
-
-	// Store the prior state's configuration to preserve sensitive values like the full API key
-	priorStateConfiguration := state.Configuration
 
 	providerID := state.ID.ValueString()
 	tflog.Debug(ctx, fmt.Sprintf("Reading Model Provider with ID: %s", providerID))
@@ -229,34 +250,6 @@ func (r *ModelProviderResource) Read(ctx context.Context, req resource.ReadReque
 	mapAPIModelProviderToResourceModel(ctx, apiProvider, &state, &resp.Diagnostics)
 	if resp.Diagnostics.HasError() {
 		return
-	}
-
-	// If the prior state's configuration for "api_key" was set, ensure it's preserved
-	// over any potentially truncated value returned by the API.
-	if !priorStateConfiguration.IsNull() && !priorStateConfiguration.IsUnknown() {
-		priorStateConfigMap := make(map[string]string)
-		diags := priorStateConfiguration.ElementsAs(ctx, &priorStateConfigMap, false)
-		resp.Diagnostics.Append(diags...)
-
-		if !resp.Diagnostics.HasError() {
-			if fullAPIKey, ok := priorStateConfigMap[apiKeyConfigurationKey]; ok && fullAPIKey != "" {
-				currentConfigMap := make(map[string]string)
-				// state.Configuration might be null/unknown if API returned nothing for config
-				if !state.Configuration.IsNull() && !state.Configuration.IsUnknown() {
-					diags = state.Configuration.ElementsAs(ctx, &currentConfigMap, false)
-					resp.Diagnostics.Append(diags...)
-				}
-
-				if !resp.Diagnostics.HasError() {
-					currentConfigMap[apiKeyConfigurationKey] = fullAPIKey // Overwrite with full key
-					updatedConfigTFMap, mapDiags := types.MapValueFrom(ctx, types.StringType, currentConfigMap)
-					resp.Diagnostics.Append(mapDiags...)
-					if !resp.Diagnostics.HasError() {
-						state.Configuration = updatedConfigTFMap
-					}
-				}
-			}
-		}
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("Successfully read Model Provider %s", providerID))
@@ -285,6 +278,38 @@ func (r *ModelProviderResource) Update(ctx context.Context, req resource.UpdateR
 	}
 	if resp.Diagnostics.HasError() {
 		return
+	}
+
+	// Corax preserves omitted secrets. Removing the optional certificate password
+	// from HCL must explicitly clear it rather than silently keep the old value.
+	var prior ModelProviderResourceModel
+	resp.Diagnostics.Append(req.State.Get(ctx, &prior)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	if prior.ProviderType.Equal(plan.ProviderType) && !prior.Configuration.IsNull() && !prior.Configuration.IsUnknown() {
+		known := make(map[string]string)
+		resp.Diagnostics.Append(prior.Configuration.ElementsAs(ctx, &known, false)...)
+		if resp.Diagnostics.HasError() {
+			return
+		}
+		for key, value := range apiUpdatePayload.Configuration {
+			if isModelProviderSecret(key) && value != known[key] && isMaskedModelProviderSecret(value) {
+				resp.Diagnostics.AddAttributeError(
+					path.Root("configuration").AtMapKey(key),
+					"Reserved credential value",
+					fmt.Sprintf("The changed credential field %q matches Corax's display-mask format. Corax would preserve the existing credential instead of storing this value. Choose a different credential value.", key),
+				)
+			}
+		}
+		if resp.Diagnostics.HasError() {
+			return
+		}
+		if _, hadPassword := known[certificatePasswordConfigurationKey]; hadPassword {
+			if _, configured := apiUpdatePayload.Configuration[certificatePasswordConfigurationKey]; !configured {
+				apiUpdatePayload.Configuration[certificatePasswordConfigurationKey] = ""
+			}
+		}
 	}
 
 	updatedProvider, err := r.client.UpdateModelProvider(ctx, providerID, *apiUpdatePayload)

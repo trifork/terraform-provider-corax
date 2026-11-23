@@ -3,24 +3,141 @@
 page_title: "corax_model_provider Resource - corax"
 subcategory: ""
 description: |-
-  Manages a Corax Model Provider. Model Providers store configurations (like API keys and endpoints) for different LLM providers (e.g., Azure OpenAI, OpenAI, Bedrock).
+  Manages a Corax Model Provider. Model Providers store configurations (like API keys, service principal credentials, and endpoints) for different LLM providers (e.g., Azure OpenAI, OpenAI, Bedrock).
 ---
 
 # corax_model_provider (Resource)
 
-Manages a Corax Model Provider. Model Providers store configurations (like API keys and endpoints) for different LLM providers (e.g., Azure OpenAI, OpenAI, Bedrock).
+Manages a Corax Model Provider. Model Providers store configurations (like API keys, service principal credentials, and endpoints) for different LLM providers (e.g., Azure OpenAI, OpenAI, Bedrock).
 
+## Azure service principal authentication
 
+The existing sensitive `configuration` map supports these provider types without
+new Terraform attributes:
+
+| `provider_type` | Configuration |
+| --- | --- |
+| `azure_ai_service_principal` | Foundry endpoint, `tenant_id`, `client_id`, `client_secret` |
+| `azure_service_principal` | Azure OpenAI endpoint, `tenant_id`, `client_id`, `client_secret` |
+| `azure_ai_service_principal_certificate` | Foundry endpoint, `tenant_id`, `client_id`, optional `certificate_password` |
+| `azure_service_principal_certificate` | Azure OpenAI endpoint, `tenant_id`, `client_id`, optional `certificate_password` |
+
+For all four types, the endpoint configuration key is `api_endpoint`.
+Existing `azure` and `azure_ai` API-key providers continue to work unchanged.
+
+This setup requires the Corax backend support in
+[corax-backend#861](https://github.com/trifork/corax-backend/pull/861), deployed
+before applying these provider types. The frontend change in
+[corax-frontend#672](https://github.com/trifork/corax-frontend/pull/672) is not
+required for Terraform operations. The authentication used by this Terraform
+provider to access the Corax API is unchanged.
+
+For certificate authentication, an administrator must register the public
+certificate in Entra, grant inference permissions, and mount a combined PEM
+certificate and matching RSA private key on every Corax backend replica. Set
+`CORAX_CERTIFICATES_DIR` on the backend and name the file
+`<lowercase-application-client-id>.pem`. The resource's `client_id` selects the
+file. Different client IDs use separate files; multiple connections may reuse
+one client ID. Terraform does not read or upload the private key and no custom
+certificate reference or per-resource file path is used. No Azure identity
+environment variables are needed by Corax for this mode.
+
+The certificate password may be omitted or set to an empty string for an
+unencrypted key. Removing it from `configuration` sends an explicit empty value
+to Corax, because an omitted API field would preserve the old password. The
+mounted key must be unencrypted before applying that change; otherwise the
+backend rejects the update with a certificate-loading error.
+
+Corax returns display masks for secrets. Create and refresh preserve locally
+known secret values when their masks match, while non-secret values continue to
+reflect API changes. A changed mask is kept in refreshed state so Terraform can
+plan to restore the configured credential.
+Import cannot recover a secret from its display mask: provide the original
+client secret or certificate password in the Terraform configuration. Secret
+rotation outside Terraform cannot always be detected from a masked response:
+changes hidden behind the same visible characters (including short-secret masks)
+remain indistinguishable. Changed credentials matching the reserved display-mask
+formats (`********` or two characters, `...`, and four characters) are rejected
+before an update, because Corax would preserve the old credential instead.
+The configuration map is sensitive in Terraform output, but its values remain
+in Terraform state. Private key bytes remain in the backend mount.
+
+Upgrading this provider does not require a state migration and retains API-key
+support. An older provider may replace client secrets/passwords with API masks
+on refresh; avoid downgrading while managing these credentials. Before rolling
+the backend back, migrate or remove connections using the new provider types,
+since an older backend cannot resolve their model calls.
+
+## Example Usage
+
+```terraform
+# Copyright (c) Trifork
+
+variable "azure_tenant_id" {
+  type = string
+}
+
+variable "azure_client_id" {
+  type = string
+}
+
+variable "azure_client_secret" {
+  type      = string
+  sensitive = true
+}
+
+variable "azure_certificate_password" {
+  type      = string
+  sensitive = true
+  default   = ""
+}
+
+# The provider block authenticates to Corax as usual, independently of the
+# identities configured below for connecting Corax to Azure model endpoints.
+provider "corax" {}
+
+resource "corax_model_provider" "foundry_client_secret" {
+  name          = "Foundry client secret"
+  provider_type = "azure_ai_service_principal"
+  configuration = {
+    api_endpoint  = "https://example.services.ai.azure.com/"
+    tenant_id     = var.azure_tenant_id
+    client_id     = var.azure_client_id
+    client_secret = var.azure_client_secret
+  }
+}
+
+# An administrator mounts the combined PEM certificate and RSA private key on
+# each Corax backend as <client-id>.pem under CORAX_CERTIFICATES_DIR.
+resource "corax_model_provider" "foundry_certificate" {
+  name          = "Foundry certificate"
+  provider_type = "azure_ai_service_principal_certificate"
+  configuration = {
+    api_endpoint         = "https://example.services.ai.azure.com/"
+    tenant_id            = var.azure_tenant_id
+    client_id            = var.azure_client_id
+    certificate_password = var.azure_certificate_password
+  }
+}
+```
 
 <!-- schema generated by tfplugindocs -->
 ## Schema
 
 ### Required
 
-- `configuration` (Map of String, Sensitive) Configuration key-value pairs for the model provider. Specific keys depend on the `provider_type`. For example, 'api_key', 'api_endpoint'. Some values may be sensitive.
+- `configuration` (Map of String, Sensitive) Configuration key-value pairs for the model provider. Specific keys depend on the `provider_type`. For example, 'api_key', 'api_endpoint', 'tenant_id', 'client_id', 'client_secret', or optional 'certificate_password'. Certificate files are mounted on the backend and selected by client ID, not uploaded through Terraform. Sensitive values are stored in Terraform state.
 - `name` (String) A user-defined name for the model provider instance.
-- `provider_type` (String) The type of the model provider (e.g., 'azure_openai', 'openai', 'bedrock'). This should match a type known to the Corax API.
+- `provider_type` (String) The type of the model provider (e.g., 'azure', 'azure_ai', 'azure_ai_service_principal', 'azure_ai_service_principal_certificate', 'openai', 'bedrock'). This should match a type known to the Corax API.
 
 ### Read-Only
 
 - `id` (String) The unique identifier for the model provider (UUID).
+
+## Import
+
+```shell
+terraform import corax_model_provider.foundry_certificate 00000000-0000-0000-0000-000000000001
+```
+
+Re-supply any masked credentials through configuration after import.

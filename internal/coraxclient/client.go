@@ -590,6 +590,10 @@ func convertConfigurationToGen(config map[string]string) map[string]interface{} 
 func convertConfigurationFromGen(config map[string]interface{}) map[string]string {
 	result := make(map[string]string, len(config))
 	for k, v := range config {
+		// Optional API values may be null; they are absent from a TF string map.
+		if v == nil {
+			continue
+		}
 		if s, ok := v.(string); ok {
 			result[k] = s
 		} else {
