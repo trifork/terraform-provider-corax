@@ -767,15 +767,17 @@ func (c *Client) CreateModelProvider(ctx context.Context, providerData ModelProv
 		convertConfigurationToGen(providerData.Configuration),
 	)
 
-	result, resp, err := c.generated.ModelProvidersAPI.CreateModelProviderV1ModelProvidersPost(c.withAuth(ctx)).
-		ModelProviderCreate(*genCreate).
-		Execute()
+	return retryCertificateReadiness(ctx, providerData.ProviderType, func(ctx context.Context) (*ModelProvider, error) {
+		result, resp, err := c.generated.ModelProvidersAPI.CreateModelProviderV1ModelProvidersPost(c.withAuth(ctx)).
+			ModelProviderCreate(*genCreate).
+			Execute()
 
-	if err != nil {
-		return nil, convertError(err, resp)
-	}
+		if err != nil {
+			return nil, convertError(err, resp)
+		}
 
-	return convertModelProvider(result), nil
+		return convertModelProvider(result), nil
+	})
 }
 
 // GetModelProvider retrieves a specific model provider by its ID.
@@ -808,15 +810,17 @@ func (c *Client) UpdateModelProvider(ctx context.Context, providerID string, pro
 		providerData.ID,
 	)
 
-	result, resp, err := c.generated.ModelProvidersAPI.UpdateModelProviderV1ModelProvidersProviderIdPut(c.withAuth(ctx), providerID).
-		ModelProviderUpdate(*genUpdate).
-		Execute()
+	return retryCertificateReadiness(ctx, providerData.ProviderType, func(ctx context.Context) (*ModelProvider, error) {
+		result, resp, err := c.generated.ModelProvidersAPI.UpdateModelProviderV1ModelProvidersProviderIdPut(c.withAuth(ctx), providerID).
+			ModelProviderUpdate(*genUpdate).
+			Execute()
 
-	if err != nil {
-		return nil, convertError(err, resp)
-	}
+		if err != nil {
+			return nil, convertError(err, resp)
+		}
 
-	return convertModelProvider(result), nil
+		return convertModelProvider(result), nil
+	})
 }
 
 // DeleteModelProvider deletes a specific model provider by its ID.

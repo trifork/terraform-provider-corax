@@ -42,6 +42,19 @@ one client ID. Terraform does not read or upload the private key and no custom
 certificate reference or per-resource file path is used. No Azure identity
 environment variables are needed by Corax for this mode.
 
+When creating or updating Azure OpenAI, Foundry, or Speech certificate providers,
+the Terraform provider retries explicit backend errors indicating that the
+certificate mount is not configured or the client-ID certificate is not yet
+readable. This handles requests reaching an old replica during a backend
+rollout. Retries start after one second, double to a maximum ten-second delay,
+and stop after ten minutes or when Terraform cancels the operation. The final
+error includes the last readiness failure. Missing mounts that never become
+ready still fail after the timeout. Other validation errors, credential errors,
+HTTP failures, and transport errors are not retried. Requests using API keys or
+client secrets retain their existing behavior. This does not deploy the backend
+or register certificates; retain Terraform dependencies on backend deployment,
+certificate registration, and inference role assignments.
+
 The certificate password may be omitted or set to an empty string for an
 unencrypted key. Removing it from `configuration` sends an explicit empty value
 to Corax, because an omitted API field would preserve the old password. The
